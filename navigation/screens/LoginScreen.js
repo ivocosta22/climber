@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     buttonContainer: {
       width: '60%',
       justifyContent: 'center',
-      marginTop: 40,g
+      marginTop: 40,
     },
     button: {
       backgroundColor: '#0782F9',

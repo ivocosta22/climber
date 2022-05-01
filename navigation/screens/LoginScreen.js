@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
-import { useNavigation } from '@react-navigation/core'
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, View, TouchableOpacity } from 'react-native'
+import React, { useState } from 'react'
+import { KeyboardAvoidingView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { TouchableOpacity } from 'react-native'
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
 import { firebaseConfig } from '../../firebase'
@@ -12,33 +12,11 @@ const LoginScreen = () => {
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    const navigation = useNavigation()
-
-    useEffect(() => {
-      const unlisten = auth.onAuthStateChanged(user => {
-        if (user) {
-          navigation.navigate("MainContainer")
-        }
-      })
-      
-      return unlisten
-    }, [])
-
     const handleSignUp = () => {
-      //TODO: When autofilling email, it adds a space. Handle that.
       createUserWithEmailAndPassword(auth, email, password)
       .then(userCredentials => {
         const user = userCredentials.user;
-        console.log('Registered in with:', user.email);
-      })
-      .catch(error => alert(error.message))
-    }
-
-    const handleLogin = () => {
-      signInWithEmailAndPassword(auth, email, password)
-      .then(userCredentials => {
-        const user = userCredentials.user;
-        console.log('Logged in with:', user.email);
+        console.log(user.email);
       })
       .catch(error => alert(error.message))
     }
@@ -66,7 +44,7 @@ const LoginScreen = () => {
 
             <View style={styles.buttonContainer}>
                 <TouchableOpacity
-                    onPress={handleLogin}
+                    onPress={() => { }}
                     style={styles.button}
                 >
                     <Text style={styles.buttonText}>Login</Text>

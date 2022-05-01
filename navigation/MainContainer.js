@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { BackHandler } from 'react-native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigation, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
 // Screen imports
@@ -16,11 +17,8 @@ const settingsName = 'Settings';
 const Tab = createBottomTabNavigator();
 
 export default function MainContainer() {
-    React.useEffect(() => {
-        const backHandler = BackHandler.addEventListener('hardwareBackPress', () => true)
-        return () => backHandler.remove()
-      }, [])
     return(
+        <NavigationContainer>
             <Tab.Navigator initialRouteName={homeName} screenOptions={({route}) => ({tabBarIcon: ({focused, color, size}) => {
                 let iconName;
                 let rn = route.name;
@@ -32,6 +30,7 @@ export default function MainContainer() {
                 } else if (rn === settingsName) {
                     iconName = focused ? 'settings' : 'settings-outline';
                 }
+
                 return <Ionicons name={iconName} size={size} color={color}/>
             },
 
@@ -46,7 +45,9 @@ export default function MainContainer() {
             <Tab.Screen name={homeName} component={HomeScreen}/>
             <Tab.Screen name={exploreName} component={ExploreScreen}/>
             <Tab.Screen name={settingsName} component={SettingsScreen}/>
-            
+
+
             </Tab.Navigator>
+        </NavigationContainer>
     );
 }

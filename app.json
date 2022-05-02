@@ -18,7 +18,13 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.ivocosta.climber"
+      "bundleIdentifier": "com.ivocosta.climber",
+      "config": {
+        "googleSignIn": {
+          "reservedClientId": "com.googleusercontent.apps.806149464222-1va0ggce9mfm69bml0up6kjru0cehajp"
+        }
+      },
+      "googleServicesFile": "./google_config/GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
@@ -26,7 +32,8 @@
         "backgroundColor": "#FFFFFF"
       },
       "softwareKeyboardLayoutMode": "pan",
-      "package": "com.ivocosta.climber"
+      "package": "com.ivocosta.climber",
+      "googleServicesFile": "./google_config/google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"

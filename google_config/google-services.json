@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "806149464222",
+    "project_id": "climber-3b27e",
+    "storage_bucket": "climber-3b27e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:806149464222:android:3f49dc437a18fbfe035b8f",
+        "android_client_info": {
+          "package_name": "com.ivocosta.climber"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "806149464222-q8ofndtok4d3muvmvcj6ul85nu2ugl9k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ivocosta.climber",
+            "certificate_hash": "41428b1120cec38a121d8dfbe8ebf6e1a8819cf3"
+          }
+        },
+        {
+          "client_id": "806149464222-fstik3i2bl6qt9ci42lvsecdtjsr3hap.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHhCUCWCzLCXj5jAoPuMfANTaeTXZcInk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "806149464222-fstik3i2bl6qt9ci42lvsecdtjsr3hap.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

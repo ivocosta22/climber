@@ -8,8 +8,8 @@ import { firebaseConfig } from '../../firebase'
 const LoginScreen = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+    const app = initializeApp(firebaseConfig)
+    const auth = getAuth(app)
     const navigation = useNavigation()
 
     useEffect(() => {
@@ -26,8 +26,8 @@ const LoginScreen = () => {
       //TODO: When autofilling email, it adds a space. Handle that.
       createUserWithEmailAndPassword(auth, email, password)
       .then(userCredentials => {
-        const user = userCredentials.user;
-        console.log('Registered in with:', user.email);
+        const user = userCredentials.user
+        console.log('Registered in with:', user.email)
       })
       .catch(error => alert(error.message))
     }
@@ -35,8 +35,8 @@ const LoginScreen = () => {
     const handleLogin = () => {
       signInWithEmailAndPassword(auth, email, password)
       .then(userCredentials => {
-        const user = userCredentials.user;
-        console.log('Logged in with:', user.email);
+        const user = userCredentials.user
+        console.log('Logged in with:', user.email)
       })
       .catch(error => alert(error.message))
     }

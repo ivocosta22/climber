@@ -1,10 +1,10 @@
-import * as React from 'react';
+import * as React from 'react'
 import LoginScreen from './navigation/screens/LoginScreen'
-import MainContainer from './navigation/MainContainer';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { NavigationContainer } from '@react-navigation/native';
+import MainContainer from './navigation/MainContainer'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { NavigationContainer } from '@react-navigation/native'
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator()
 
 function App() {
   return(
@@ -14,7 +14,7 @@ function App() {
           <Stack.Screen options={{ headerShown: false }} name="MainContainer" component={MainContainer} />
       </Stack.Navigator>
     </NavigationContainer>
-  );
+  )
 }
 
-export default App;
+export default App

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigation } from '@react-navigation/core'
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, View, TouchableOpacity } from 'react-native'
+import { KeyboardAvoidingView, StyleSheet, Text, TextInput, View, TouchableOpacity, Image } from 'react-native'
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
 import { firebaseConfig } from '../../firebase'
@@ -43,6 +43,7 @@ const LoginScreen = () => {
 
     return (
         <KeyboardAvoidingView style={styles.container} behavior="padding">
+        <Image style={styles.tinyLogo} source={require('../../assets/icon.png')}/>
             <View style={styles.inputContainer}>
                 <TextInput placeholder='Email' value={email} onChangeText={text => setEmail(text)} style={styles.input}/>
                 <TextInput placeholder='Password' value={password} onChangeText={text => setPassword(text)} style={styles.input} secureTextEntry/>
@@ -109,4 +110,10 @@ const styles = StyleSheet.create({
       fontWeight: '700',
       fontSize: 16,
     },
+    tinyLogo: {
+      height: 200,
+      width: 200,
+      marginBottom: 60,
+      alignItems: 'center',
+    }
 })

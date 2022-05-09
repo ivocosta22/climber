@@ -2,16 +2,14 @@ import * as React from 'react'
 import { BackHandler } from 'react-native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import Ionicons from 'react-native-vector-icons/Ionicons'
-
-// Screen imports
 import HomeScreen from './screens/HomeScreen'
 import ExploreScreen from './screens/ExploreScreen'
-import SettingsScreen from './screens/SettingsScreen'
+import ProfileScreen from './screens/ProfileScreen'
 
-// Screen names
+
 const homeName = 'Home'
 const exploreName = 'Explore'
-const settingsName = 'Settings'
+const profileName = 'Profile'
 
 const Tab = createBottomTabNavigator()
 
@@ -29,8 +27,8 @@ export default function MainContainer() {
                     iconName = focused ? 'home' : 'home-outline'
                 } else if (rn === exploreName) {
                     iconName = focused ? 'list' : 'list-outline'
-                } else if (rn === settingsName) {
-                    iconName = focused ? 'settings' : 'settings-outline'
+                } else if (rn === profileName) {
+                    iconName = focused ? 'person' : 'person-outline'
                 }
                 return <Ionicons name={iconName} size={size} color={color}/>
             },
@@ -45,7 +43,7 @@ export default function MainContainer() {
 
             <Tab.Screen name={homeName} component={HomeScreen}/>
             <Tab.Screen name={exploreName} component={ExploreScreen}/>
-            <Tab.Screen name={settingsName} component={SettingsScreen}/>
+            <Tab.Screen name={profileName} component={ProfileScreen}/>
             
             </Tab.Navigator>
     )

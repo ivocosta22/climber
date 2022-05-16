@@ -1,17 +1,18 @@
-import React from 'react';
-import { View, SafeAreaView, StyleSheet } from 'react-native';
-import { Avatar, Title, Caption, Text, TouchableRipple } from 'react-native-paper';
-import { getAuth } from 'firebase/auth';
+import React from 'react'
+import { View, SafeAreaView, StyleSheet } from 'react-native'
+import { Avatar, Title, Caption, Text, TouchableRipple } from 'react-native-paper'
+import { getAuth } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
 import { firebaseConfig } from '../../firebase'
 import { Restart } from 'fiction-expo-restart'
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { TouchableHighlight } from 'react-native-gesture-handler'
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 
 const ProfileScreen = () => {
     const app = initializeApp(firebaseConfig)
     const auth = getAuth(app)
-
+    
     const handleSignOut = () => {
         auth.signOut().then(() => {
             Restart()
@@ -23,7 +24,9 @@ const ProfileScreen = () => {
 
       <View style={styles.userInfoSection}>
         <View style={{flexDirection: 'row', marginTop: 15}}>
-          <Avatar.Image source={{ uri: '',}} size={80} />
+          <TouchableHighlight onPress={() => {}}>
+            <Avatar.Image source={auth.currentUser?.photoURL} defaultSource={require('../../assets/icon.png')} size={80} />
+          </TouchableHighlight>
           <View style={{marginLeft: 20}}>
             <Title style={[styles.title, { marginTop:15, marginBottom: 5 }]}>John Doe</Title>
             <Caption style={styles.caption}>@j_doe</Caption>
@@ -86,10 +89,10 @@ const ProfileScreen = () => {
         </TouchableRipple>
       </View>
     </SafeAreaView>
-  );
-};
+  )
+}
 
-export default ProfileScreen;
+export default ProfileScreen
 
 const styles = StyleSheet.create({
   container: {
@@ -140,4 +143,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 26,
   },
-});
+})

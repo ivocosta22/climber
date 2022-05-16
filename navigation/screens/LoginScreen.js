@@ -6,7 +6,7 @@ import { initializeApp } from 'firebase/app'
 import { firebaseConfig } from '../../firebase'
 
 const LoginScreen = () => {
-    const [email, setEmail] = useState('')
+    var [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const app = initializeApp(firebaseConfig)
     const auth = getAuth(app)
@@ -23,20 +23,23 @@ const LoginScreen = () => {
     }, [])
 
     const handleSignUp = () => {
-      //TODO: When autofilling email, it adds a space. Handle that.
+      email = email.replace(/\s/g,'')
       createUserWithEmailAndPassword(auth, email, password)
       .then(userCredentials => {
-        const user = userCredentials.user
-        console.log('Registered in with:', user.email)
+        //I can handle data here
+        //const user = userCredentials.user
+        //console.log('Registered in with:', user.email)
       })
       .catch(error => alert(error.message))
     }
 
     const handleLogin = () => {
+      email = email.replace(/\s/g,'')
       signInWithEmailAndPassword(auth, email, password)
       .then(userCredentials => {
-        const user = userCredentials.user
-        console.log('Logged in with:', user.email)
+        //I can handle data here
+        //const user = userCredentials.user
+        //console.log('Registered in with:', user.email)
       })
       .catch(error => alert(error.message))
     }

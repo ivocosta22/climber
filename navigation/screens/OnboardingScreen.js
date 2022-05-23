@@ -1,5 +1,5 @@
 import React from 'react'
-import { Image, StyleSheet, Button, View } from 'react-native'
+import { Image, StyleSheet } from 'react-native'
 import Onboarding from 'react-native-onboarding-swiper'
 
 const OnboardingScreen = ({navigation}) => {

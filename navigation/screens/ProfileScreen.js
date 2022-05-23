@@ -1,12 +1,10 @@
 import React from 'react'
-import { View, SafeAreaView, StyleSheet } from 'react-native'
-import { Avatar, Title, Caption, Text, TouchableRipple } from 'react-native-paper'
+import { View, SafeAreaView, StyleSheet, Text, Image, ScrollView } from 'react-native'
 import { getAuth } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
 import { firebaseConfig } from '../../firebase'
 import { Restart } from 'fiction-expo-restart'
-import { TouchableHighlight, TouchableOpacity } from 'react-native-gesture-handler'
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import { TouchableOpacity } from 'react-native-gesture-handler'
 
 
 const ProfileScreen = () => {

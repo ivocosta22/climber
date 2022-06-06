@@ -6,6 +6,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { NavigationContainer } from '@react-navigation/native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
+
 const Stack = createNativeStackNavigator()
 
 function App() {
@@ -30,7 +31,8 @@ function App() {
         <Stack.Navigator>
             <Stack.Screen options={{ headerShown: false }} name="OnboardingScreen" component={OnboardingScreen} />
             <Stack.Screen options={{ headerShown: false }} name="LoginScreen" component={LoginScreen} />
-            <Stack.Screen options={{ headerShown: false }} name="MainContainer" component={MainContainer} />
+            <Stack.Screen options={{ headerShown: false }} name="AddPostScreen" component={AddPostScreen} />
+            <Stack.Screen options={{ headerShown: false}} name="MainContainer" component={MainContainer} />
         </Stack.Navigator>
       </NavigationContainer>
     )

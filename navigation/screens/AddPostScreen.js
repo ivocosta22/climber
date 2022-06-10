@@ -26,7 +26,9 @@ const AddPostScreen = () => {
 
     const takePicture = async () => {
         if (hasCameraPermission === false) {
-            return <Text>Please give camera permissions to the aplication.</Text>
+            return <Text>Please give camera permissions to the application.</Text>
+        } else if (hasGalleryPermission === false) {
+            return <Text>Please give storage permissions to the application</Text>
         }
         if (camera) {
             const data = await camera.takePictureAsync(null)
@@ -50,7 +52,7 @@ const AddPostScreen = () => {
     return(
         <View style={styles.container}>
 
-            <View hidden style={{flex:1}}>
+            <View style={{flex:1}}>
                 <View style={styles.cameraContainer}>
                     <Camera ref={ref => setCamera(ref)}
                     style={styles.fixedRatio}

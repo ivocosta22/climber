@@ -1,11 +1,10 @@
 import React from 'react'
-import { View, StyleSheet } from 'react-native'
+import { View, StyleSheet, Button, SafeAreaView } from 'react-native'
 import { InputField, InputWrapper, AddImage } from '../../styles/AddPost'
 import ActionButton from 'react-native-action-button'
 import Icon from 'react-native-vector-icons/Ionicons'
 import * as ImagePicker from 'expo-image-picker'
 import { Camera } from 'expo-camera'
-import { Button } from 'react-native-paper'
 
 const AddPostScreen = () => {
 
@@ -14,6 +13,7 @@ const AddPostScreen = () => {
     const [camera, setCamera] = React.useState(null)
     const [image, setImage] = React.useState(null)
     const [type, setType] = React.useState(Camera.Constants.Type.back)
+    const [isInCameraView, setIsInCameraView] = React.useState(false)
 
     React.useEffect(() => {
         (async () => {
@@ -32,8 +32,13 @@ const AddPostScreen = () => {
         }
         if (camera) {
             const data = await camera.takePictureAsync(null)
+            setIsInCameraView(false)
             setImage(data.uri)
         }
+    }
+
+    const useCamera = async () => {
+        setIsInCameraView(true)
     }
 
     const pickImage = async () => {
@@ -51,44 +56,47 @@ const AddPostScreen = () => {
 
     return(
         <View style={styles.container}>
+            
+                <InputWrapper>
+                    {image != null ? <AddImage source={{uri: image}} /> : null}
+                    <InputField
+                        placeholder = "What goal did you achieve?"
+                        multiline
+                        numberOfLines={4}
+                    />
+                </InputWrapper>
+                <ActionButton buttonColor='rgba(7, 130, 249, 1)'>
+                    <ActionButton.Item
+                        buttonColor="#9b59b6"
+                        title="Take Photo"
+                        onPress={useCamera}>
+                        <Icon name="camera-outline" style={styles.actionButtonIcon} />
+                    </ActionButton.Item>
+                    <ActionButton.Item
+                        buttonColor="#e84d3c"
+                        title="Choose Photo"
+                        onPress={pickImage}>
+                        <Icon name="md-images-outline" style={styles.actionButtonIcon} />
+                    </ActionButton.Item>
+                </ActionButton>
 
-            <View style={{flex:1}}>
-                <View style={styles.cameraContainer}>
-                    <Camera ref={ref => setCamera(ref)}
-                    style={styles.fixedRatio}
-                    type={type}
-                    ratio={'1:1'}/>
+                {isInCameraView === true && (
+                <View>
+                    <View style={styles.cameraContainer}>
+                        <Camera ref={ref => setCamera(ref)}
+                        style={styles.fixedRatio}
+                        type={type}
+                        ratio={'1:1'}/>
+                    </View>
+                    <Button title="Flip Camera" onPress={() => {
+                        setType(type === Camera.Constants.Type.back ? Camera.Constants.Type.front:Camera.Constants.Type.back)
+                    }}></Button>
+                    <Button title="Take Picture" onPress={() => takePicture()}></Button>
+                    {image && <AddImage source={{uri: image}} style={{flex:1}} />}
                 </View>
-                <Button title="Flip Camera" onPress={() => {
-                    setType(type === Camera.Constants.Type.back ? Camera.Constants.Type.front:Camera.Constants.Type.back)
-                }}></Button>
-                <Button title="Take Picture" onPress={() => takePicture()}></Button>
-                {image && <Image source={{uri: image}} style={{flex:1}} />}
-            </View>
+                )}
 
-            <InputWrapper>
-            {/*image != null ? <AddImage source={{uri: image}} /> : null*/}
-                <InputField
-                    placeholder = "What goal did you achieve?"
-                    multiline
-                    numberOfLines={4}
-                />
-            </InputWrapper>
-            <ActionButton buttonColor='rgba(7, 130, 249, 1)'>
-                <ActionButton.Item
-                    buttonColor="#9b59b6"
-                    title="Take Photo"
-                    onPress={takePicture}>
-                    <Icon name="camera-outline" style={styles.actionButtonIcon} />
-                </ActionButton.Item>
-                <ActionButton.Item
-                    buttonColor="#e84d3c"
-                    title="Choose Photo"
-                    onPress={pickImage}>
-                    <Icon name="md-images-outline" style={styles.actionButtonIcon} />
-                </ActionButton.Item>
-            </ActionButton>
-        </View>
+        </View>        
     )
 }
 
@@ -110,7 +118,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row'
     },
     fixedRatio: {
-        flex: 1,
+        flex: 0,
         aspectRatio: 1
     }
 })

@@ -4,23 +4,23 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 
 const PostCard = ({item}) => {
 
-    likeIcon = item.liked ? 'heart' : 'heart-outline';
-    likeIconColor = item.liked ? '#0782F9' : '#333';
+    likeIcon = item.liked ? 'heart' : 'heart-outline'
+    likeIconColor = item.liked ? '#0782F9' : '#333'
 
     if (item.likes == 1) {
-        likeText = '1 Like';
+        likeText = '1 Like'
     } else if (item.likes > 1) {
-        likeText = item.likes + ' Likes';
+        likeText = item.likes + ' Likes'
     } else {
-        likeText = 'Like';
+        likeText = 'Like'
     }
 
     if (item.comments == 1) {
-        commentText = '1 Comment';
+        commentText = '1 Comment'
     } else if (item.comments > 1) {
-        commentText = item.comments + ' Comments';
+        commentText = item.comments + ' Comments'
     } else {
-        commentText = 'Comment';
+        commentText = 'Comment'
     }
 
     return (

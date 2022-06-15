@@ -64,7 +64,7 @@ const Posts = [
       likes: '0',
       comments: '0',
     },
-  ];
+  ]
 
 export default function HomeScreen({navigation}) {
     return(

@@ -49,7 +49,6 @@ export default function MainContainer() {
             <Tab.Screen name={exploreName} component={ExploreScreen}/>
             <Tab.Screen name={postName} component={AddPostScreen}/>
             <Tab.Screen name={profileName} component={ProfileScreen}/>
-            
             </Tab.Navigator>
     )
 }

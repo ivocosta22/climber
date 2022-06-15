@@ -1,10 +1,10 @@
 import React from 'react'
-import { View, StyleSheet, Button, SafeAreaView } from 'react-native'
+import { View, StyleSheet, Button } from 'react-native'
 import { InputField, InputWrapper, AddImage } from '../../styles/AddPost'
+import { Camera } from 'expo-camera'
 import ActionButton from 'react-native-action-button'
 import Icon from 'react-native-vector-icons/Ionicons'
 import * as ImagePicker from 'expo-image-picker'
-import { Camera } from 'expo-camera'
 
 const AddPostScreen = () => {
 

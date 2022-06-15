@@ -1,7 +1,11 @@
 import React from 'react'
-import { View, StyleSheet, Button } from 'react-native'
-import { InputField, InputWrapper, AddImage } from '../../styles/AddPost'
+import { View, StyleSheet, Button, Alert, ActivityIndicator, Text } from 'react-native'
+import { InputField, InputWrapper, AddImage, SubmitBtn, SubmitBtnText, StatusWrapper } from '../../styles/AddPost'
 import { Camera } from 'expo-camera'
+import { initializeApp } from 'firebase/app'
+import { getAuth } from 'firebase/auth'
+import { firebaseConfig } from '../../firebase'
+import { getStorage, ref, uploadBytes, uploadBytesResumable } from 'firebase/storage'
 import ActionButton from 'react-native-action-button'
 import Icon from 'react-native-vector-icons/Ionicons'
 import * as ImagePicker from 'expo-image-picker'
@@ -14,6 +18,11 @@ const AddPostScreen = () => {
     const [image, setImage] = React.useState(null)
     const [type, setType] = React.useState(Camera.Constants.Type.back)
     const [isInCameraView, setIsInCameraView] = React.useState(false)
+    const [uploading, setUploading] = React.useState(false)
+    const [transferred, setTransferred] = React.useState(0)
+    const app = initializeApp(firebaseConfig)
+    const storage = getStorage(app)
+    const auth = getAuth(app)
 
     React.useEffect(() => {
         (async () => {
@@ -48,7 +57,6 @@ const AddPostScreen = () => {
             aspect: [4, 3],
             quality: 1,
         })
-        console.log(result)
         if (!result.cancelled) {
             setImage(result.uri)
         }
@@ -56,6 +64,37 @@ const AddPostScreen = () => {
 
     const exitCamera = async () => {
         setIsInCameraView(false)
+    }
+
+    const submitPost = async () => {
+        const userid = auth.currentUser.uid
+        let filename = image.substring(image.lastIndexOf('/') + 1)
+        const extension = filename.split('.').pop()
+        const name = filename.split('.').slice(0,-1).join('.')
+        filename = name + Date.now() + '.' + extension
+
+        const storageRef = ref(storage, `posts/${userid}/${filename}`)
+        const response = await fetch(image)
+        const blob = await response.blob()
+        setUploading(true)
+        setTransferred(0)
+
+        const task = uploadBytesResumable(storageRef, blob)
+
+        task.on('state_changed', taskSnapshot => {
+            setTransferred(
+                Math.round(taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) * 100
+            )
+        })
+
+        try {
+                await task
+                setUploading(false)
+                Alert.alert('Image Uploaded!', 'Your Image has been uploaded') 
+            } catch(e) {
+                console.log(e)
+            }
+        setImage(null)
     }
 
     return(
@@ -68,6 +107,16 @@ const AddPostScreen = () => {
                         multiline
                         numberOfLines={4}
                     />
+                    {uploading ? (
+                        <StatusWrapper>
+                            <Text>{transferred} % Completed!</Text>
+                            <ActivityIndicator size="large" color='#9b59b6' />
+                        </StatusWrapper>
+                    ) : (
+                        <SubmitBtn onPress={submitPost}>
+                            <SubmitBtnText>Post</SubmitBtnText>
+                        </SubmitBtn>
+                    )}    
                 </InputWrapper>
                 <ActionButton buttonColor='rgba(7, 130, 249, 1)'>
                     <ActionButton.Item

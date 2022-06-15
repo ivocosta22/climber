@@ -54,6 +54,10 @@ const AddPostScreen = () => {
         }
     }
 
+    const exitCamera = async () => {
+        setIsInCameraView(false)
+    }
+
     return(
         <View style={styles.container}>
             
@@ -88,11 +92,11 @@ const AddPostScreen = () => {
                         type={type}
                         ratio={'1:1'}/>
                     </View>
+                    <Button title="Take Picture" onPress={() => takePicture()}></Button>
                     <Button title="Flip Camera" onPress={() => {
                         setType(type === Camera.Constants.Type.back ? Camera.Constants.Type.front:Camera.Constants.Type.back)
                     }}></Button>
-                    <Button title="Take Picture" onPress={() => takePicture()}></Button>
-                    {image && <AddImage source={{uri: image}} style={{flex:1}} />}
+                    <Button title="Exit" onPress={() => exitCamera()}></Button>
                 </View>
                 )}
 
@@ -120,5 +124,5 @@ const styles = StyleSheet.create({
     fixedRatio: {
         flex: 0,
         aspectRatio: 1
-    }
+    },
 })

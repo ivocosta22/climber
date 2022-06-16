@@ -4,8 +4,9 @@ import { InputField, InputWrapper, AddImage, SubmitBtn, SubmitBtnText, StatusWra
 import { Camera } from 'expo-camera'
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
+import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage'
+import { getFirestore, collection, addDoc, Timestamp } from 'firebase/firestore'
 import { firebaseConfig } from '../../firebase'
-import { getStorage, ref, uploadBytes, uploadBytesResumable } from 'firebase/storage'
 import ActionButton from 'react-native-action-button'
 import Icon from 'react-native-vector-icons/Ionicons'
 import * as ImagePicker from 'expo-image-picker'
@@ -20,9 +21,11 @@ const AddPostScreen = () => {
     const [isInCameraView, setIsInCameraView] = React.useState(false)
     const [uploading, setUploading] = React.useState(false)
     const [transferred, setTransferred] = React.useState(0)
+    const [post, setPost] = React.useState(null)
     const app = initializeApp(firebaseConfig)
     const storage = getStorage(app)
     const auth = getAuth(app)
+    const db = getFirestore(app)
 
     React.useEffect(() => {
         (async () => {
@@ -37,7 +40,7 @@ const AddPostScreen = () => {
         if (hasCameraPermission === false) {
             return <Text>Please give camera permissions to the application.</Text>
         } else if (hasGalleryPermission === false) {
-            return <Text>Please give storage permissions to the application</Text>
+            return <Text>Please give storage permissions to the application.</Text>
         }
         if (camera) {
             const data = await camera.takePictureAsync(null)
@@ -65,15 +68,37 @@ const AddPostScreen = () => {
     const exitCamera = async () => {
         setIsInCameraView(false)
     }
-
+    
     const submitPost = async () => {
-        const userid = auth.currentUser.uid
+        const imageUrl = await uploadImage()
+        const uid = auth.currentUser.uid
+        try {
+            const docRef = await addDoc(collection(db, 'posts'), {
+                userId: uid,
+                post: post,
+                postImg: imageUrl,
+                postTime: Timestamp.fromDate(new Date()),
+                likes: null,
+                comments: null,
+            })
+            Alert.alert('Post Published!', 'Your Post has been published successfully!')
+            setPost(null)
+            setImage(null)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    const uploadImage = async () => {
+        if (image == null) {
+            return null
+        }
         let filename = image.substring(image.lastIndexOf('/') + 1)
         const extension = filename.split('.').pop()
         const name = filename.split('.').slice(0,-1).join('.')
         filename = name + Date.now() + '.' + extension
 
-        const storageRef = ref(storage, `posts/${userid}/${filename}`)
+        const storageRef = ref(storage, `pictures/${auth.currentUser.uid}/${filename}`)
         const response = await fetch(image)
         const blob = await response.blob()
         setUploading(true)
@@ -89,12 +114,13 @@ const AddPostScreen = () => {
 
         try {
                 await task
+                const url = await getDownloadURL(storageRef)
                 setUploading(false)
-                Alert.alert('Image Uploaded!', 'Your Image has been uploaded') 
+                return url
             } catch(e) {
                 console.log(e)
+                return null
             }
-        setImage(null)
     }
 
     return(
@@ -106,11 +132,13 @@ const AddPostScreen = () => {
                         placeholder = "What goal did you achieve?"
                         multiline
                         numberOfLines={4}
+                        value={post}
+                        onChangeText={(content) => setPost(content)}
                     />
                     {uploading ? (
                         <StatusWrapper>
                             <Text>{transferred} % Completed!</Text>
-                            <ActivityIndicator size="large" color='#9b59b6' />
+                            <ActivityIndicator size="large" color='#0782F9' />
                         </StatusWrapper>
                     ) : (
                         <SubmitBtn onPress={submitPost}>

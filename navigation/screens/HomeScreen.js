@@ -1,6 +1,10 @@
 import * as React from 'react'
-import { FlatList } from 'react-native'
+import { FlatList, Alert } from 'react-native'
 import { Container } from '../../styles/FeedStyles'
+import { firebaseConfig } from '../../firebase'
+import { initializeApp } from 'firebase/app'
+import { getFirestore, collection, getDocs, orderBy, getDoc, deleteDoc, doc } from 'firebase/firestore'
+import { deleteObject, getStorage, ref } from 'firebase/storage'
 import PostCard from '../../components/PostCard'
 
 const Posts = [
@@ -67,9 +71,103 @@ const Posts = [
   ]
 
 export default function HomeScreen({navigation}) {
+    const app = initializeApp(firebaseConfig)
+    const db = getFirestore(app)
+    const storage = getStorage(app)
+    const [posts, setPosts] = React.useState(null)
+    const [loading, setLoading] = React.useState(true)
+    const [deleted, setDeleted] = React.useState(false)
+
+    const fetchPosts = async() => {
+      try {
+        const postList = []
+        //TODO: orderby is not working
+        let querySnapshot = await getDocs(collection(db, 'posts'), orderBy('postTime','desc'))
+        querySnapshot.forEach(doc => {
+          const {userId, post, postImg, postTime} = doc.data()
+          postList.push({
+            id: doc.id,
+            userId,
+            userName: 'Test Name',
+            userImg: 'http://cdn.thinglink.me/api/image/479353026285404161/1024/10/scaletowidth/0/0/1/1/false/true?wait=true',
+            postTime: postTime,
+            post,
+            postImg,
+            liked: false,
+            likes: null,
+            comments : null
+          })
+        })
+        setPosts(postList)
+
+        if (loading) {
+          setLoading(false)
+        }
+
+      } catch(e) {
+        console.log(e)
+      }
+    }
+
+    React.useEffect(() => {
+      fetchPosts()
+    },[])
+
+    React.useEffect(() => {
+      fetchPosts()
+      setDeleted(false)
+    },[deleted])
+
+    const handleDelete = (postId) => {
+      Alert.alert(
+        'Delete post',
+        'Are you sure?',
+        [
+          {
+            text: 'Cancel',
+            onPress: () => console.log('Cancel Pressed!'),
+            style: 'cancel'
+          },
+          {
+            text: 'Confirm',
+            onPress: () => deletePost(postId),
+          },  
+        ],
+        {cancelable: false}
+      )
+    }
+
+    const deletePost = async (postId) => {
+        const docRef = doc(db, 'posts', postId)
+        const docSnap = await getDoc(docRef)
+
+        if (docSnap.exists) {
+          const {postImg} = docSnap.data()
+
+          if (postImg != null) {
+            const imageRef = ref(storage, postImg)
+            deleteObject(imageRef).then(() => {
+              console.log(`${postImg} has been deleted successfully.`)
+              deleteFirestoreData(postId)
+            }).catch((e) => {
+              console.log(e)
+            })
+          } else {
+            deleteFirestoreData(postId)
+          }
+        }
+    }
+
+    const deleteFirestoreData = async (postId) => {
+      await deleteDoc(doc(db, 'posts', postId)).then(() => {
+        setDeleted(true)
+        Alert.alert('Post Deleted!', 'Your Post has been deleted successfully!')
+      }).catch(e => console.log(e))
+    }
+
     return(
         <Container>
-            <FlatList data={Posts} renderItem={({item}) => <PostCard item={item}/>} keyExtractor={item=>item.id} showsVerticalScrollIndicator={false}></FlatList>
+            <FlatList data={posts} renderItem={({item}) => <PostCard item={item} onDelete={handleDelete}/>} keyExtractor={item=>item.id} showsVerticalScrollIndicator={false}></FlatList>
         </Container>
     )
 }

@@ -10,7 +10,7 @@ background-color: #fff;
 
 export const Card = styled.View`
     background-color: #f8f8f8;
-    width: 100%;
+    width: 350px;
     margin-bottom: 20px;
     border-radius: 10px;
 `;

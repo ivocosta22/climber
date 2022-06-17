@@ -47,12 +47,12 @@ export const PostText = styled.Text`
     font-size: 14px;
     padding-left: 15px;
     padding-right: 15px;
+    margin-bottom: 15px;
 `;
 
 export const PostImg = styled.Image`
     width: 100%;
     height: 250px;
-    margin-top: 15px;
 `;
 
 export const InteractionWrapper = styled.View`

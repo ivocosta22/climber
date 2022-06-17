@@ -1,10 +1,11 @@
 import * as React from 'react'
-import { FlatList, Alert } from 'react-native'
+import { FlatList, Alert, SafeAreaView, ScrollView } from 'react-native'
 import { Container } from '../../styles/FeedStyles'
 import { firebaseConfig } from '../../firebase'
 import { initializeApp } from 'firebase/app'
 import { getFirestore, collection, getDocs, orderBy, getDoc, deleteDoc, doc } from 'firebase/firestore'
 import { deleteObject, getStorage, ref } from 'firebase/storage'
+import SkeletonLoader from 'expo-skeleton-loader'
 import PostCard from '../../components/PostCard'
 
 const Posts = [
@@ -166,8 +167,41 @@ export default function HomeScreen({navigation}) {
     }
 
     return(
+      <SafeAreaView style={{flex:1}}>
+      {loading ? <ScrollView style={[{flex: 1}]} contentContainerStyle={{alignItems: 'center'}}>
+            <SkeletonLoader boneColor='#b6b6b6' highlightColor='#fff'>
+                <SkeletonLoader.Container style={{ flexDirection: 'row', alignItems: 'center'}}>
+                    <SkeletonLoader.Item style={{width: 60, height: 60, borderRadius: 50}}/>
+                    <SkeletonLoader.Item style={{marginLeft: 20}}>
+                        <SkeletonLoader.Item style={{width: 120, height: 20, borderRadius: 4}}/>
+                        <SkeletonLoader.Item style={{ marginTop: 6, width: 80, height: 20, borderRadius: 4}}/>
+                    </SkeletonLoader.Item>
+                </SkeletonLoader.Container>
+                <SkeletonLoader.Item style={{marginTop: 10, marginBottom: 30}}>
+                    <SkeletonLoader.Item style={{width: 300, height: 20, borderRadius: 4}} />
+                    <SkeletonLoader.Item style={{marginTop: 6, width: 250, height: 20, borderRadius: 4}} />
+                    <SkeletonLoader.Item style={{marginTop: 6, width: 350, height: 200, borderRadius: 4}} />
+                </SkeletonLoader.Item>
+            </SkeletonLoader>
+            <SkeletonLoader boneColor='#b6b6b6' highlightColor='#fff'>
+                <SkeletonLoader.Container style={{ flexDirection: 'row', alignItems: 'center'}}>
+                    <SkeletonLoader.Item style={{width: 60, height: 60, borderRadius: 50}}/>
+                    <SkeletonLoader.Item style={{marginLeft: 20}}>
+                        <SkeletonLoader.Item style={{width: 120, height: 20, borderRadius: 4}}/>
+                        <SkeletonLoader.Item style={{ marginTop: 6, width: 80, height: 20, borderRadius: 4}}/>
+                    </SkeletonLoader.Item>
+                </SkeletonLoader.Container>
+                <SkeletonLoader.Item style={{marginTop: 10, marginBottom: 30}}>
+                    <SkeletonLoader.Item style={{width: 300, height: 20, borderRadius: 4}} />
+                    <SkeletonLoader.Item style={{marginTop: 6, width: 250, height: 20, borderRadius: 4}} />
+                    <SkeletonLoader.Item style={{marginTop: 6, width: 350, height: 200, borderRadius: 4}} />
+                </SkeletonLoader.Item>
+            </SkeletonLoader>
+        </ScrollView> : 
+        
         <Container>
             <FlatList data={posts} renderItem={({item}) => <PostCard item={item} onDelete={handleDelete}/>} keyExtractor={item=>item.id} showsVerticalScrollIndicator={false}></FlatList>
-        </Container>
+        </Container>}
+      </SafeAreaView>
     )
 }

@@ -5,6 +5,7 @@ import { getAuth } from 'firebase/auth'
 import { firebaseConfig } from '../firebase'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import moment from 'moment'
+import ProgressiveImage from './ProgressiveImage'
 
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
@@ -40,7 +41,15 @@ const PostCard = ({item, onDelete}) => {
                 </UserInfoText>
             </UserInfo>
             <PostText>{item.post}</PostText>
-            {item.postImg != null ? <PostImg source={{uri: item.postImg}} /> : <PostDivider />}
+            {/*item.postImg != null ? <PostImg source={{uri: item.postImg}} /> : <PostDivider />*/}
+            {item.postImg != null ? (
+                <ProgressiveImage
+                    defaultImageSource={require('../assets/default-img.jpg')}
+                    source={{uri: item.postImg}}
+                    style={{width: '100%', height: 250}}
+                    resizeMode='cover'
+                />
+            ) : <PostDivider />}
             <InteractionWrapper>
                 <Interaction active={item.liked}>
                     <Ionicons name={likeIcon} size={25} color={likeIconColor}/>

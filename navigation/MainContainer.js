@@ -3,13 +3,13 @@ import { BackHandler } from 'react-native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import HomeScreen from './screens/HomeScreen'
-import ExploreScreen from './screens/ExploreScreen'
+import ChatScreen from './screens/ChatScreen'
 import ProfileScreen from './screens/ProfileScreen'
 import AddPostScreen from './screens/AddPostScreen'
 
 
 const homeName = 'Home'
-const exploreName = 'Explore'
+const chatname = 'Messages'
 const postName = 'New Post'
 const profileName = 'Profile'
 
@@ -27,8 +27,8 @@ export default function MainContainer() {
 
                 if (rn === homeName) {
                     iconName = focused ? 'home' : 'home-outline'
-                } else if (rn === exploreName) {
-                    iconName = focused ? 'list' : 'list-outline'
+                } else if (rn === chatname) {
+                    iconName = focused ? 'chatbox-ellipses' : 'chatbox-ellipses-outline'
                 } else if (rn === postName) {
                     iconName = focused ? 'add-circle' : 'add-circle-outline'
                 } else if (rn === profileName) {
@@ -46,8 +46,8 @@ export default function MainContainer() {
             }}>
 
             <Tab.Screen name={homeName} component={HomeScreen}/>
-            <Tab.Screen name={exploreName} component={ExploreScreen}/>
             <Tab.Screen name={postName} component={AddPostScreen}/>
+            <Tab.Screen name={chatname} component={ChatScreen}/>
             <Tab.Screen name={profileName} component={ProfileScreen}/>
             </Tab.Navigator>
     )

@@ -81,9 +81,9 @@ export default function HomeScreen({navigation}) {
     const fetchPosts = async() => {
       try {
         const postList = []
-        //TODO: orderby is not working
         let querySnapshot = await getDocs(collection(db, 'posts'), orderBy('postTime','desc'))
         querySnapshot.forEach(doc => {
+          doc.data(orderBy('postTime','desc'))
           const {userId, post, postImg, postTime} = doc.data()
           postList.push({
             id: doc.id,

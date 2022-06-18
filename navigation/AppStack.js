@@ -2,6 +2,7 @@ import * as React from 'react'
 import { View } from 'react-native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
@@ -19,7 +20,7 @@ const Tab = createBottomTabNavigator()
 const FeedStack = ({navigation}) => (
   <Stack.Navigator>
     <Stack.Screen
-      name="Home"
+      name="Climber"
       component={HomeScreen}
       options={{
         headerTitleAlign: 'left',
@@ -81,7 +82,7 @@ const FeedStack = ({navigation}) => (
 
 const MessageStack = ({navigation}) => (
   <Stack.Navigator>
-    <Stack.Screen name="Messages" component={MessagesScreen} />
+    <Stack.Screen name="HomeMessages" component={MessagesScreen} />
     <Stack.Screen
       name="Chat"
       component={ChatScreen}
@@ -96,7 +97,7 @@ const MessageStack = ({navigation}) => (
 const ProfileStack = ({navigation}) => (
   <Stack.Navigator>
     <Stack.Screen
-      name="Profile"
+      name="HomeProfile"
       component={ProfileScreen}
       options={{
         headerShown: false,
@@ -120,18 +121,7 @@ const ProfileStack = ({navigation}) => (
 );
 
 
-function App() {
-
-  const getTabBarVisibility = (route) => {
-    const routeName = route.state
-      ? route.state.routes[route.state.index].name
-      : '';
-
-    if (routeName === 'Chat') {
-      return false;
-    }
-    return true;
-  };
+function AppStack() {
 
   return (
     <Tab.Navigator initialRouteName='Home' screenOptions={({route}) => ({tabBarIcon: ({focused, color, size}) => {
@@ -148,27 +138,29 @@ function App() {
       
       return <Ionicons name={iconName} color={color} size={size}/>
     },
-    })}
-      tabBarOptions={{
-        activeTintColor: '#0782F9',
-        inactiveTintColor: 'grey',
-        style: { padding: 10, height: 70 },
-        showLabel: false
-      }}>
+      tabBarActiveTintColor: '#0782F9',
+      tabBarInactiveTintColor: 'grey',
+      tabBarShowLabel: false,
+      tabBarStyle: [
+        {
+          'display': getFocusedRouteNameFromRoute(route) === 'Chat' || getFocusedRouteNameFromRoute(route) === 'AddPost' ? 'none' : 'flex'
+        },
+        null
+      ]
+    })}>
 
       <Tab.Screen
         name="Home"
         component={FeedStack}
-        options={({route}) => ({
+        options={() => ({
           headerShown: false,
         })}
       />
       <Tab.Screen
         name="Messages"
         component={MessageStack}
-        options={({route}) => ({
+        options={() => ({
           headerShown: false,
-          tabBarVisible: getTabBarVisibility(route),
         })}
       />
       <Tab.Screen
@@ -179,4 +171,4 @@ function App() {
   )
 }
 
-export default App
+export default AppStack

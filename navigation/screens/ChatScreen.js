@@ -2,6 +2,7 @@ import * as React from 'react'
 import { View } from 'react-native'
 import { GiftedChat, Bubble, Send } from 'react-native-gifted-chat'
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 const ChatScreen = () => {
 
@@ -55,8 +56,14 @@ const ChatScreen = () => {
         ) 
     }
 
+    const scrolltoBottomComponent = () => {
+        return (
+            <FontAwesome5 name='angle-double-down' size={22} color='#333'/>
+        )
+    }
+
     return (
-        <GiftedChat messages={messages} onSend={messages => onSend(messages)} user={{_id: 1,}} renderBubble={renderBubble} alwaysShowSend renderSend={renderSend}/>
+        <GiftedChat messages={messages} onSend={messages => onSend(messages)} user={{_id: 1,}} renderBubble={renderBubble} alwaysShowSend renderSend={renderSend} scrollToBottom scrollToBottomComponent={scrolltoBottomComponent}/>
     )
 }
 

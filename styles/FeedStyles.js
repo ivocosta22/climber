@@ -4,14 +4,15 @@ export const Container = styled.View`
 flex: 1;
 justify-content: center;
 align-items: center;
-padding: 20px;
+padding: 0px;
 background-color: #fff;
 `;
 
 export const Card = styled.View`
     background-color: #f8f8f8;
     width: 350px;
-    margin-bottom: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     border-radius: 10px;
 `;
 

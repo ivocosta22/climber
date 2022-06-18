@@ -30,7 +30,7 @@ export const StatusWrapper = styled.View`
 export const SubmitBtn = styled.TouchableOpacity`
     flex-direction: row;
     justify-content: center;
-    background-color: #2e64e515;
+    background-color: #0782F915;
     border-radius: 5px;
     padding: 10px 25px;
 `;
@@ -38,5 +38,5 @@ export const SubmitBtn = styled.TouchableOpacity`
 export const SubmitBtnText = styled.Text`
     font-size: 18px;
     font-weight: bold;
-    color: #2e64e5;
+    color: #0782F9;
 `;

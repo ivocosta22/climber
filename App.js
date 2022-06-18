@@ -1,15 +1,14 @@
 import * as React from 'react'
-import LoginScreen from './navigation/screens/LoginScreen'
-import MainContainer from './navigation/MainContainer'
+import { NavigationContainer } from "@react-navigation/native"
+import { createStackNavigator } from "@react-navigation/stack"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 import OnboardingScreen from './navigation/screens/OnboardingScreen'
-import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { NavigationContainer } from '@react-navigation/native'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import LoginScreen from './navigation/screens/LoginScreen'
+import AppStackScreen from './navigation/AppStack'
 
+const AppStack = createStackNavigator()
 
-const Stack = createNativeStackNavigator()
-
-function App() {
+const App = () => {
   const [isFirstLaunch, setIsFirstLaunch] = React.useState(null)
 
   React.useEffect(() => {
@@ -21,28 +20,27 @@ function App() {
         setIsFirstLaunch(false)
       }
     })
-  }, [])
+  },[])
 
-  if (isFirstLaunch === null) {
+  if (isFirstLaunch == null) {
     return null
-  } else if ( isFirstLaunch === true) {
-    return(
+  } else if (isFirstLaunch == true) {
+    return (
       <NavigationContainer>
-        <Stack.Navigator>
-            <Stack.Screen options={{ headerShown: false }} name="OnboardingScreen" component={OnboardingScreen} />
-            <Stack.Screen options={{ headerShown: false }} name="LoginScreen" component={LoginScreen} />
-            <Stack.Screen options={{ headerShown: false }} name="AddPostScreen" component={AddPostScreen} />
-            <Stack.Screen options={{ headerShown: false}} name="MainContainer" component={MainContainer} />
-        </Stack.Navigator>
+        <AppStack.Navigator headerMode='none'>
+          <AppStack.Screen name='Onboarding' component={OnboardingScreen}/>
+          <AppStack.Screen name='Login' component={LoginScreen}/>
+          <AppStack.Screen name='AppStack' component={AppStackScreen}/>
+        </AppStack.Navigator>
       </NavigationContainer>
     )
   } else {
-    return(
-    <NavigationContainer>
-        <Stack.Navigator>
-            <Stack.Screen options={{ headerShown: false }} name="LoginScreen" component={LoginScreen} />
-            <Stack.Screen options={{ headerShown: false }} name="MainContainer" component={MainContainer} />
-        </Stack.Navigator>
+    return (
+      <NavigationContainer>
+        <AppStack.Navigator headerMode='none'>
+          <AppStack.Screen name='Login' component={LoginScreen}/>
+          <AppStack.Screen name='AppStack' component={AppStackScreen}/>
+        </AppStack.Navigator>
       </NavigationContainer>
     )
   }

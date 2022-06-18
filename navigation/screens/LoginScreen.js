@@ -15,7 +15,7 @@ const LoginScreen = () => {
     useEffect(() => {
       const unlisten = auth.onAuthStateChanged(user => {
         if (user) {
-          navigation.navigate("MainContainer")
+          navigation.navigate("AppStack")
         }
       })
       

@@ -1,40 +1,74 @@
 import * as React from 'react'
-import { ScrollView } from 'react-native'
-import SkeletonLoader from 'expo-skeleton-loader'
+import { View, Text, StyleSheet, FlatList } from 'react-native'
+import { Container, Card, UserInfo, UserImgWrapper, UserImg, UserInfoText, UserName, PostTime, MessageText, TextSection } from '../../styles/MessageStyles'
 
-const ChatScreen = () => {
+const Messages = [
+    {
+        id: '1',
+        userName: 'Jenny Doe',
+        userImg: require('../../assets/users/user3.png'),
+        messageTime: '4 mins ago',
+        messageText: 'Hey there, this is my test for a post of my social app in React Native.',
+    },
+    {
+        id: '2',
+        userName: 'John Doe',
+        userImg: require('../../assets/users/user1.png'),
+        messageTime: '2 hours ago',
+        messageText: 'Hey there, this is my test for a post of my social app in React Native.',
+    },
+    {
+        id: '3',
+        userName: 'Ken William',
+        userImg: require('../../assets/users/user4.png'),
+        messageTime: '1 hour ago',
+        messageText: 'Hey there, this is my test for a post of my social app in React Native.',
+    },
+    {
+        id: '4',
+        userName: 'Selina Paul',
+        userImg: require('../../assets/users/user6.png'),
+        messageTime: '1 day ago',
+        messageText: 'Hey there, this is my test for a post of my social app in React Native.',
+    },
+    {
+        id: '5',
+        userName: 'Christy Alex',
+        userImg: require('../../assets/users/user7.png'),
+        messageTime: '2 days ago',
+        messageText: 'Hey there, this is my test for a post of my social app in React Native.',
+    },
+]
+
+const MessagesScreen = ({navigation}) => {
     return (
-        <ScrollView style={[{flex: 1}]} contentContainerStyle={{alignItems: 'center'}}>
-            <SkeletonLoader boneColor='#b6b6b6' highlightColor='#fff'>
-                <SkeletonLoader.Container style={{ flexDirection: 'row', alignItems: 'center'}}>
-                    <SkeletonLoader.Item style={{width: 60, height: 60, borderRadius: 50}}/>
-                    <SkeletonLoader.Item style={{marginLeft: 20}}>
-                        <SkeletonLoader.Item style={{width: 120, height: 20, borderRadius: 4}}/>
-                        <SkeletonLoader.Item style={{ marginTop: 6, width: 80, height: 20, borderRadius: 4}}/>
-                    </SkeletonLoader.Item>
-                </SkeletonLoader.Container>
-                <SkeletonLoader.Item style={{marginTop: 10, marginBottom: 30}}>
-                    <SkeletonLoader.Item style={{width: 300, height: 20, borderRadius: 4}} />
-                    <SkeletonLoader.Item style={{marginTop: 6, width: 250, height: 20, borderRadius: 4}} />
-                    <SkeletonLoader.Item style={{marginTop: 6, width: 350, height: 200, borderRadius: 4}} />
-                </SkeletonLoader.Item>
-            </SkeletonLoader>
-            <SkeletonLoader boneColor='#b6b6b6' highlightColor='#fff'>
-                <SkeletonLoader.Container style={{ flexDirection: 'row', alignItems: 'center'}}>
-                    <SkeletonLoader.Item style={{width: 60, height: 60, borderRadius: 50}}/>
-                    <SkeletonLoader.Item style={{marginLeft: 20}}>
-                        <SkeletonLoader.Item style={{width: 120, height: 20, borderRadius: 4}}/>
-                        <SkeletonLoader.Item style={{ marginTop: 6, width: 80, height: 20, borderRadius: 4}}/>
-                    </SkeletonLoader.Item>
-                </SkeletonLoader.Container>
-                <SkeletonLoader.Item style={{marginTop: 10, marginBottom: 30}}>
-                    <SkeletonLoader.Item style={{width: 300, height: 20, borderRadius: 4}} />
-                    <SkeletonLoader.Item style={{marginTop: 6, width: 250, height: 20, borderRadius: 4}} />
-                    <SkeletonLoader.Item style={{marginTop: 6, width: 350, height: 200, borderRadius: 4}} />
-                </SkeletonLoader.Item>
-            </SkeletonLoader>
-        </ScrollView>
+        <Container>
+            <FlatList data={Messages} keyExtractor={item=>item.id} renderItem={({item}) => (
+                <Card onPress={() => navigation.navigate('Chat', {userName: item.userName})}>
+                    <UserInfo>
+                        <UserImgWrapper>
+                            <UserImg source={item.userImg}/>
+                        </UserImgWrapper>
+                        <TextSection>
+                            <UserInfoText>
+                                <UserName>{item.userName}</UserName>    
+                                <PostTime>{item.messageTime}</PostTime>
+                            </UserInfoText>
+                            <MessageText>{item.messageText}</MessageText>
+                        </TextSection>
+                    </UserInfo>
+                </Card>
+            )}/>
+        </Container>
     )
 }
 
-export default ChatScreen
+export default MessagesScreen
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center'
+    }
+})

@@ -1,39 +1,62 @@
 import * as React from 'react'
-import { ScrollView } from 'react-native'
-import SkeletonLoader from 'expo-skeleton-loader'
+import { View } from 'react-native'
+import { GiftedChat, Bubble, Send } from 'react-native-gifted-chat'
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const ChatScreen = () => {
+
+    const [messages, setMessages] = React.useState([])
+
+        React.useEffect(() => {
+            setMessages([
+                {
+                    _id: 1,
+                    text: 'Hello developer',
+                    createdAt: new Date(),
+                    user: {
+                        _id: 2,
+                        name: 'React Native',
+                        avatar: 'https://placeimg.com/140/140/any'
+                    }
+                },
+            ])
+        }, [])
+
+    const onSend = React.useCallback((messages = []) => {
+        setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
+    }, [])
+
+    const renderSend = (props) => {
+        return (
+            <Send {...props}>
+                <View>
+                    <Ionicons name='send-sharp' size={28} color='#0782F9' style={{marginBottom: 7, marginRight: 7}} />
+                </View>
+            </Send>
+        )
+    }
+
+    const renderBubble = (props) => {
+        return (
+        <Bubble {...props} wrapperStyle={{
+            right: {
+                backgroundColor: '#0782F9'
+            },
+            left: {
+                backgroundColor: '#E2E2E2'
+            }
+        }}
+            textStyle={{
+                right: {
+                    color: '#FFF'
+                }
+            }}
+        />
+        ) 
+    }
+
     return (
-        <ScrollView style={[{flex: 1}]} contentContainerStyle={{alignItems: 'center'}}>
-            <SkeletonLoader boneColor='#b6b6b6' highlightColor='#fff'>
-                <SkeletonLoader.Container style={{ flexDirection: 'row', alignItems: 'center'}}>
-                    <SkeletonLoader.Item style={{width: 60, height: 60, borderRadius: 50}}/>
-                    <SkeletonLoader.Item style={{marginLeft: 20}}>
-                        <SkeletonLoader.Item style={{width: 120, height: 20, borderRadius: 4}}/>
-                        <SkeletonLoader.Item style={{ marginTop: 6, width: 80, height: 20, borderRadius: 4}}/>
-                    </SkeletonLoader.Item>
-                </SkeletonLoader.Container>
-                <SkeletonLoader.Item style={{marginTop: 10, marginBottom: 30}}>
-                    <SkeletonLoader.Item style={{width: 300, height: 20, borderRadius: 4}} />
-                    <SkeletonLoader.Item style={{marginTop: 6, width: 250, height: 20, borderRadius: 4}} />
-                    <SkeletonLoader.Item style={{marginTop: 6, width: 350, height: 200, borderRadius: 4}} />
-                </SkeletonLoader.Item>
-            </SkeletonLoader>
-            <SkeletonLoader boneColor='#b6b6b6' highlightColor='#fff'>
-                <SkeletonLoader.Container style={{ flexDirection: 'row', alignItems: 'center'}}>
-                    <SkeletonLoader.Item style={{width: 60, height: 60, borderRadius: 50}}/>
-                    <SkeletonLoader.Item style={{marginLeft: 20}}>
-                        <SkeletonLoader.Item style={{width: 120, height: 20, borderRadius: 4}}/>
-                        <SkeletonLoader.Item style={{ marginTop: 6, width: 80, height: 20, borderRadius: 4}}/>
-                    </SkeletonLoader.Item>
-                </SkeletonLoader.Container>
-                <SkeletonLoader.Item style={{marginTop: 10, marginBottom: 30}}>
-                    <SkeletonLoader.Item style={{width: 300, height: 20, borderRadius: 4}} />
-                    <SkeletonLoader.Item style={{marginTop: 6, width: 250, height: 20, borderRadius: 4}} />
-                    <SkeletonLoader.Item style={{marginTop: 6, width: 350, height: 200, borderRadius: 4}} />
-                </SkeletonLoader.Item>
-            </SkeletonLoader>
-        </ScrollView>
+        <GiftedChat messages={messages} onSend={messages => onSend(messages)} user={{_id: 1,}} renderBubble={renderBubble} alwaysShowSend renderSend={renderSend}/>
     )
 }
 

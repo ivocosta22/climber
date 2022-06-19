@@ -81,7 +81,7 @@ export default function HomeScreen({navigation}) {
         [
           {
             text: 'Cancel',
-            onPress: () => console.log('Cancel Pressed!'),
+            onPress: () => {},
             style: 'cancel'
           },
           {
@@ -155,7 +155,7 @@ export default function HomeScreen({navigation}) {
         </ScrollView> : 
         
         <Container>
-            <FlatList data={posts} renderItem={({item}) => <PostCard item={item} onDelete={handleDelete}/>} keyExtractor={item=>item.id} showsVerticalScrollIndicator={false}></FlatList>
+            <FlatList data={posts} renderItem={({item}) => <PostCard item={item} onDelete={handleDelete} onPress={() => navigation.navigate('HomeProfile', {userId: item.userId})}/>} keyExtractor={item=>item.id} showsVerticalScrollIndicator={false}></FlatList>
         </Container>}
       </SafeAreaView>
     )

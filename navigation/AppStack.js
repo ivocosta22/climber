@@ -23,6 +23,7 @@ const FeedStack = ({navigation}) => (
       name="Climber"
       component={HomeScreen}
       options={{
+        title: 'Home',
         headerTitleAlign: 'left',
         headerStyle: {
           shadowColor: '#fff',
@@ -45,7 +46,7 @@ const FeedStack = ({navigation}) => (
       name="AddPost"
       component={AddPostScreen}
       options={{
-        title: '',
+        title: 'Add a Post',
         headerTitleAlign: 'left',
         headerStyle: {
           backgroundColor: '#fff',
@@ -63,7 +64,7 @@ const FeedStack = ({navigation}) => (
       name="HomeProfile"
       component={ProfileScreen}
       options={{
-        title: '',
+        title: 'Profile',
         headerTitleAlign: 'left',
         headerStyle: {
           backgroundColor: '#fff',
@@ -82,7 +83,7 @@ const FeedStack = ({navigation}) => (
 
 const MessageStack = ({navigation}) => (
   <Stack.Navigator>
-    <Stack.Screen name="HomeMessages" component={MessagesScreen} />
+    <Stack.Screen name="HomeMessages" component={MessagesScreen} options={{title:"Messages"}} />
     <Stack.Screen
       name="Chat"
       component={ChatScreen}
@@ -96,20 +97,14 @@ const MessageStack = ({navigation}) => (
 
 const ProfileStack = ({navigation}) => (
   <Stack.Navigator>
-    <Stack.Screen
-      name="HomeProfile"
-      component={ProfileScreen}
-      options={{
-        headerShown: false,
-      }}
-    />
+    <Stack.Screen name="HomeProfile" component={ProfileScreen} options={{title:"Profile"}} />
     <Stack.Screen
       name="EditProfile"
       component={EditProfileScreen}
       options={{
-        headerTitle: 'Edit Profile',
+        title: 'Edit Profile',
         headerBackTitleVisible: false,
-        headerTitleAlign: 'center',
+        headerTitleAlign: 'left',
         headerStyle: {
           backgroundColor: '#fff',
           shadowColor: '#fff',
@@ -143,7 +138,7 @@ function AppStack() {
       tabBarShowLabel: false,
       tabBarStyle: [
         {
-          'display': getFocusedRouteNameFromRoute(route) === 'Chat' || getFocusedRouteNameFromRoute(route) === 'AddPost' ? 'none' : 'flex'
+          'display': getFocusedRouteNameFromRoute(route) === 'Chat' || getFocusedRouteNameFromRoute(route) === 'AddPost' || getFocusedRouteNameFromRoute(route) === 'EditProfile' ? 'none' : 'flex'
         },
         null
       ]
@@ -166,6 +161,9 @@ function AppStack() {
       <Tab.Screen
         name="Profile"
         component={ProfileStack}
+        options={() => ({
+          headerShown: false,
+        })}
       />
     </Tab.Navigator>
   )

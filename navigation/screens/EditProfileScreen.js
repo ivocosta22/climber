@@ -1,122 +1,184 @@
 import React from 'react'
-import { View, SafeAreaView, StyleSheet, Text, Image, ScrollView } from 'react-native'
+import { View, StyleSheet, Text, ImageBackground, TextInput } from 'react-native'
 import { getAuth } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
 import { firebaseConfig } from '../../firebase'
-import { Restart } from 'fiction-expo-restart'
 import { TouchableOpacity } from 'react-native-gesture-handler'
+import Ionicons from 'react-native-vector-icons/Ionicons'
+import FormButton from '../../components/FormButton'
 
 
-const ProfileScreen = () => {
+const EditProfileScreen = () => {
     const app = initializeApp(firebaseConfig)
     const auth = getAuth(app)
-    
-    const handleSignOut = () => {
-        auth.signOut().then(() => {
-            Restart()
-        }).catch(error => alert(error.message))
-    }
 
-  return (
-    <SafeAreaView style={{flex:1, backgroundColor: '#fff'}}>
-      <ScrollView style={styles.container} contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}} showsVerticalScrollIndicator={false}>
-
-        <Image style={styles.userImg} source={require('../../assets/icon.png')}/>
-        <Text style={styles.userName}>Climber</Text>
-        <Text style={styles.aboutUser}>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris a elit nisl.</Text>
-
-        <View style={styles.userBtnWrapper}>
-          <TouchableOpacity style={styles.userBtn} onPress={() => {}}>
-            <Text style={styles.userBtnTxt}>Message</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.userBtn} onPress={() => {}}>
-            <Text style={styles.userBtnTxt}>Follow</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.userInfoWrapper}>
-          <View style={styles.userInfoItem}>
-            <Text style={styles.userInfoTitle}>5</Text>
-            <Text style={styles.userInfoSubTitle}>Games</Text>
+    return (
+      <View style={styles.container}>
+          <View style={{alignItems: 'center', paddingTop: 30}}>
+            <TouchableOpacity onPress={() => this.bs.current.snapTo(0)}>
+              <View style={{height: 100, width: 100, borderRadius: 15, justifyContent: 'center', alignItems: 'center',
+                }}>
+                <ImageBackground source={{ uri:'https://lh5.googleusercontent.com/-b0PKyNuQv5s/AAAAAAAAAAI/AAAAAAAAAAA/AMZuuclxAM4M1SCBGAO7Rp-QP6zgBEUkOQ/s96-c/photo.jpg'}}
+                  style={{height: 100, width: 100}}
+                  imageStyle={{borderRadius: 15}}>
+                  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                    <Ionicons
+                      name="camera"
+                      size={35}
+                      color="#fff"
+                      style={{
+                        opacity: 0.7,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderWidth: 1,
+                        borderColor: '#fff',
+                        borderRadius: 10,
+                      }}
+                    />
+                  </View>
+                </ImageBackground>
+              </View>
+            </TouchableOpacity>
+            <Text style={{marginTop: 10, fontSize: 18, fontWeight: 'bold'}}>
+                  User Name
+            </Text>
+            {/* <Text>{user.uid}</Text> */}
           </View>
-
-          <View style={styles.userInfoItem}>
-            <Text style={styles.userInfoTitle}>100</Text>
-            <Text style={styles.userInfoSubTitle}>Followers</Text>
+  
+          <View style={styles.action}>
+            <Ionicons name="person-outline" color="#333333" size={20} style={{marginLeft: 5, marginBottom: 10}} />
+            <TextInput
+              placeholder="First Name"
+              placeholderTextColor="#666666"
+              autoCorrect={false}
+              value=''
+              onChangeText={(txt) => setUserData({...userData, fname: txt})}
+              style={styles.textInput}
+            />
           </View>
-
-          <View style={styles.userInfoItem}>
-            <Text style={styles.userInfoTitle}>100</Text>
-            <Text style={styles.userInfoSubTitle}>Following</Text>
+          <View style={styles.action}>
+            <Ionicons name="person-outline" color="#333333" size={20} style={{marginLeft: 5, marginBottom: 10}} />
+            <TextInput
+              placeholder="Last Name"
+              placeholderTextColor="#666666"
+              value=''
+              onChangeText={(txt) => setUserData({...userData, lname: txt})}
+              autoCorrect={false}
+              style={styles.textInput}
+            />
           </View>
-        </View>
-
-      </ScrollView>
-    </SafeAreaView>
-  )
-}
-
-export default ProfileScreen
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    padding: 20,
-  },
-  userImg: {
-    height: 150,
-    width: 150,
-    borderRadius: 75,
-  },
-  userName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 10,
-    marginBottom: 10,
-  },
-  aboutUser: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  userBtnWrapper: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    width: '100%',
-    marginBottom: 10,
-  },
-  userBtn: {
-    borderColor: '#0782F9',
-    borderWidth: 2,
-    borderRadius: 3,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    marginHorizontal: 5,
-  },
-  userBtnTxt: {
-    color: '#0782F9',
-  },
-  userInfoWrapper: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    marginVertical: 20,
-  },
-  userInfoItem: {
-    justifyContent: 'center',
-  },
-  userInfoTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    textAlign: 'center',
-  },
-  userInfoSubTitle: {
-    fontSize: 12,
-    color: '#666',
-    textAlign: 'center',
-  },
-})
+          <View style={styles.action}>
+            <Ionicons name="ios-clipboard-outline" color="#333333" size={20} style={{marginLeft: 5, marginBottom: 10}} />
+            <TextInput
+              multiline
+              numberOfLines={3}
+              placeholder="About Me"
+              placeholderTextColor="#666666"
+              value=''
+              onChangeText={(txt) => setUserData({...userData, about: txt})}
+              autoCorrect={true}
+              style={[styles.textInput, {height: 40}]}
+            />
+          </View>
+          <View style={styles.action}>
+          {/*TODO: SWITCH HERE TO ADD GAMES TO DB*/}
+            <Ionicons name="game-controller-outline" color="#333333" size={20} style={{marginLeft: 5, marginBottom: 10}} />
+            <TextInput
+              placeholder="Games"
+              placeholderTextColor="#666666"
+              keyboardType="number-pad"
+              autoCorrect={false}
+              value=''
+              onChangeText={(txt) => setUserData({...userData, phone: txt})}
+              style={styles.textInput}
+            />
+          </View>
+          <FormButton buttonTitle="Update" onPress={() => {}} />
+      </View>
+    );
+  };
+  
+  export default EditProfileScreen;
+  
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: '#fff',
+    },
+    commandButton: {
+      padding: 15,
+      borderRadius: 10,
+      backgroundColor: '#FF6347',
+      alignItems: 'center',
+      marginTop: 10,
+    },
+    panel: {
+      padding: 20,
+      backgroundColor: '#FFFFFF',
+      paddingTop: 20,
+      width: '100%',
+    },
+    header: {
+      backgroundColor: '#FFFFFF',
+      shadowColor: '#333333',
+      shadowOffset: {width: -1, height: -3},
+      shadowRadius: 2,
+      shadowOpacity: 0.4,
+      paddingTop: 20,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+    },
+    panelHeader: {
+      alignItems: 'center',
+    },
+    panelHandle: {
+      width: 40,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: '#00000040',
+      marginBottom: 10,
+    },
+    panelTitle: {
+      fontSize: 27,
+      height: 35,
+    },
+    panelSubtitle: {
+      fontSize: 14,
+      color: 'gray',
+      height: 30,
+      marginBottom: 10,
+    },
+    panelButton: {
+      padding: 13,
+      borderRadius: 10,
+      backgroundColor: '#2e64e5',
+      alignItems: 'center',
+      marginVertical: 7,
+    },
+    panelButtonTitle: {
+      fontSize: 17,
+      fontWeight: 'bold',
+      color: 'white',
+    },
+    action: {
+      flexDirection: 'row',
+      marginTop: 10,
+      marginBottom: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: '#f2f2f2',
+      paddingBottom: 5,
+    },
+    actionError: {
+      flexDirection: 'row',
+      marginTop: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: '#FF0000',
+      paddingBottom: 5,
+    },
+    textInput: {
+      flex: 1,
+      marginTop: -12,
+      paddingLeft: 10,
+      color: '#333333',
+    },
+  });

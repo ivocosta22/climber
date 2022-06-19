@@ -1,16 +1,18 @@
 import React from 'react'
-import { Card, UserInfo, UserImg, UserName, UserInfoText, PostTime, PostText, PostImg, InteractionWrapper, Interaction, InteractionText, PostDivider } from '../styles/FeedStyles'
+import { Card, UserInfo, UserImg, UserName, UserInfoText, PostTime, PostText, InteractionWrapper, Interaction, InteractionText, PostDivider } from '../styles/FeedStyles'
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { firebaseConfig } from '../firebase'
+import { TouchableOpacity } from 'react-native-gesture-handler'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import moment from 'moment'
 import ProgressiveImage from './ProgressiveImage'
 
+
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 
-const PostCard = ({item, onDelete}) => {
+const PostCard = ({item, onDelete, onPress}) => {
 
     likeIcon = item.liked ? 'heart' : 'heart-outline'
     likeIconColor = item.liked ? '#0782F9' : '#333'
@@ -36,12 +38,13 @@ const PostCard = ({item, onDelete}) => {
             <UserInfo>
                 <UserImg source={{uri: item.userImg}}></UserImg>
                 <UserInfoText>
+                <TouchableOpacity onPress={onPress}>
                     <UserName>{item.userName}</UserName>
+                </TouchableOpacity>
                     <PostTime>{moment(item.postTime.toDate()).fromNow()}</PostTime>
                 </UserInfoText>
             </UserInfo>
             <PostText>{item.post}</PostText>
-            {/*item.postImg != null ? <PostImg source={{uri: item.postImg}} /> : <PostDivider />*/}
             {item.postImg != null ? (
                 <ProgressiveImage
                     defaultImageSource={require('../assets/default-img.png')}

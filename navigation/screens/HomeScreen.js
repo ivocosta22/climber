@@ -8,7 +8,6 @@ import { getFirestore, collection, getDocs, orderBy, getDoc, deleteDoc, doc } fr
 import { deleteObject, getStorage, ref } from 'firebase/storage'
 import SkeletonLoader from 'expo-skeleton-loader'
 import PostCard from '../../components/PostCard'
-import { ActivityIndicator } from 'react-native-paper';
 
 export default function HomeScreen({navigation}) {
     const app = initializeApp(firebaseConfig)
@@ -48,7 +47,6 @@ export default function HomeScreen({navigation}) {
       }, [route]),)
 
     const fetchPosts = async() => {
-      setPosts(null)
       try {
         const postList = []
         let querySnapshot = await getDocs(collection(db, 'posts'), orderBy('postTime','desc'))

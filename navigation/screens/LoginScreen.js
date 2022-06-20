@@ -7,18 +7,23 @@ import { firebaseConfig } from '../../firebase'
 
 const LoginScreen = () => {
     var [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
+    var [password, setPassword] = useState('')
     const app = initializeApp(firebaseConfig)
     const auth = getAuth(app)
     const navigation = useNavigation()
+
+    this.emailTextInput = React.createRef()
+    this.passwordTextInput = React.createRef()
 
     useEffect(() => {
       const unlisten = auth.onAuthStateChanged(user => {
         if (user) {
           navigation.navigate('AppStack')
+        } else {
+          this.emailTextInput.current.clear()
+          this.passwordTextInput.current.clear()
         }
       })
-      
       return unlisten
     }, [])
 
@@ -26,9 +31,7 @@ const LoginScreen = () => {
       email = email.replace(/\s/g,'')
       createUserWithEmailAndPassword(auth, email, password)
       .then(userCredentials => {
-        //I can handle data here
-        //const user = userCredentials.user
-        //console.log('Registered in with:', user.email)
+        this.emailTextInput.current.clear()
       })
       .catch(error => alert(error.message))
     }
@@ -37,9 +40,7 @@ const LoginScreen = () => {
       email = email.replace(/\s/g,'')
       signInWithEmailAndPassword(auth, email, password)
       .then(userCredentials => {
-        //I can handle data here
-        //const user = userCredentials.user
-        //console.log('Registered in with:', user.email)
+        this.passwordTextInput.current.clear()
       })
       .catch(error => alert(error.message))
     }
@@ -48,8 +49,8 @@ const LoginScreen = () => {
         <KeyboardAvoidingView style={styles.container} behavior="padding">
         <Image style={styles.tinyLogo} source={require('../../assets/icon.png')}/>
             <View style={styles.inputContainer}>
-                <TextInput placeholder='Email' value={email} onChangeText={text => setEmail(text)} style={styles.input}/>
-                <TextInput placeholder='Password' value={password} onChangeText={text => setPassword(text)} style={styles.input} secureTextEntry/>
+                <TextInput placeholder='Email' value={email} onChangeText={text => setEmail(text)} style={styles.input} ref={this.emailTextInput}/>
+                <TextInput placeholder='Password' value={password} onChangeText={text => setPassword(text)} style={styles.input} ref={this.passwordTextInput} secureTextEntry/>
             </View>
 
             <View style={styles.buttonContainer}>

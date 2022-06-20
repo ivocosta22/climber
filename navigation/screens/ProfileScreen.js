@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, SafeAreaView, StyleSheet, Text, Image, ScrollView } from 'react-native'
+import { View, SafeAreaView, StyleSheet, Text, Image, ScrollView, Alert, RefreshControl } from 'react-native'
 import { getAuth } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
 import { getFirestore, collection, getDocs, orderBy, getDoc, deleteDoc, doc, where } from 'firebase/firestore'
@@ -15,13 +15,25 @@ const ProfileScreen = ({navigation, route}) => {
     const [posts, setPosts] = React.useState([])
     const [loading, setLoading] = React.useState(true)
     const [deleted, setDeleted] = React.useState(false)
+    const [refreshing, setRefreshing] = React.useState(false)
+
+    const wait = (timeout) => {
+      return new Promise(resolve => setTimeout(resolve, timeout))
+    }
+
+    const onRefresh = React.useCallback(() => {
+      setRefreshing(true)
+      wait(2000).then(() => {
+        fetchPosts()
+        setRefreshing(false)
+      })
+    }, [])
 
     const fetchPosts = async() => {
       try {
         const postList = []
         let querySnapshot = await getDocs(collection(db, 'posts'), where('userId', '==', `${auth.currentUser.uid}`), orderBy('postTime', 'desc'))
         querySnapshot.forEach(doc => {
-          doc.data(orderBy('postTime','desc'))
           const {userId, post, postImg, postTime} = doc.data()
           postList.push({
             id: doc.id,
@@ -35,6 +47,9 @@ const ProfileScreen = ({navigation, route}) => {
             likes: null,
             comments : null
           })
+        })
+        postList.sort(function(x, y) {
+          return y.postTime - x.postTime
         })
         setPosts(postList)
 
@@ -51,20 +66,68 @@ const ProfileScreen = ({navigation, route}) => {
       fetchPosts()
     },[])
 
-    const handleDelete = () => {
+    React.useEffect(() => {
+      fetchPosts()
+      setDeleted(false)
+    },[deleted])
 
+    const handleDelete = (postId) => {
+      Alert.alert(
+        'Delete post',
+        'Are you sure?',
+        [
+          {
+            text: 'Cancel',
+            onPress: () => {},
+            style: 'cancel'
+          },
+          {
+            text: 'Confirm',
+            onPress: () => deletePost(postId),
+          },  
+        ],
+        {cancelable: false}
+      )
     }
 
-    const handleSignOut = () => {
-      auth.signOut().then(() => {
-        console.log('signed out')
-        navigation.navigate('LoginScreen')
+    const deletePost = async (postId) => {
+      const docRef = doc(db, 'posts', postId)
+      const docSnap = await getDoc(docRef)
+
+      if (docSnap.exists) {
+        const {postImg} = docSnap.data()
+
+        if (postImg != null) {
+          const imageRef = ref(storage, postImg)
+          deleteObject(imageRef).then(() => {
+            //console.log(`${postImg} has been deleted successfully.`)
+            deleteFirestoreData(postId)
+          }).catch((e) => {
+            console.log(e)
+          })
+        } else {
+          deleteFirestoreData(postId)
+        }
+      }
+  }
+
+  const deleteFirestoreData = async (postId) => {
+    await deleteDoc(doc(db, 'posts', postId)).then(() => {
+      setDeleted(true)
+      Alert.alert('Post Deleted!', 'Your Post has been deleted successfully!')
+    }).catch(e => console.log(e))
+  }
+
+  const handleSignOut = async () => {
+      await auth.signOut().then(() => {
+        navigation.navigate('Login')
       }).catch(error => alert(error.message))
   }
 
   return (
     <SafeAreaView style={{flex:1, backgroundColor: '#fff'}}>
-      <ScrollView style={styles.container} contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.container} contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}} showsVerticalScrollIndicator={false} 
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
 
         <Image style={styles.userImg} source={require('../../assets/users/user1.png')}/>
         <Text style={styles.userName}>Jenny Doe</Text>
@@ -86,7 +149,7 @@ const ProfileScreen = ({navigation, route}) => {
               <TouchableOpacity style={styles.userBtn} onPress={() => {navigation.navigate('EditProfile')}}>
                 <Text style={styles.userBtnTxt}>Edit</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.userBtn} onPress={() => {handleSignOut}}>
+              <TouchableOpacity style={styles.userBtn} onPress={handleSignOut}>
                 <Text style={styles.userBtnTxt}>Logout</Text>
               </TouchableOpacity>
             </>

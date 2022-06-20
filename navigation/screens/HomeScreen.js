@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { FlatList, Alert, SafeAreaView, ScrollView, BackHandler } from 'react-native'
+import { FlatList, Alert, SafeAreaView, ScrollView, BackHandler, RefreshControl } from 'react-native'
 import { useRoute, useFocusEffect } from '@react-navigation/native';
 import { Container } from '../../styles/FeedStyles'
 import { firebaseConfig } from '../../firebase'
@@ -8,6 +8,7 @@ import { getFirestore, collection, getDocs, orderBy, getDoc, deleteDoc, doc } fr
 import { deleteObject, getStorage, ref } from 'firebase/storage'
 import SkeletonLoader from 'expo-skeleton-loader'
 import PostCard from '../../components/PostCard'
+import { ActivityIndicator } from 'react-native-paper';
 
 export default function HomeScreen({navigation}) {
     const app = initializeApp(firebaseConfig)
@@ -16,9 +17,21 @@ export default function HomeScreen({navigation}) {
     const [posts, setPosts] = React.useState(null)
     const [loading, setLoading] = React.useState(true)
     const [deleted, setDeleted] = React.useState(false)
+    const [refreshing, setRefreshing] = React.useState(false)
+
+    const wait = (timeout) => {
+      return new Promise(resolve => setTimeout(resolve, timeout))
+    }
+
+    const onRefresh = React.useCallback(() => {
+      setRefreshing(true)
+      wait(2000).then(() => {
+        fetchPosts()
+        setRefreshing(false)
+      })
+    }, [])
 
     const route = useRoute();
-      
     useFocusEffect(
       React.useCallback(() => {
         const onBackPress = () => {
@@ -35,11 +48,11 @@ export default function HomeScreen({navigation}) {
       }, [route]),)
 
     const fetchPosts = async() => {
+      setPosts(null)
       try {
         const postList = []
         let querySnapshot = await getDocs(collection(db, 'posts'), orderBy('postTime','desc'))
         querySnapshot.forEach(doc => {
-          doc.data(orderBy('postTime','desc'))
           const {userId, post, postImg, postTime} = doc.data()
           postList.push({
             id: doc.id,
@@ -53,6 +66,9 @@ export default function HomeScreen({navigation}) {
             likes: null,
             comments : null
           })
+        })
+        postList.sort(function(x, y) {
+          return y.postTime - x.postTime
         })
         setPosts(postList)
 
@@ -103,7 +119,7 @@ export default function HomeScreen({navigation}) {
           if (postImg != null) {
             const imageRef = ref(storage, postImg)
             deleteObject(imageRef).then(() => {
-              console.log(`${postImg} has been deleted successfully.`)
+              //console.log(`${postImg} has been deleted successfully.`)
               deleteFirestoreData(postId)
             }).catch((e) => {
               console.log(e)
@@ -155,7 +171,7 @@ export default function HomeScreen({navigation}) {
         </ScrollView> : 
         
         <Container>
-            <FlatList data={posts} renderItem={({item}) => <PostCard item={item} onDelete={handleDelete} onPress={() => navigation.navigate('HomeProfile', {userId: item.userId})}/>} keyExtractor={item=>item.id} showsVerticalScrollIndicator={false}></FlatList>
+            <FlatList data={posts} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>} renderItem={({item}) => <PostCard item={item} onDelete={handleDelete} onPress={() => navigation.navigate('HomeProfile', {userId: item.userId})}/>} keyExtractor={item=>item.id} showsVerticalScrollIndicator={false}></FlatList>
         </Container>}
       </SafeAreaView>
     )

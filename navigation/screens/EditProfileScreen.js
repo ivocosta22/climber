@@ -1,7 +1,7 @@
 import React from 'react'
 import { useNavigation } from '@react-navigation/core'
 import { View, StyleSheet, Text, ImageBackground, TextInput, Alert } from 'react-native'
-import { EmailAuthProvider, getAuth, reauthenticateWithCredential, sendEmailVerification, updateEmail, updatePassword, updateProfile } from 'firebase/auth'
+import { EmailAuthProvider, getAuth, reauthenticateWithCredential, updatePassword, updateProfile, verifyBeforeUpdateEmail } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
 import { firebaseConfig } from '../../firebase'
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
@@ -92,11 +92,11 @@ import FormButton from '../../components/FormButton'
       await editAboutMe()
 
       await editEmail()
-
+      
       await editPassword()
 
       if ((email != auth.currentUser.email && email != null) || (password != '' && password != null)) {
-        Alert.alert('Email changed', 'Your email/password was changed. Please re-login into the app.')
+        Alert.alert('Account Changed', 'Your email/password was changed. Please verify your new email if you changed it and re-login into the app')
         auth.signOut().then(() => {
           navigation.navigate('Login')
         })
@@ -149,7 +149,7 @@ import FormButton from '../../components/FormButton'
         const credentialsforEmail = EmailAuthProvider.credential(auth.currentUser.email, currentpassword)
 
         await reauthenticateWithCredential(auth.currentUser, credentialsforEmail).then(() => {
-          updateEmail(auth.currentUser, email).catch(error => {
+          verifyBeforeUpdateEmail(auth.currentUser, email).catch(error => {
             Alert.alert('Error!', error.message)
           })
         }).catch(error => {

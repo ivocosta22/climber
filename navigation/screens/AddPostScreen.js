@@ -11,6 +11,7 @@ import ActionButton from 'react-native-action-button'
 import Icon from 'react-native-vector-icons/Ionicons'
 import AppLoader from '../../components/AppLoader'
 import * as ImagePicker from 'expo-image-picker'
+import * as Database from 'firebase/database'
 
 const AddPostScreen = () => {
     const [hasCameraPermission, setHasCameraPermission] = React.useState(null)
@@ -23,6 +24,7 @@ const AddPostScreen = () => {
     const storage = getStorage(app)
     const auth = getAuth(app)
     const db = getFirestore(app)
+    const database = Database.getDatabase(app)
 
     //TODO: Do not allow empty posts
     React.useEffect(() => {
@@ -65,19 +67,27 @@ const AddPostScreen = () => {
             }
         }
     }
-    
+    //TODO: search for ; in the project
     const submitPost = async () => {
         const imageUrl = await uploadImage()
         try {
-            const docRef = await addDoc(collection(db, 'posts'), {
-                userId: auth.currentUser.uid,
-                post: post,
-                postImg: imageUrl,
-                postTime: Timestamp.fromDate(new Date()),
-                likes: '0',
-                comments: '0'
+            Database.get(Database.child(Database.ref(database), `users/${auth.currentUser.uid}/`)).then((snapshot) => {
+                let username = snapshot.child('username').toJSON()
+                let photoURL = snapshot.child('photoURL').toJSON()
+                const docRef = addDoc(collection(db, 'posts'), {
+                    userId: auth.currentUser.uid,
+                    userName: username,
+                    userImg: photoURL,
+                    post: post,
+                    postImg: imageUrl,
+                    postTime: Timestamp.fromDate(new Date()),
+                    likes: '0',
+                    comments: '0'
+                })
+                Alert.alert('Post Published!', 'Your Post has been published successfully!')
+            }).catch((error) => {
+                Alert.alert('Error!', error.message)
             })
-            Alert.alert('Post Published!', 'Your Post has been published successfully!')
             setPost(null)
             setImage(null)
             navigation.goBack()

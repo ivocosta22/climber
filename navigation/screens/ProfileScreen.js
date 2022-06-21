@@ -70,18 +70,20 @@ const ProfileScreen = ({navigation, route}) => {
         let querySnapshot = await getDocs(collection(db, 'posts'), orderBy('postTime','desc'))
         querySnapshot.forEach(doc => {
           const {userId, post, postImg, postTime, likes, comments} = doc.data()
-          postList.push({
-            id: doc.id,
-            userId,
-            userName: username,
-            userImg: photoURL,
-            postTime: postTime,
-            post,
-            postImg,
-            liked: false,
-            likes: likes,
-            comments : comments
-          })
+          if (userId == auth.currentUser.uid) {
+            postList.push({
+              id: doc.id,
+              userId,
+              userName: username,
+              userImg: photoURL,
+              postTime: postTime,
+              post,
+              postImg,
+              liked: false,
+              likes: likes,
+              comments : comments
+            })
+          }
         })
         postList.sort(function(x, y) {
           return y.postTime - x.postTime

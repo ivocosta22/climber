@@ -14,6 +14,7 @@ import AppLoader from '../../components/AppLoader'
 
 export default function HomeScreen({navigation}) {
   //TODO: remove warnings from app as much as possible
+  //TODO: refresh when there's no posts
     const app = initializeApp(firebaseConfig)
     const db = getFirestore(app)
     const storage = getStorage(app)
@@ -57,24 +58,14 @@ export default function HomeScreen({navigation}) {
     const fetchPosts = async() => {
       try {
         const postList = []
-        let username = null
-        let photoURL = null
-
-        Database.get(Database.child(Database.ref(database), `users/${auth.currentUser.uid}/`)).then((snapshot) => {
-          username = snapshot.child('username').toJSON()
-          photoURL = snapshot.child('photoURL').toJSON()
-          }).catch((error) => {
-            console.error(error)
-          });
-
         let querySnapshot = await getDocs(collection(db, 'posts'), orderBy('postTime','desc'))
         querySnapshot.forEach(doc => {
-          const {userId, post, postImg, postTime, likes, comments} = doc.data()
+          const {userId ,userName, userImg, post, postImg, postTime, likes, comments} = doc.data()
           postList.push({
             id: doc.id,
             userId,
-            userName: username,
-            userImg: photoURL,
+            userName: userName,
+            userImg: userImg,
             postTime: postTime,
             post,
             postImg,

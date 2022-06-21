@@ -1,13 +1,13 @@
 import React from 'react'
 import { FlatList, Alert, SafeAreaView, ScrollView, BackHandler, RefreshControl } from 'react-native'
-import { useRoute, useFocusEffect } from '@react-navigation/native';
+import { useRoute, useFocusEffect } from '@react-navigation/native'
 import { Container } from '../../styles/FeedStyles'
 import { firebaseConfig } from '../../firebase'
 import { initializeApp } from 'firebase/app'
 import { getFirestore, collection, getDocs, orderBy, getDoc, deleteDoc, doc } from 'firebase/firestore'
 import { deleteObject, getStorage, ref } from 'firebase/storage'
-import { getAuth } from 'firebase/auth';
-import * as Database from 'firebase/database';
+import { getAuth } from 'firebase/auth'
+import * as Database from 'firebase/database'
 import SkeletonLoader from 'expo-skeleton-loader'
 import PostCard from '../../components/PostCard'
 import AppLoader from '../../components/AppLoader'
@@ -39,20 +39,20 @@ export default function HomeScreen({navigation}) {
       })
     }, [])
 
-    const route = useRoute();
+    const route = useRoute()
     useFocusEffect(
       React.useCallback(() => {
         const onBackPress = () => {
           if (route.name === 'Climber') {
-            return true;
+            return true
           } else {
-            return false;
+            return false
           }
         }
 
-        BackHandler.addEventListener('hardwareBackPress', onBackPress);
+        BackHandler.addEventListener('hardwareBackPress', onBackPress)
         return () =>
-          BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+        BackHandler.removeEventListener('hardwareBackPress', onBackPress)
       }, [route]),)
       
     const fetchPosts = async() => {

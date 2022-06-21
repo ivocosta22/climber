@@ -17,8 +17,8 @@ class ProgressiveImage extends React.Component {
         Animated.timing(this.imageAnimated, {
           toValue: 1,
           useNativeDriver: true,
-        }).start();
-      };
+        }).start()
+      }
 
     render() {
         const { defaultImageSource, source, style, ...props} = this.props

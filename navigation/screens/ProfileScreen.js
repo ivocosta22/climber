@@ -47,7 +47,7 @@ const ProfileScreen = ({navigation, route}) => {
           }
         }).catch((error) => {
           console.error(error)
-        });
+        })
     }
 
     const fetchPosts = async() => {
@@ -65,7 +65,7 @@ const ProfileScreen = ({navigation, route}) => {
           setFollowing(Object.keys(followingnumber).length)
           }).catch((error) => {
             console.error(error)
-          });
+          })
 
         let querySnapshot = await getDocs(collection(db, 'posts'), orderBy('postTime','desc'))
         querySnapshot.forEach(doc => {

@@ -67,7 +67,7 @@ const AddPostScreen = () => {
             }
         }
     }
-    //TODO: search for ; in the project
+    
     const submitPost = async () => {
         const imageUrl = await uploadImage()
         try {

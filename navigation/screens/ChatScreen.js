@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { View } from 'react-native'
 import { GiftedChat, Bubble, Send } from 'react-native-gifted-chat'
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import Ionicons from 'react-native-vector-icons/Ionicons'
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
 
 const ChatScreen = () => {
 

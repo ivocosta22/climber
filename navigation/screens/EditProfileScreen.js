@@ -289,7 +289,7 @@ import FormButton from '../../components/FormButton'
     )
   }
   
-  export default EditProfileScreen;
+  export default EditProfileScreen
   
   const styles = StyleSheet.create({
     container: {

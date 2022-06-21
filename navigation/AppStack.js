@@ -3,8 +3,8 @@ import { View } from 'react-native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native'
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import Ionicons from 'react-native-vector-icons/Ionicons'
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
 
 import HomeScreen from './screens/HomeScreen'
 import ChatScreen from './screens/ChatScreen'
@@ -79,7 +79,7 @@ const FeedStack = ({navigation}) => (
       }}
     />
   </Stack.Navigator>
-);
+)
 
 const MessageStack = ({navigation}) => (
   <Stack.Navigator>
@@ -93,7 +93,7 @@ const MessageStack = ({navigation}) => (
       })}
     />
   </Stack.Navigator>
-);
+)
 
 const ProfileStack = ({navigation}) => (
   <Stack.Navigator>
@@ -113,8 +113,7 @@ const ProfileStack = ({navigation}) => (
       }}
     />
   </Stack.Navigator>
-);
-
+)
 
 function AppStack() {
 

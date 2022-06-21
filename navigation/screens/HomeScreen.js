@@ -6,18 +6,24 @@ import { firebaseConfig } from '../../firebase'
 import { initializeApp } from 'firebase/app'
 import { getFirestore, collection, getDocs, orderBy, getDoc, deleteDoc, doc } from 'firebase/firestore'
 import { deleteObject, getStorage, ref } from 'firebase/storage'
+import { getAuth } from 'firebase/auth';
+import * as Database from 'firebase/database';
 import SkeletonLoader from 'expo-skeleton-loader'
 import PostCard from '../../components/PostCard'
+
 
 export default function HomeScreen({navigation}) {
     const app = initializeApp(firebaseConfig)
     const db = getFirestore(app)
     const storage = getStorage(app)
+    const database = Database.getDatabase(app)
+    const auth = getAuth(app)
     const [posts, setPosts] = React.useState(null)
     const [loading, setLoading] = React.useState(true)
     const [deleted, setDeleted] = React.useState(false)
     const [refreshing, setRefreshing] = React.useState(false)
 
+    //TODO: other's users posts are showing up as my own, except i cant delete them
     const wait = (timeout) => {
       return new Promise(resolve => setTimeout(resolve, timeout))
     }
@@ -45,24 +51,34 @@ export default function HomeScreen({navigation}) {
         return () =>
           BackHandler.removeEventListener('hardwareBackPress', onBackPress);
       }, [route]),)
-
+      
     const fetchPosts = async() => {
       try {
         const postList = []
+        let username = null
+        let photoURL = null
+
+        Database.get(Database.child(Database.ref(database), `users/${auth.currentUser.uid}/`)).then((snapshot) => {
+          username = snapshot.child('username').toJSON()
+          photoURL = snapshot.child('photoURL').toJSON()
+          }).catch((error) => {
+            console.error(error)
+          });
+
         let querySnapshot = await getDocs(collection(db, 'posts'), orderBy('postTime','desc'))
         querySnapshot.forEach(doc => {
-          const {userId, post, postImg, postTime} = doc.data()
+          const {userId, post, postImg, postTime, likes, comments} = doc.data()
           postList.push({
             id: doc.id,
             userId,
-            userName: 'Test Name',
-            userImg: 'http://cdn.thinglink.me/api/image/479353026285404161/1024/10/scaletowidth/0/0/1/1/false/true?wait=true',
+            userName: username,
+            userImg: photoURL,
             postTime: postTime,
             post,
             postImg,
             liked: false,
-            likes: null,
-            comments : null
+            likes: likes,
+            comments : comments
           })
         })
         postList.sort(function(x, y) {
@@ -117,7 +133,6 @@ export default function HomeScreen({navigation}) {
           if (postImg != null) {
             const imageRef = ref(storage, postImg)
             deleteObject(imageRef).then(() => {
-              //console.log(`${postImg} has been deleted successfully.`)
               deleteFirestoreData(postId)
             }).catch((e) => {
               console.log(e)

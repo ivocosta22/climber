@@ -2,6 +2,7 @@ import React from 'react'
 import { View, SafeAreaView, StyleSheet, Text, Image, ScrollView, Alert, RefreshControl } from 'react-native'
 import { getAuth } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
+import { get, getDatabase, ref, child } from 'firebase/database'
 import { getFirestore, collection, getDocs, orderBy, getDoc, deleteDoc, doc, where } from 'firebase/firestore'
 import { firebaseConfig } from '../../firebase'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -12,10 +13,16 @@ const ProfileScreen = ({navigation, route}) => {
     const app = initializeApp(firebaseConfig)
     const auth = getAuth(app)
     const db = getFirestore(app)
+    const database = getDatabase(app)
     const [posts, setPosts] = React.useState([])
     const [loading, setLoading] = React.useState(true)
     const [deleted, setDeleted] = React.useState(false)
     const [refreshing, setRefreshing] = React.useState(false)
+    const [userPhotoURL, setUserPhotoURL] = React.useState(null)
+    const [useraboutme, setUserAboutMe] = React.useState(null)
+    const [postsnumber, setPostsNumber] = React.useState(null)
+    const [followers, setFollowers] = React.useState(null)
+    const [following, setFollowing] = React.useState(null)
 
     const wait = (timeout) => {
       return new Promise(resolve => setTimeout(resolve, timeout))
@@ -25,33 +32,62 @@ const ProfileScreen = ({navigation, route}) => {
       setRefreshing(true)
       wait(2000).then(() => {
         fetchPosts()
+        getuserInfo()
+        setUserPhotoURL(auth.currentUser.photoURL)
         setRefreshing(false)
       })
     }, [])
 
+    const getuserInfo = async () => {
+        get(child(ref(database), `users/${auth.currentUser.uid}/`)).then((snapshot) => {
+          if (snapshot.exists()) {
+            setUserAboutMe(snapshot.child('useraboutme').toJSON())
+          } else {
+            console.log("No data available")
+          }
+        }).catch((error) => {
+          console.error(error)
+        });
+    }
+
     const fetchPosts = async() => {
       try {
+        //TODO: ability for users to follow, make likes and comments for posts
         const postList = []
-        let querySnapshot = await getDocs(collection(db, 'posts'), where('userId', '==', `${auth.currentUser.uid}`), orderBy('postTime', 'desc'))
+        let username, photoURL,followersnumber,followingnumber = null
+
+        get(child(ref(database), `users/${auth.currentUser.uid}/`)).then((snapshot) => {
+          username = snapshot.child('username').toJSON()
+          photoURL = snapshot.child('photoURL').toJSON()
+          followersnumber = snapshot.child('followers').toJSON()
+          followingnumber = snapshot.child('following').toJSON()
+          setFollowers(Object.keys(followersnumber).length)
+          setFollowing(Object.keys(followingnumber).length)
+          }).catch((error) => {
+            console.error(error)
+          });
+
+        let querySnapshot = await getDocs(collection(db, 'posts'), orderBy('postTime','desc'))
         querySnapshot.forEach(doc => {
-          const {userId, post, postImg, postTime} = doc.data()
+          const {userId, post, postImg, postTime, likes, comments} = doc.data()
           postList.push({
             id: doc.id,
             userId,
-            userName: 'Test Name',
-            userImg: 'http://cdn.thinglink.me/api/image/479353026285404161/1024/10/scaletowidth/0/0/1/1/false/true?wait=true',
+            userName: username,
+            userImg: photoURL,
             postTime: postTime,
             post,
             postImg,
             liked: false,
-            likes: null,
-            comments : null
+            likes: likes,
+            comments : comments
           })
         })
         postList.sort(function(x, y) {
           return y.postTime - x.postTime
         })
         setPosts(postList)
+        setPostsNumber(postList.length.toString())
 
         if (loading) {
           setLoading(false)
@@ -63,7 +99,9 @@ const ProfileScreen = ({navigation, route}) => {
     }
 
     React.useEffect(() => {
+      setUserPhotoURL(auth.currentUser.photoURL)
       fetchPosts()
+      getuserInfo()
     },[])
 
     React.useEffect(() => {
@@ -100,7 +138,6 @@ const ProfileScreen = ({navigation, route}) => {
         if (postImg != null) {
           const imageRef = ref(storage, postImg)
           deleteObject(imageRef).then(() => {
-            //console.log(`${postImg} has been deleted successfully.`)
             deleteFirestoreData(postId)
           }).catch((e) => {
             console.log(e)
@@ -119,6 +156,7 @@ const ProfileScreen = ({navigation, route}) => {
   }
 
   const handleSignOut = async () => {
+    //TODO: loading animation
       await auth.signOut().then(() => {
         navigation.navigate('Login')
       }).catch(error => alert(error.message))
@@ -129,10 +167,9 @@ const ProfileScreen = ({navigation, route}) => {
       <ScrollView style={styles.container} contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}} showsVerticalScrollIndicator={false} 
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
 
-        <Image style={styles.userImg} source={require('../../assets/users/user1.png')}/>
-        <Text style={styles.userName}>Jenny Doe</Text>
-        <Text>{route.params ? route.params.userId : auth.currentUser.uid}</Text>
-        <Text style={styles.aboutUser}>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris a elit nisl.</Text>
+        <Image style={styles.userImg} source={userPhotoURL != null ? {uri: userPhotoURL} : require('../../assets/users/question-mark.png')}/>
+        <Text style={styles.userName}>{auth.currentUser.displayName}</Text>
+        <Text style={styles.aboutUser}>{useraboutme == null ? 'Go to the Edit Profile Page to change this text :)' : useraboutme }</Text>
 
         <View style={styles.userBtnWrapper}>
           {route.params ? (
@@ -159,23 +196,18 @@ const ProfileScreen = ({navigation, route}) => {
 
         <View style={styles.userInfoWrapper}>
           <View style={styles.userInfoItem}>
-            <Text style={styles.userInfoTitle}>5</Text>
+            <Text style={styles.userInfoTitle}>{postsnumber}</Text>
             <Text style={styles.userInfoSubTitle}>Posts</Text>
           </View>
 
           <View style={styles.userInfoItem}>
-            <Text style={styles.userInfoTitle}>100</Text>
+            <Text style={styles.userInfoTitle}>{followers - 1}</Text>
             <Text style={styles.userInfoSubTitle}>Followers</Text>
           </View>
 
           <View style={styles.userInfoItem}>
-            <Text style={styles.userInfoTitle}>100</Text>
+            <Text style={styles.userInfoTitle}>{following - 1}</Text>
             <Text style={styles.userInfoSubTitle}>Following</Text>
-          </View>
-
-          <View style={styles.userInfoItem}>
-            <Text style={styles.userInfoTitle}>100</Text>
-            <Text style={styles.userInfoSubTitle}>Games</Text>
           </View>
         </View>
 

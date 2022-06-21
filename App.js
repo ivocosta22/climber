@@ -5,6 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import OnboardingScreen from './navigation/screens/OnboardingScreen'
 import LoginScreen from './navigation/screens/LoginScreen'
 import AppStackScreen from './navigation/AppStack'
+import RegisterScreen from './navigation/screens/RegisterScreen'
 
 const AppStack = createStackNavigator()
 
@@ -30,6 +31,7 @@ const App = () => {
         <AppStack.Navigator screenOptions={{headerShown: false}}>
           <AppStack.Screen name='Onboarding' component={OnboardingScreen}/>
           <AppStack.Screen name='Login' component={LoginScreen}/>
+          <AppStack.Screen name='Register' component={RegisterScreen}/>
           <AppStack.Screen name='AppStack' component={AppStackScreen}/>
         </AppStack.Navigator>
       </NavigationContainer>
@@ -39,6 +41,7 @@ const App = () => {
       <NavigationContainer>
         <AppStack.Navigator screenOptions={{headerShown: false}}>
           <AppStack.Screen name='Login' component={LoginScreen}/>
+          <AppStack.Screen name='Register' component={RegisterScreen}/>
           <AppStack.Screen name='AppStack' component={AppStackScreen}/>
         </AppStack.Navigator>
       </NavigationContainer>

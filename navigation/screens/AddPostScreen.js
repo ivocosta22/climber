@@ -1,5 +1,6 @@
 import React from 'react'
 import { View, StyleSheet, Button, Alert, ActivityIndicator, Text } from 'react-native'
+import { useNavigation } from '@react-navigation/core'
 import { InputField, InputWrapper, AddImage, SubmitBtn, SubmitBtnText, StatusWrapper } from '../../styles/AddPost'
 import { Camera } from 'expo-camera'
 import { initializeApp } from 'firebase/app'
@@ -22,11 +23,13 @@ const AddPostScreen = () => {
     const [uploading, setUploading] = React.useState(false)
     const [transferred, setTransferred] = React.useState(0)
     const [post, setPost] = React.useState(null)
+    const navigation = useNavigation()
     const app = initializeApp(firebaseConfig)
     const storage = getStorage(app)
     const auth = getAuth(app)
     const db = getFirestore(app)
 
+    //TODO: USE LAUNCHCAMERAASYNC FROM IMAGEPICKER INSTEAD OF USING EXPO CAMERA
     React.useEffect(() => {
         (async () => {
             const cameraPermission = await Camera.requestCameraPermissionsAsync()
@@ -38,10 +41,8 @@ const AddPostScreen = () => {
 
     const takePicture = async () => {
         if (hasCameraPermission === false) {
-            return <Text>Please give camera permissions to the application.</Text>
-        } else if (hasGalleryPermission === false) {
-            return <Text>Please give storage permissions to the application.</Text>
-        }
+            Alert.alert('Error!', 'Please give storage permissions to the application.')
+        } 
         if (camera) {
             const data = await camera.takePictureAsync(null)
             setIsInCameraView(false)
@@ -54,15 +55,19 @@ const AddPostScreen = () => {
     }
 
     const pickImage = async () => {
+        if (hasGalleryPermission === false) {
+            Alert.alert('Error!', 'Please give storage permissions to the application.')
+        }  
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
+            //TODO: Change aspect to best fit here
             aspect: [4, 3],
             quality: 1,
         })
         if (!result.cancelled) {
             setImage(result.uri)
-        }
+        } 
     }
 
     const exitCamera = async () => {
@@ -71,19 +76,19 @@ const AddPostScreen = () => {
     
     const submitPost = async () => {
         const imageUrl = await uploadImage()
-        const uid = auth.currentUser.uid
         try {
             const docRef = await addDoc(collection(db, 'posts'), {
-                userId: uid,
+                userId: auth.currentUser.uid,
                 post: post,
                 postImg: imageUrl,
                 postTime: Timestamp.fromDate(new Date()),
-                likes: null,
-                comments: null,
+                likes: '0',
+                comments: '0'
             })
             Alert.alert('Post Published!', 'Your Post has been published successfully!')
             setPost(null)
             setImage(null)
+            navigation.goBack()
         } catch (e) {
             console.log(e)
         }
@@ -124,8 +129,7 @@ const AddPostScreen = () => {
     }
 
     return(
-        <View style={styles.container}>
-            
+        <View style={styles.container}> 
                 <InputWrapper>
                     {image != null ? <AddImage source={{uri: image}} /> : null}
                     <InputField
@@ -176,7 +180,6 @@ const AddPostScreen = () => {
                     <Button title="Exit" onPress={() => exitCamera()}></Button>
                 </View>
                 )}
-
         </View>        
     )
 }

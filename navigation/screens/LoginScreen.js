@@ -1,46 +1,38 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { useNavigation } from '@react-navigation/core'
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, View, TouchableOpacity, Image } from 'react-native'
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
+import { KeyboardAvoidingView, StyleSheet, Text, TextInput, View, TouchableOpacity, Image, Alert } from 'react-native'
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
 import { firebaseConfig } from '../../firebase'
 
 const LoginScreen = () => {
-    var [email, setEmail] = useState('')
-    var [password, setPassword] = useState('')
+    var [email, setEmail] = React.useState('')
+    var [password, setPassword] = React.useState('')
     const app = initializeApp(firebaseConfig)
     const auth = getAuth(app)
     const navigation = useNavigation()
 
-    this.emailTextInput = React.createRef()
-    this.passwordTextInput = React.createRef()
+    emailTextInput = React.createRef()
+    passwordTextInput = React.createRef()
 
-    useEffect(() => {
+    React.useEffect(() => {
       const unlisten = auth.onAuthStateChanged(user => {
         if (user) {
           navigation.navigate('AppStack')
         } else {
-          this.emailTextInput.current.clear()
-          this.passwordTextInput.current.clear()
+          emailTextInput.current.clear()
+          passwordTextInput.current.clear()
         }
       })
       return unlisten
     }, [])
 
-    const handleSignUp = () => {
-      email = email.replace(/\s/g,'')
-      createUserWithEmailAndPassword(auth, email, password)
-      .then(userCredentials => {
-        this.emailTextInput.current.clear()
-      })
-      .catch(error => alert(error.message))
-    }
-
     const handleLogin = () => {
       email = email.replace(/\s/g,'')
       signInWithEmailAndPassword(auth, email, password)
       .then(userCredentials => {
-        this.passwordTextInput.current.clear()
+        emailTextInput.current.clear()
+        passwordTextInput.current.clear()
       })
       .catch(error => alert(error.message))
     }
@@ -49,8 +41,8 @@ const LoginScreen = () => {
         <KeyboardAvoidingView style={styles.container} behavior="padding">
         <Image style={styles.tinyLogo} source={require('../../assets/icon.png')}/>
             <View style={styles.inputContainer}>
-                <TextInput placeholder='Email' value={email} onChangeText={text => setEmail(text)} style={styles.input} ref={this.emailTextInput}/>
-                <TextInput placeholder='Password' value={password} onChangeText={text => setPassword(text)} style={styles.input} ref={this.passwordTextInput} secureTextEntry/>
+                <TextInput placeholder='Email' value={email} onChangeText={text => setEmail(text)} style={styles.input} ref={emailTextInput} />
+                <TextInput placeholder='Password' value={password} onChangeText={text => setPassword(text)} style={styles.input} ref={passwordTextInput} secureTextEntry/>
             </View>
 
             <View style={styles.buttonContainer}>
@@ -58,7 +50,7 @@ const LoginScreen = () => {
                     <Text style={styles.buttonText}>Login</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={handleSignUp} style={[styles.button, styles.buttonOutline]}>
+                <TouchableOpacity onPress={() => {navigation.navigate('Register')}} style={[styles.button, styles.buttonOutline]}>
                     <Text style={styles.buttonOutlineText}>Register</Text>
                 </TouchableOpacity> 
             </View>
@@ -73,7 +65,7 @@ const styles = StyleSheet.create({
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: 'black',
+      backgroundColor: '#EEEEEE',
     },
     inputContainer: {
       width: '80%'

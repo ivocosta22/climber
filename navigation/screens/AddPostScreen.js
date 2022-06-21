@@ -1,8 +1,7 @@
 import React from 'react'
-import { View, StyleSheet, Button, Alert, ActivityIndicator, Text } from 'react-native'
+import { View, StyleSheet, Alert, ActivityIndicator, Text } from 'react-native'
 import { useNavigation } from '@react-navigation/core'
 import { InputField, InputWrapper, AddImage, SubmitBtn, SubmitBtnText, StatusWrapper } from '../../styles/AddPost'
-import { Camera } from 'expo-camera'
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage'
@@ -16,10 +15,7 @@ const AddPostScreen = () => {
 
     const [hasCameraPermission, setHasCameraPermission] = React.useState(null)
     const [hasGalleryPermission, setHasGalleryPermission] = React.useState(null)
-    const [camera, setCamera] = React.useState(null)
     const [image, setImage] = React.useState(null)
-    const [type, setType] = React.useState(Camera.Constants.Type.back)
-    const [isInCameraView, setIsInCameraView] = React.useState(false)
     const [uploading, setUploading] = React.useState(false)
     const [transferred, setTransferred] = React.useState(0)
     const [post, setPost] = React.useState(null)
@@ -39,39 +35,36 @@ const AddPostScreen = () => {
         })()
     },[])
 
-    const takePicture = async () => {
-        if (hasCameraPermission === false) {
+    const pickImage = async () => {
+        if (hasGalleryPermission === false) {
             Alert.alert('Error!', 'Please give storage permissions to the application.')
-        } 
-        if (camera) {
-            const data = await camera.takePictureAsync(null)
-            setIsInCameraView(false)
-            setImage(data.uri)
+        } else {
+            let libraryresult = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 1,
+            })
+            if (!libraryresult.cancelled) {
+                setImage(libraryresult.uri)
+            } 
         }
     }
 
     const useCamera = async () => {
-        setIsInCameraView(true)
-    }
-
-    const pickImage = async () => {
-        if (hasGalleryPermission === false) {
-            Alert.alert('Error!', 'Please give storage permissions to the application.')
-        }  
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            //TODO: Change aspect to best fit here
-            aspect: [4, 3],
-            quality: 1,
-        })
-        if (!result.cancelled) {
-            setImage(result.uri)
-        } 
-    }
-
-    const exitCamera = async () => {
-        setIsInCameraView(false)
+        if (hasCameraPermission === false) {
+            Alert.alert('Error!', 'Please give camera permissions to the application.')
+        } else {
+            let cameraresult = await ImagePicker.launchCameraAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 1,
+            })
+            if (!cameraresult.cancelled) {
+                setImage(cameraresult.uri)
+            }
+        }
     }
     
     const submitPost = async () => {
@@ -133,7 +126,7 @@ const AddPostScreen = () => {
                 <InputWrapper>
                     {image != null ? <AddImage source={{uri: image}} /> : null}
                     <InputField
-                        placeholder = "What goal did you achieve?"
+                        placeholder = "What's on your mind?"
                         multiline
                         numberOfLines={4}
                         value={post}
@@ -164,22 +157,6 @@ const AddPostScreen = () => {
                         <Icon name="md-images-outline" style={styles.actionButtonIcon} />
                     </ActionButton.Item>
                 </ActionButton>
-
-                {isInCameraView === true && (
-                <View>
-                    <View style={styles.cameraContainer}>
-                        <Camera ref={ref => setCamera(ref)}
-                        style={styles.fixedRatio}
-                        type={type}
-                        ratio={'1:1'}/>
-                    </View>
-                    <Button title="Take Picture" onPress={() => takePicture()}></Button>
-                    <Button title="Flip Camera" onPress={() => {
-                        setType(type === Camera.Constants.Type.back ? Camera.Constants.Type.front:Camera.Constants.Type.back)
-                    }}></Button>
-                    <Button title="Exit" onPress={() => exitCamera()}></Button>
-                </View>
-                )}
         </View>        
     )
 }

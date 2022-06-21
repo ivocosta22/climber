@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React from 'react'
 import { FlatList, Alert, SafeAreaView, ScrollView, BackHandler, RefreshControl } from 'react-native'
 import { useRoute, useFocusEffect } from '@react-navigation/native';
 import { Container } from '../../styles/FeedStyles'
@@ -10,9 +10,10 @@ import { getAuth } from 'firebase/auth';
 import * as Database from 'firebase/database';
 import SkeletonLoader from 'expo-skeleton-loader'
 import PostCard from '../../components/PostCard'
-
+import AppLoader from '../../components/AppLoader'
 
 export default function HomeScreen({navigation}) {
+  //TODO: remove warnings from app as much as possible
     const app = initializeApp(firebaseConfig)
     const db = getFirestore(app)
     const storage = getStorage(app)
@@ -20,6 +21,7 @@ export default function HomeScreen({navigation}) {
     const auth = getAuth(app)
     const [posts, setPosts] = React.useState(null)
     const [loading, setLoading] = React.useState(true)
+    const [deleting, setDeleting] = React.useState(false)
     const [deleted, setDeleted] = React.useState(false)
     const [refreshing, setRefreshing] = React.useState(false)
 
@@ -90,8 +92,8 @@ export default function HomeScreen({navigation}) {
           setLoading(false)
         }
 
-      } catch(e) {
-        console.log(e)
+      } catch(error) {
+        Alert.alert('Error!', error.message)
       }
     }
 
@@ -124,6 +126,7 @@ export default function HomeScreen({navigation}) {
     }
 
     const deletePost = async (postId) => {
+        setDeleting(true)
         const docRef = doc(db, 'posts', postId)
         const docSnap = await getDoc(docRef)
 
@@ -146,8 +149,9 @@ export default function HomeScreen({navigation}) {
     const deleteFirestoreData = async (postId) => {
       await deleteDoc(doc(db, 'posts', postId)).then(() => {
         setDeleted(true)
+        setDeleting(false)
         Alert.alert('Post Deleted!', 'Your Post has been deleted successfully!')
-      }).catch(e => console.log(e))
+      }).catch(error => Alert.alert('Error!', error.message))
     }
 
     return(
@@ -181,8 +185,13 @@ export default function HomeScreen({navigation}) {
                     <SkeletonLoader.Item style={{marginTop: 6, width: 350, height: 200, borderRadius: 4}} />
                 </SkeletonLoader.Item>
             </SkeletonLoader>
-        </ScrollView> : 
-        
+        </ScrollView> : deleting ? 
+        <>
+        <AppLoader/>
+        <Container>
+            <FlatList data={posts} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>} renderItem={({item}) => <PostCard item={item} onDelete={handleDelete} onPress={() => navigation.navigate('HomeProfile', {userId: item.userId})}/>} keyExtractor={item=>item.id} showsVerticalScrollIndicator={false}></FlatList>
+        </Container>
+        </> :
         <Container>
             <FlatList data={posts} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>} renderItem={({item}) => <PostCard item={item} onDelete={handleDelete} onPress={() => navigation.navigate('HomeProfile', {userId: item.userId})}/>} keyExtractor={item=>item.id} showsVerticalScrollIndicator={false}></FlatList>
         </Container>}

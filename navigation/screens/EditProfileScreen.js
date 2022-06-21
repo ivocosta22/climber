@@ -1,30 +1,30 @@
 import React from 'react'
 import { useNavigation } from '@react-navigation/core'
 import { View, StyleSheet, Text, ImageBackground, TextInput, Alert } from 'react-native'
-import { getAuth, updateEmail, updatePassword, updateProfile } from 'firebase/auth'
+import { EmailAuthProvider, getAuth, reauthenticateWithCredential, sendEmailVerification, updateEmail, updatePassword, updateProfile } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
 import { firebaseConfig } from '../../firebase'
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
-import * as Database from 'firebase/database'
 import { TouchableOpacity } from 'react-native-gesture-handler'
+import * as Database from 'firebase/database'
+import * as ImagePicker from 'expo-image-picker'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import FormButton from '../../components/FormButton'
-import * as ImagePicker from 'expo-image-picker'
 
-
+//TODO: Change username under image at the same time as i change it in textinput. It's in the video playlist
   const EditProfileScreen = () => {
-      const app = initializeApp(firebaseConfig)
-      const auth = getAuth(app)
-      const storage = getStorage(app)
-      const database = Database.getDatabase(app)
-      const navigation = useNavigation()
-      const [image, setImage] = React.useState(null)
-      const [hasGalleryPermission, setHasGalleryPermission] = React.useState(null)
-      const [loading, setLoading] = React.useState(false)
-      var [email, setEmail] = React.useState(null)
-      var [password, setPassword] = React.useState(null)
-      var [username, setUsername] = React.useState(null)
-      var [aboutme, setAboutMe] = React.useState(null)
+    const app = initializeApp(firebaseConfig)
+    const auth = getAuth(app)
+    const storage = getStorage(app)
+    const database = Database.getDatabase(app)
+    const navigation = useNavigation()
+    const [image, setImage] = React.useState(null)
+    const [hasGalleryPermission, setHasGalleryPermission] = React.useState(null)
+    var [email, setEmail] = React.useState(null)
+    var [password, setPassword] = React.useState(null)
+    var [currentpassword, setCurrentPassword] = React.useState(null)
+    var [username, setUsername] = React.useState(null)
+    var [aboutme, setAboutMe] = React.useState(null)
 
       React.useEffect(() => {
         (async () => {
@@ -34,98 +34,143 @@ import * as ImagePicker from 'expo-image-picker'
         })()
     },[])
 
-  const pickImage = async () => {
-    if (hasGalleryPermission === false) {
-      Alert.alert('Error!', 'Please give storage permissions to the application.')
-    }
-      let result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          allowsEditing: true,
-          aspect: [4, 4],
-          quality: 1,
-      })
-      if (!result.cancelled) {
-          setImage(result.uri)
+    const pickImage = async () => {
+      if (hasGalleryPermission === false) {
+        Alert.alert('Error!', 'Please give storage permissions to the application.')
       }
-  }
-
-  const uploadImage = async () => {
-    if (image == null) {
-        return null
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 4],
+            quality: 1,
+        })
+        if (!result.cancelled) {
+            setImage(result.uri)
+        }
     }
-    let filename = image.substring(image.lastIndexOf('/') + 1)
-    const extension = filename.split('.').pop()
-    const name = filename.split('.').slice(0,-1).join('.')
-    filename = name + Date.now() + '.' + extension
 
-    const storageRef = ref(storage, `pictures/${auth.currentUser.uid}/profilepic/${filename}`)
-    const response = await fetch(image)
-    const blob = await response.blob()
-
-    const task = uploadBytesResumable(storageRef, blob)
-
-    try {
-          await task
-          const url = await getDownloadURL(storageRef)
-          return url
-    } catch(e) {
-          console.log(e)
+    const uploadImage = async () => {
+      if (image == null) {
           return null
-    }
-  }
+      }
+      let filename = image.substring(image.lastIndexOf('/') + 1)
+      const extension = filename.split('.').pop()
+      const name = filename.split('.').slice(0,-1).join('.')
+      filename = name + Date.now() + '.' + extension
 
-  const getAboutme = async () => {
-      Database.get(Database.child(Database.ref(database), `users/${auth.currentUser.uid}/`)).then((snapshot) => {
-      const json = snapshot.child('useraboutme').toJSON()
-      setAboutMe(json)
-      }).catch((error) => {
-        console.log(error)
-      }) 
-  }
+      const storageRef = ref(storage, `pictures/${auth.currentUser.uid}/profilepic/${filename}`)
+      const response = await fetch(image)
+      const blob = await response.blob()
 
-  const editProfile = async () => {
-    //TODO: Add a loading animation
-    setLoading(true)
-    const imageUrl = await uploadImage()
+      const task = uploadBytesResumable(storageRef, blob)
 
-    if (username != auth.currentUser.displayName && username != null) {
-      updateProfile(auth.currentUser, {displayName: username, photoURL: imageUrl}).catch(error => alert(error.message))
-      updateProfileInfo('username', username)
-    } 
-    
-    if (imageUrl != auth.currentUser.photoURL && imageUrl != null) {
-      updateProfile(auth.currentUser, {photoURL: imageUrl}).catch(error => alert(error.message))
-      updateProfileInfo('photoURL', imageUrl)
+      try {
+            await task
+            const url = await getDownloadURL(storageRef)
+            return url
+      } catch(error) {
+            Alert.alert('Error!', error.message)
+            return null
+      }
     }
 
-    if (email != auth.currentUser.email && email != null) {
-      updateEmail(auth.currentUser, email).catch(error => alert(error.message))
-      //TODO: Verify Email
+    const getAboutme = async () => {
+        Database.get(Database.child(Database.ref(database), `users/${auth.currentUser.uid}/`)).then((snapshot) => {
+        const json = snapshot.child('useraboutme').toJSON()
+        setAboutMe(json)
+        }).catch((error) => {
+          Alert.alert('Error!', error.message)
+        }) 
     }
 
-    if (password != '' & password != null) {
-      //TODO: Update error alerts to React Alerts
-      updatePassword(auth.currentUser, password).catch(error => alert(error.message))
-      //TODO: Add/Update about me to use
+    const editProfile = async () => {
+
+      await editUsername()
+
+      await editProfilePicture()
+
+      await editAboutMe()
+
+      await editEmail()
+
+      await editPassword()
+
+      if ((email != auth.currentUser.email && email != null) || (password != '' && password != null)) {
+        Alert.alert('Email changed', 'Your email/password was changed. Please re-login into the app.')
+        auth.signOut().then(() => {
+          navigation.navigate('Login')
+        })
+      } else {
+        Alert.alert('Profile Updated!', 'Your Profile was updated successfully!')
+        navigation.goBack()
+      }    
     }
 
-    if (aboutme != null ) {
-      updateProfileInfo('useraboutme', aboutme)
+    const updateProfileInfo = async (path, info) => {
+      const data = info
+      const updates = {}
+      updates['/users/' + auth.currentUser.uid + `/${path}/`] = data
+      Database.update(Database.ref(database), updates)
     }
 
-    Alert.alert('Profile Updated!', 'Your Profile was updated successfully!')
-    navigation.goBack()
-  }
+    const editUsername = async () => {
+      if (username != auth.currentUser.displayName && username != null) {
+        await updateProfile(auth.currentUser, {displayName: username}).catch(error => {
+          Alert.alert('Error!', error.message)
+        })
+        await updateProfileInfo('username', username).catch(error => {
+          Alert.alert('Error!', error.message)
+        })
+      }
+    }
 
-  const updateProfileInfo = async (path, info) => {
-    const data = info
-    const updates = {}
-    updates['/users/' + auth.currentUser.uid + `/${path}/`] = data
-    Database.update(Database.ref(database), updates).catch((error) => {
-      console.log(error)
-    })
-  }
+    const editProfilePicture = async () => {
+      const imageUrl = await uploadImage()
+      if (imageUrl != auth.currentUser.photoURL && imageUrl != null) {
+        await updateProfile(auth.currentUser, {photoURL: imageUrl}).catch(error => {
+          Alert.alert('Error!', error.message)
+        })
+        await updateProfileInfo('photoURL', imageUrl).catch(error => {
+          Alert.alert('Error!', error.message)
+        })
+      }
+    }
 
+    const editAboutMe = async () => {
+      if (aboutme != null ) {
+        await updateProfileInfo('useraboutme', aboutme).catch(error => {
+          Alert.alert('Error!', error.message)
+        })
+      }
+    }
+
+    const editEmail = async () => {
+      if (email != auth.currentUser.email && email != null) {
+        const credentialsforEmail = EmailAuthProvider.credential(auth.currentUser.email, currentpassword)
+
+        await reauthenticateWithCredential(auth.currentUser, credentialsforEmail).then(() => {
+          updateEmail(auth.currentUser, email).catch(error => {
+            Alert.alert('Error!', error.message)
+          })
+        }).catch(error => {
+          Alert.alert('Error!', error.message)
+        })
+      }
+    }
+
+    const editPassword = async () => {
+      if (password != '' && password != null) {
+        const credentialsforPassword = EmailAuthProvider.credential(auth.currentUser.email, currentpassword)
+
+        await reauthenticateWithCredential(auth.currentUser, credentialsforPassword).then(() => {
+          updatePassword(auth.currentUser, password).catch(error => {
+            Alert.alert('Error!', error.message)
+          })
+        }).catch(error => {
+          Alert.alert('Error!', error.message)
+        })  
+      }
+    }
 
     return (
       <View style={styles.container}>
@@ -205,9 +250,21 @@ import * as ImagePicker from 'expo-image-picker'
           <View style={styles.action}>
             <Ionicons name="key-outline" color="#333333" size={20} style={{marginLeft: 5, marginBottom: 10}} />
             <TextInput
-              placeholder="Change Password"
+              placeholder="Current Password (Needed to change Email/Password)"
               placeholderTextColor="#666666"
-              value=''
+              defaultValue=''
+              onChangeText={text => setCurrentPassword(text)}
+              autoCorrect={false}
+              style={styles.textInput}
+              secureTextEntry
+            />
+          </View>
+          <View style={styles.action}>
+            <Ionicons name="key-outline" color="#333333" size={20} style={{marginLeft: 5, marginBottom: 10}} />
+            <TextInput
+              placeholder="New Password"
+              placeholderTextColor="#666666"
+              defaultValue=''
               onChangeText={text => setPassword(text)}
               autoCorrect={false}
               style={styles.textInput}
@@ -229,8 +286,8 @@ import * as ImagePicker from 'expo-image-picker'
           </View>
           <FormButton buttonTitle="Update" onPress={editProfile} />
       </View>
-    );
-  };
+    )
+  }
   
   export default EditProfileScreen;
   
@@ -315,4 +372,4 @@ import * as ImagePicker from 'expo-image-picker'
       paddingLeft: 10,
       color: '#333333',
     },
-  });
+  })

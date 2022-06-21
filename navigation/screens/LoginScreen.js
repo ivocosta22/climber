@@ -4,10 +4,14 @@ import { KeyboardAvoidingView, StyleSheet, Text, TextInput, View, TouchableOpaci
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
 import { firebaseConfig } from '../../firebase'
+import AppLoader from '../../components/AppLoader'
 
 const LoginScreen = () => {
+  //TODO: I forgot my password
+  //TODO: check every try catch for loading state so it doesnt loop
     var [email, setEmail] = React.useState('')
     var [password, setPassword] = React.useState('')
+    const [loading, setLoading] = React.useState(false)
     const app = initializeApp(firebaseConfig)
     const auth = getAuth(app)
     const navigation = useNavigation()
@@ -18,7 +22,11 @@ const LoginScreen = () => {
     React.useEffect(() => {
       const unlisten = auth.onAuthStateChanged(user => {
         if (user) {
-          navigation.navigate('AppStack')
+          if (user.emailVerified) {
+            navigation.navigate('AppStack')
+          } else {
+            Alert.alert('Email Verification', 'Please verify your email in order to login.')
+          }     
         } else {
           emailTextInput.current.clear()
           passwordTextInput.current.clear()
@@ -28,17 +36,28 @@ const LoginScreen = () => {
     }, [])
 
     const handleLogin = () => {
+      setLoading(true)
       email = email.replace(/\s/g,'')
       signInWithEmailAndPassword(auth, email, password)
       .then(userCredentials => {
         emailTextInput.current.clear()
         passwordTextInput.current.clear()
+        if (userCredentials.user.emailVerified) {
+          setLoading(false)
+          navigation.navigate('AppStack')
+        } else {
+          Alert.alert('Email Verification', 'Please verify your email in order to login.')
+          setLoading(false)
+        }
+      }).catch((error) => {
+          Alert.alert('Error!', error.message)
+          setLoading(false)
       })
-      .catch(error => alert(error.message))
     }
 
     return (
         <KeyboardAvoidingView style={styles.container} behavior="padding">
+        {loading ? <AppLoader/> : null}
         <Image style={styles.tinyLogo} source={require('../../assets/icon.png')}/>
             <View style={styles.inputContainer}>
                 <TextInput placeholder='Email' value={email} onChangeText={text => setEmail(text)} style={styles.input} ref={emailTextInput} />

@@ -3,11 +3,11 @@ import { View, SafeAreaView, StyleSheet, Text, Image, ScrollView, Alert, Refresh
 import { getAuth } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
 import { get, getDatabase, ref, child } from 'firebase/database'
-import { getFirestore, collection, getDocs, orderBy, getDoc, deleteDoc, doc, where } from 'firebase/firestore'
+import { getFirestore, collection, getDocs, orderBy, getDoc, deleteDoc, doc } from 'firebase/firestore'
 import { firebaseConfig } from '../../firebase'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import PostCard from '../../components/PostCard'
-
+import AppLoader from '../../components/AppLoader'
 
 const ProfileScreen = ({navigation, route}) => {
     const app = initializeApp(firebaseConfig)
@@ -93,8 +93,8 @@ const ProfileScreen = ({navigation, route}) => {
           setLoading(false)
         }
 
-      } catch(e) {
-        console.log(e)
+      } catch(error) {
+        Alert.alert('Error!', error.message)
       }
     }
 
@@ -152,18 +152,19 @@ const ProfileScreen = ({navigation, route}) => {
     await deleteDoc(doc(db, 'posts', postId)).then(() => {
       setDeleted(true)
       Alert.alert('Post Deleted!', 'Your Post has been deleted successfully!')
-    }).catch(e => console.log(e))
+    }).catch(error => Alert.alert('Error!', error.message))
   }
 
   const handleSignOut = async () => {
-    //TODO: loading animation
+      setLoading(true)
       await auth.signOut().then(() => {
         navigation.navigate('Login')
-      }).catch(error => alert(error.message))
+      }).catch(error => Alert.alert('Error!', error.message))
   }
 
   return (
     <SafeAreaView style={{flex:1, backgroundColor: '#fff'}}>
+      {loading ? <AppLoader/> : null}
       <ScrollView style={styles.container} contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}} showsVerticalScrollIndicator={false} 
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
 

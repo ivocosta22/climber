@@ -1,7 +1,7 @@
 import React from 'react'
-import { View, StyleSheet, Alert, ActivityIndicator, Text } from 'react-native'
+import { View, StyleSheet, Alert } from 'react-native'
 import { useNavigation } from '@react-navigation/core'
-import { InputField, InputWrapper, AddImage, SubmitBtn, SubmitBtnText, StatusWrapper } from '../../styles/AddPost'
+import { InputField, InputWrapper, AddImage, SubmitBtn, SubmitBtnText } from '../../styles/AddPost'
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage'
@@ -9,15 +9,14 @@ import { getFirestore, collection, addDoc, Timestamp } from 'firebase/firestore'
 import { firebaseConfig } from '../../firebase'
 import ActionButton from 'react-native-action-button'
 import Icon from 'react-native-vector-icons/Ionicons'
+import AppLoader from '../../components/AppLoader'
 import * as ImagePicker from 'expo-image-picker'
 
 const AddPostScreen = () => {
-
     const [hasCameraPermission, setHasCameraPermission] = React.useState(null)
     const [hasGalleryPermission, setHasGalleryPermission] = React.useState(null)
     const [image, setImage] = React.useState(null)
-    const [uploading, setUploading] = React.useState(false)
-    const [transferred, setTransferred] = React.useState(0)
+    const [loading, setLoading] = React.useState(false)
     const [post, setPost] = React.useState(null)
     const navigation = useNavigation()
     const app = initializeApp(firebaseConfig)
@@ -25,10 +24,10 @@ const AddPostScreen = () => {
     const auth = getAuth(app)
     const db = getFirestore(app)
 
-    //TODO: USE LAUNCHCAMERAASYNC FROM IMAGEPICKER INSTEAD OF USING EXPO CAMERA
+    //TODO: Do not allow empty posts
     React.useEffect(() => {
         (async () => {
-            const cameraPermission = await Camera.requestCameraPermissionsAsync()
+            const cameraPermission = await ImagePicker.requestCameraPermissionsAsync()
             const galleryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync()
             setHasCameraPermission(cameraPermission.status === 'granted')
             setHasGalleryPermission(galleryStatus.status === 'granted')
@@ -99,24 +98,17 @@ const AddPostScreen = () => {
         const storageRef = ref(storage, `pictures/${auth.currentUser.uid}/${filename}`)
         const response = await fetch(image)
         const blob = await response.blob()
-        setUploading(true)
-        setTransferred(0)
+        setLoading(true)
 
         const task = uploadBytesResumable(storageRef, blob)
-
-        task.on('state_changed', taskSnapshot => {
-            setTransferred(
-                Math.round(taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) * 100
-            )
-        })
 
         try {
                 await task
                 const url = await getDownloadURL(storageRef)
-                setUploading(false)
+                setLoading(false)
                 return url
-            } catch(e) {
-                console.log(e)
+            } catch(error) {
+                Alert.alert('Error!', error.message)
                 return null
             }
     }
@@ -132,11 +124,8 @@ const AddPostScreen = () => {
                         value={post}
                         onChangeText={(content) => setPost(content)}
                     />
-                    {uploading ? (
-                        <StatusWrapper>
-                            <Text>{transferred} % Completed!</Text>
-                            <ActivityIndicator size="large" color='#0782F9' />
-                        </StatusWrapper>
+                    {loading ? (
+                        <AppLoader/>
                     ) : (
                         <SubmitBtn onPress={submitPost}>
                             <SubmitBtnText>Post</SubmitBtnText>

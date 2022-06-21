@@ -1,13 +1,14 @@
 import React from 'react'
 import { useNavigation } from '@react-navigation/core'
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, View, TouchableOpacity, ImageBackground, Alert } from 'react-native'
-import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
+import { getAuth, createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
 import { firebaseConfig } from '../../firebase'
 import * as Database from 'firebase/database'
 import * as Storage from 'firebase/storage'
 import * as ImagePicker from 'expo-image-picker'
 import Ionicons from 'react-native-vector-icons/Ionicons'
+import AppLoader from '../../components/AppLoader'
 
 const RegisterScreen = () => {
     var [username, setRegisteredUsername] = React.useState('')
@@ -16,6 +17,7 @@ const RegisterScreen = () => {
     var [passwordcheck, setRegisteredPasswordCheck] = React.useState('')
     const [hasGalleryPermission, setHasGalleryPermission] = React.useState(null)
     const [image, setImage] = React.useState(null)
+    const [loading, setLoading] = React.useState(false)
     const app = initializeApp(firebaseConfig)
     const auth = getAuth(app)
     const storage = Storage.getStorage(app)
@@ -30,8 +32,7 @@ const RegisterScreen = () => {
   },[])
 
   const handleSignUp = async () => {
-    //TODO: Add loading animation
-    //TODO: Handle email verification
+    setLoading(true)
     //TODO: Add eye for watching password (OPTIONAL)
     email = email.replace(/\s/g,'')
     username = username.replace(/\s/g,'')
@@ -39,7 +40,8 @@ const RegisterScreen = () => {
     let doesUserNameExist = false
 
     if (password != passwordcheck) {
-      Alert.alert('Error.', 'Passwords do not match')
+      setLoading(false)
+      Alert.alert('Error!', 'Passwords do not match.')
     } else {
       Database.get(usernamesref).then((snapshot) => {
         snapshot.forEach((childSnapshot) => {
@@ -50,7 +52,8 @@ const RegisterScreen = () => {
       })
 
       if (doesUserNameExist) {
-        Alert.alert('Error.', 'This Username already exists.')
+        setLoading(false)
+        Alert.alert('Error!', 'Username already exists.')
       } else {
         createUserWithEmailAndPassword(auth, email, password)
         .then(async userCredentials => {
@@ -74,10 +77,13 @@ const RegisterScreen = () => {
               useraboutme: 'Go to the Edit Profile Page to change this text :)',
               username: username
           }, userid)
-          Alert.alert('Account Created!', 'Your Account has successfully been created. Welcome!')
-          navigation.navigate('AppStack')
+          sendEmailVerification(userCredentials.user).then(() => {
+            setLoading(false)
+            navigation.navigate('Login')
+          })
+          
         })
-        .catch(error => alert(error.message))
+        .catch(error => Alert.alert('Error!', error))
       }    
     } 
   }
@@ -87,7 +93,7 @@ const RegisterScreen = () => {
     const updates = {}
     updates['/users/' + user + '/'] = data
     Database.update(Database.ref(db), updates).catch((error) => {
-      console.log(error)
+      Alert.alert('Error!', error)
     })
   }
 
@@ -125,14 +131,15 @@ const RegisterScreen = () => {
             await task
             const url = await Storage.getDownloadURL(storageRef)
             return url
-      } catch(e) {
-            console.log(e)
+      } catch(error) {
+            Alert.alert('Error!', error.message)
             return null
       }
     }
 
     return (
         <KeyboardAvoidingView style={styles.container} behavior="padding">
+        {loading ? <AppLoader/> : null}
         <TouchableOpacity onPress={pickImage}>
               <View>
                 {image != null ? (

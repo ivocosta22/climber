@@ -18,8 +18,10 @@ const ProfileScreen = ({navigation, route}) => {
     const [loading, setLoading] = React.useState(true)
     const [deleted, setDeleted] = React.useState(false)
     const [refreshing, setRefreshing] = React.useState(false)
+    const [username, setUsername] = React.useState(null)
     const [userPhotoURL, setUserPhotoURL] = React.useState(null)
     const [useraboutme, setUserAboutMe] = React.useState(null)
+    const [isloggedInUser, setIsLoggedInUser] = React.useState(false)
     const [postsnumber, setPostsNumber] = React.useState(null)
     const [followers, setFollowers] = React.useState(null)
     const [following, setFollowing] = React.useState(null)
@@ -31,50 +33,67 @@ const ProfileScreen = ({navigation, route}) => {
     const onRefresh = React.useCallback(() => {
       setRefreshing(true)
       wait(2000).then(() => {
-        fetchPosts()
-        getuserInfo()
-        setUserPhotoURL(auth.currentUser.photoURL)
+        if (route.params) {
+          fetchUserInfo()
+        } else {
+          fetchCurrentUser()
+        } 
         setRefreshing(false)
       })
     }, [])
 
-    const getuserInfo = async () => {
-        get(child(ref(database), `users/${auth.currentUser.uid}/`)).then((snapshot) => {
-          if (snapshot.exists()) {
-            setUserAboutMe(snapshot.child('useraboutme').toJSON())
-          } else {
-            console.log("No data available")
-          }
-        }).catch((error) => {
-          console.error(error)
-        })
-    }
+    React.useEffect(() => {
+      if (route.params) {
+        fetchUserInfo()
+      } else {
+        fetchCurrentUser()
+        setUserPhotoURL(auth.currentUser.photoURL)
+      } 
+    },[])
 
-    const fetchPosts = async() => {
+    React.useEffect(() => {
+      if (route.params) {
+        fetchUserInfo()
+      } else {
+        fetchCurrentUser()
+        setUserPhotoURL(auth.currentUser.photoURL)
+      } 
+    },[deleted])
+
+    const fetchUserInfo = async() => {
       try {
-        //TODO: ability for users to follow, make likes and comments for posts
         const postList = []
-        let username, photoURL,followersnumber,followingnumber = null
+        const fetchedUserId = route.params.userId
 
-        get(child(ref(database), `users/${auth.currentUser.uid}/`)).then((snapshot) => {
-          username = snapshot.child('username').toJSON()
+        if (fetchedUserId == auth.currentUser.uid) {
+          setIsLoggedInUser(true)
+        }
+
+        let usernamedb, photoURL, useraboutme, followersnumber, followingnumber = null
+
+        await get(child(ref(database), `users/${fetchedUserId}/`)).then((snapshot) => {
+          usernamedb = snapshot.child('username').toJSON()
           photoURL = snapshot.child('photoURL').toJSON()
           followersnumber = snapshot.child('followers').toJSON()
           followingnumber = snapshot.child('following').toJSON()
+          useraboutme = snapshot.child('useraboutme').toJSON()
           setFollowers(Object.keys(followersnumber).length)
           setFollowing(Object.keys(followingnumber).length)
-          }).catch((error) => {
-            console.error(error)
-          })
+          setUsername(usernamedb)
+          setUserAboutMe(useraboutme)
+          setUserPhotoURL(photoURL)
+        }).catch((error) => {
+          Alert.alert('Error!', error.message)
+        })
 
         let querySnapshot = await getDocs(collection(db, 'posts'), orderBy('postTime','desc'))
         querySnapshot.forEach(doc => {
           const {userId, post, postImg, postTime, likes, comments} = doc.data()
-          if (userId == auth.currentUser.uid) {
+          if (userId == fetchedUserId) {
             postList.push({
               id: doc.id,
               userId,
-              userName: username,
+              userName: usernamedb,
               userImg: photoURL,
               postTime: postTime,
               post,
@@ -95,21 +114,65 @@ const ProfileScreen = ({navigation, route}) => {
           setLoading(false)
         }
 
-      } catch(error) {
+      } catch (error) {
         Alert.alert('Error!', error.message)
       }
     }
 
-    React.useEffect(() => {
-      setUserPhotoURL(auth.currentUser.photoURL)
-      fetchPosts()
-      getuserInfo()
-    },[])
+    const fetchCurrentUser = async() => {
+      setIsLoggedInUser(true)
+      try {
+        //TODO: ability for users to follow, make likes and comments for posts
+        const postList = []
+        let usernamedb, photoURL, useraboutme, followersnumber, followingnumber = null
 
-    React.useEffect(() => {
-      fetchPosts()
-      setDeleted(false)
-    },[deleted])
+        await get(child(ref(database), `users/${auth.currentUser.uid}/`)).then((snapshot) => {
+          usernamedb = snapshot.child('username').toJSON()
+          photoURL = snapshot.child('photoURL').toJSON()
+          followersnumber = snapshot.child('followers').toJSON()
+          followingnumber = snapshot.child('following').toJSON()
+          useraboutme = snapshot.child('useraboutme').toJSON()
+          setFollowers(Object.keys(followersnumber).length)
+          setFollowing(Object.keys(followingnumber).length)
+          setUserAboutMe(useraboutme)
+          setUsername(usernamedb)
+          }).catch((error) => {
+            Alert.alert('Error!', error.message)
+          })
+
+        let querySnapshot = await getDocs(collection(db, 'posts'), orderBy('postTime','desc'))
+        querySnapshot.forEach(doc => {
+          const {userId, post, postImg, postTime, likes, comments} = doc.data()
+          if (userId == auth.currentUser.uid) {
+            postList.push({
+              id: doc.id,
+              userId,
+              userName: usernamedb,
+              userImg: photoURL,
+              postTime: postTime,
+              post,
+              postImg,
+              liked: false,
+              likes: likes,
+              comments : comments
+            })
+          }
+        })
+        postList.sort(function(x, y) {
+          return y.postTime - x.postTime
+        })
+        setPosts(postList)
+        setPostsNumber(postList.length.toString())
+        setUserPhotoURL(auth.currentUser.photoURL)
+
+        if (loading) {
+          setLoading(false)
+        }
+
+      } catch(error) {
+        Alert.alert('Error!', error.message)
+      }
+    }
 
     const handleDelete = (postId) => {
       Alert.alert(
@@ -171,11 +234,11 @@ const ProfileScreen = ({navigation, route}) => {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
 
         <Image style={styles.userImg} source={userPhotoURL != null ? {uri: userPhotoURL} : require('../../assets/users/question-mark.png')}/>
-        <Text style={styles.userName}>{auth.currentUser.displayName}</Text>
+        <Text style={styles.userName}>{username}</Text>
         <Text style={styles.aboutUser}>{useraboutme == null ? 'Go to the Edit Profile Page to change this text :)' : useraboutme }</Text>
 
         <View style={styles.userBtnWrapper}>
-          {route.params ? (
+          {!isloggedInUser ? (
             <>
               <TouchableOpacity style={styles.userBtn} onPress={() => {}}>
                 <Text style={styles.userBtnTxt}>Message</Text>

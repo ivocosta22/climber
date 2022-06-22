@@ -14,7 +14,7 @@ import AppLoader from '../../components/AppLoader'
 
 export default function HomeScreen({navigation}) {
   //TODO: remove warnings from app as much as possible
-  //TODO: refresh when there's no posts
+  //TODO: refresh when there's 0 posts
     const app = initializeApp(firebaseConfig)
     const db = getFirestore(app)
     const storage = getStorage(app)
@@ -26,7 +26,6 @@ export default function HomeScreen({navigation}) {
     const [deleted, setDeleted] = React.useState(false)
     const [refreshing, setRefreshing] = React.useState(false)
 
-    //TODO: other's users posts are showing up as my own, except i cant delete them
     const wait = (timeout) => {
       return new Promise(resolve => setTimeout(resolve, timeout))
     }

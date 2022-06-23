@@ -26,7 +26,6 @@ const AddPostScreen = () => {
     const db = getFirestore(app)
     const database = Database.getDatabase(app)
 
-    //TODO: Do not allow empty posts
     React.useEffect(() => {
         (async () => {
             const cameraPermission = await ImagePicker.requestCameraPermissionsAsync()
@@ -70,29 +69,33 @@ const AddPostScreen = () => {
     
     const submitPost = async () => {
         const imageUrl = await uploadImage()
-        try {
-            Database.get(Database.child(Database.ref(database), `users/${auth.currentUser.uid}/`)).then((snapshot) => {
-                let username = snapshot.child('username').toJSON()
-                let photoURL = snapshot.child('photoURL').toJSON()
-                const docRef = addDoc(collection(db, 'posts'), {
-                    userId: auth.currentUser.uid,
-                    userName: username,
-                    userImg: photoURL,
-                    post: post,
-                    postImg: imageUrl,
-                    postTime: Timestamp.fromDate(new Date()),
-                    likes: '0',
-                    comments: '0'
+        if (post == null && image == null) {
+            Alert.alert('Error!', 'You need to either have Text or an Image in your post')
+        } else {
+            try {
+                Database.get(Database.child(Database.ref(database), `users/${auth.currentUser.uid}/`)).then((snapshot) => {
+                    let username = snapshot.child('username').toJSON()
+                    let photoURL = snapshot.child('photoURL').toJSON()
+                    const docRef = addDoc(collection(db, 'posts'), {
+                        userId: auth.currentUser.uid,
+                        userName: username,
+                        userImg: photoURL,
+                        post: post,
+                        postImg: imageUrl,
+                        postTime: Timestamp.fromDate(new Date()),
+                        likes: '0',
+                        comments: '0'
+                    })
+                    Alert.alert('Post Published!', 'Your Post has been published successfully!')
+                }).catch((error) => {
+                    Alert.alert('Error!', error.message)
                 })
-                Alert.alert('Post Published!', 'Your Post has been published successfully!')
-            }).catch((error) => {
-                Alert.alert('Error!', error.message)
-            })
-            setPost(null)
-            setImage(null)
-            navigation.goBack()
-        } catch (e) {
-            console.log(e)
+                setPost(null)
+                setImage(null)
+                navigation.goBack()
+            } catch (e) {
+                console.log(e)
+            }
         }
     }
 

@@ -84,6 +84,8 @@ import FormButton from '../../components/FormButton'
     }
 
     const editProfile = async () => {
+      var didChangeEmail = ''
+      var didChangePassword = ''
 
       await editUsername()
 
@@ -91,19 +93,63 @@ import FormButton from '../../components/FormButton'
 
       await editAboutMe()
 
-      await editEmail()
+      didChangeEmail = await editEmail()
       
-      await editPassword()
+      didChangePassword = await editPassword()
 
-      if ((email != auth.currentUser.email && email != null) || (password != '' && password != null)) {
-        Alert.alert('Account Changed', 'Your email/password was changed. Please verify your new email if you changed it and re-login into the app')
-        auth.signOut().then(() => {
-          navigation.navigate('Login')
-        })
-      } else {
-        Alert.alert('Profile Updated!', 'Your Profile was updated successfully!')
-        navigation.goBack()
-      }    
+      switch (true) {
+        // Changed both Email and Password successfully
+        case (didChangeEmail == 'Success' && didChangePassword == 'Success'):
+          Alert.alert('Account Changed', 'Both your Email and Password were changed. Please verify your new Email and re-login using your new Email and Password into the app.')
+          auth.signOut().then(() => {
+            navigation.navigate('Login')
+          })
+          break
+        // Changed Email successfully
+        case (didChangeEmail == 'Success' && didChangePassword == 'Failed'):
+          Alert.alert('Account Changed', 'Your Email was changed. Please verify your new Email and re-login using your new Email into the app.')
+          auth.signOut().then(() => {
+            navigation.navigate('Login')
+          })
+          break
+        // Changed Password successfully
+        case (didChangeEmail == 'Failed' && didChangePassword == 'Success'):
+          Alert.alert('Account Changed', 'Your Password was changed. Please re-login into the app using your new Password.')
+          auth.signOut().then(() => {
+            navigation.navigate('Login')
+          })
+          break
+        // Error changing Email
+        case (didChangeEmail != 'Success' && didChangeEmail != 'Failed' && didChangePassword == 'Failed'):
+          Alert.alert('Error!', didChangeEmail)
+          break
+        // Error changing Password
+        case (didChangeEmail == 'Failed' && didChangePassword != 'Success' && didChangePassword != 'Failed'):
+          Alert.alert('Error!', didChangePassword)
+          break
+        // Error changing Email but Password was changed
+        case (didChangeEmail != 'Success' && didChangeEmail != 'Failed' && didChangePassword == 'Success'):
+          Alert.alert('Account Changed (ERROR!)', 'Your Password was changed. But there was an error changing your Email. Please re-login into the app using your new Password. (ERROR: ' + didChangeEmail + ')')
+          auth.signOut().then(() => {
+            navigation.navigate('Login')
+          })
+          break
+        // Error changing Password but Email was changed
+        case (didChangeEmail == 'Success' && didChangePassword != 'Success' && didChangePassword != 'Failed'):
+          Alert.alert('Account Changed (ERROR!)', 'Your Email was changed. But there was an error changing your Password. Please verify your new Email and re-login into the app. (ERROR: ' + didChangePassword + ')')
+          auth.signOut().then(() => {
+            navigation.navigate('Login')
+          })
+          break
+        // Error changing Password and Error changing Email
+        case (didChangeEmail != 'Success' && didChangeEmail != 'Failed' && didChangePassword != 'Success' && didChangePassword != 'Failed'):
+          Alert.alert('Error!', 'There was an error changing both your Email and Password. (EMAIL ERROR: ' + didChangeEmail + ')' + ' (PASSWORD ERROR: ' + didChangePassword + ')')
+          break
+        // Didn't change anything
+        case (didChangeEmail == 'Failed' && didChangePassword == 'Failed'):
+          Alert.alert('Profile Updated!', 'Your Profile was updated successfully!')
+          break
+      }
     }
 
     const updateProfileInfo = async (path, info) => {
@@ -149,13 +195,16 @@ import FormButton from '../../components/FormButton'
         const credentialsforEmail = EmailAuthProvider.credential(auth.currentUser.email, currentpassword)
 
         await reauthenticateWithCredential(auth.currentUser, credentialsforEmail).then(() => {
-          verifyBeforeUpdateEmail(auth.currentUser, email).catch(error => {
-            Alert.alert('Error!', error.message)
+          verifyBeforeUpdateEmail(auth.currentUser, email).then(() => {
+            return 'Success'
+          }).catch(error => {
+            return error.message
           })
         }).catch(error => {
-          Alert.alert('Error!', error.message)
+          return error.message
         })
       }
+      return 'Failed'
     }
 
     const editPassword = async () => {
@@ -163,13 +212,16 @@ import FormButton from '../../components/FormButton'
         const credentialsforPassword = EmailAuthProvider.credential(auth.currentUser.email, currentpassword)
 
         await reauthenticateWithCredential(auth.currentUser, credentialsforPassword).then(() => {
-          updatePassword(auth.currentUser, password).catch(error => {
-            Alert.alert('Error!', error.message)
+          updatePassword(auth.currentUser, password).then(() => {
+            return 'Success'
+          }).catch(error => {
+            return error.message
           })
         }).catch(error => {
-          Alert.alert('Error!', error.message)
+          return error.message
         })  
       }
+      return 'Failed'
     }
 
     return (

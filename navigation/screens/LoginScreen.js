@@ -1,6 +1,7 @@
 import React from 'react'
 import { useNavigation } from '@react-navigation/core'
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, View, TouchableOpacity, Image, Alert } from 'react-native'
+import { KeyboardAvoidingView, StyleSheet, Text, View, TouchableOpacity, Image, Alert } from 'react-native'
+import { TextInput } from 'react-native-paper'
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
 import { firebaseConfig } from '../../firebase'
@@ -8,9 +9,9 @@ import AppLoader from '../../components/AppLoader'
 
 const LoginScreen = () => {
   //TODO: I forgot my password
-  //TODO: check every try catch for loading state so it doesnt loop
     var [email, setEmail] = React.useState('')
     var [password, setPassword] = React.useState('')
+    const [passwordVisible, setPasswordVisible] = React.useState(true)
     const [loading, setLoading] = React.useState(false)
     const app = initializeApp(firebaseConfig)
     const auth = getAuth(app)
@@ -60,8 +61,8 @@ const LoginScreen = () => {
         {loading ? <AppLoader/> : null}
         <Image style={styles.tinyLogo} source={require('../../assets/icon.png')}/>
             <View style={styles.inputContainer}>
-                <TextInput placeholder='Email' value={email} onChangeText={text => setEmail(text)} style={styles.input} ref={emailTextInput} />
-                <TextInput placeholder='Password' value={password} onChangeText={text => setPassword(text)} style={styles.input} ref={passwordTextInput} secureTextEntry/>
+                <TextInput placeholder='Email' value={email} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setEmail(text)} style={styles.input} ref={emailTextInput} />
+                <TextInput placeholder='Password' value={password} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setPassword(text)} style={styles.input} ref={passwordTextInput} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}/>
             </View>
 
             <View style={styles.buttonContainer}>
@@ -92,7 +93,6 @@ const styles = StyleSheet.create({
     input: {
       backgroundColor: 'white',
       paddingHorizontal: 15,
-      paddingVertical: 10,
       borderRadius: 10,
       marginTop: 5,
     },

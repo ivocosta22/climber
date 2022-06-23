@@ -1,6 +1,7 @@
 import React from 'react'
 import { useNavigation } from '@react-navigation/core'
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, View, TouchableOpacity, ImageBackground, Alert } from 'react-native'
+import { KeyboardAvoidingView, StyleSheet, Text, View, TouchableOpacity, ImageBackground, Alert } from 'react-native'
+import { TextInput } from 'react-native-paper'
 import { getAuth, createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
 import { firebaseConfig } from '../../firebase'
@@ -15,6 +16,7 @@ const RegisterScreen = () => {
     var [email, setRegisteredEmail] = React.useState('')
     var [password, setRegisteredPassword] = React.useState('')
     var [passwordcheck, setRegisteredPasswordCheck] = React.useState('')
+    const [passwordVisible, setPasswordVisible] = React.useState(true)
     const [hasGalleryPermission, setHasGalleryPermission] = React.useState(null)
     const [image, setImage] = React.useState(null)
     const [loading, setLoading] = React.useState(false)
@@ -33,7 +35,6 @@ const RegisterScreen = () => {
 
   const handleSignUp = async () => {
     setLoading(true)
-    //TODO: Add eye for watching password (OPTIONAL)
     email = email.replace(/\s/g,'')
     username = username.replace(/\s/g,'')
     const usernamesref = Database.ref(db)
@@ -49,7 +50,10 @@ const RegisterScreen = () => {
             doesUserNameExist = true
           }
         })
-      })
+      }).catch(error => {
+        setLoading(false)
+        Alert.alert('Error!', error.message)
+    })
 
       if (doesUserNameExist) {
         setLoading(false)
@@ -59,7 +63,10 @@ const RegisterScreen = () => {
         .then(async userCredentials => {
           const userid = userCredentials.user.uid
           const imageUrl = await uploadImage(userid)
-          updateProfile(userCredentials.user, {displayName: username, photoURL: imageUrl} )
+          updateProfile(userCredentials.user, {displayName: username, photoURL: imageUrl} ).catch((error => {
+            setLoading(false)
+            Alert.alert('Error!', error.message)
+          }))
           saveProfileInfo({
               followers:{
                 [userid]: {
@@ -80,10 +87,15 @@ const RegisterScreen = () => {
           sendEmailVerification(userCredentials.user).then(() => {
             setLoading(false)
             navigation.navigate('Login')
-          })
+          }).catch((error => {
+            setLoading(false)
+            Alert.alert('Error!', error.message) 
+          }))
           
+        }).catch(error => { 
+          setLoading(false)
+          Alert.alert('Error!', error.message)
         })
-        .catch(error => Alert.alert('Error!', error))
       }    
     } 
   }
@@ -93,12 +105,14 @@ const RegisterScreen = () => {
     const updates = {}
     updates['/users/' + user + '/'] = data
     Database.update(Database.ref(db), updates).catch((error) => {
-      Alert.alert('Error!', error)
+      setLoading(false)
+      Alert.alert('Error!', error.message)
     })
   }
 
     const pickImage = async () => {
       if (hasGalleryPermission === false) {
+        setLoading(false)
         Alert.alert('Error!', 'Please give storage permissions to the application.')
       }
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -184,12 +198,11 @@ const RegisterScreen = () => {
               </View>
             </TouchableOpacity>
             <View style={styles.inputContainer}>
-                <TextInput placeholder='Username' value={username} onChangeText={text => setRegisteredUsername(text)} style={styles.input}/>
-                <TextInput placeholder='Email' value={email} onChangeText={text => setRegisteredEmail(text)} style={styles.input}/>
-                <TextInput placeholder='Password' value={password} onChangeText={text => setRegisteredPassword(text)} style={styles.input} secureTextEntry/>
-                <TextInput placeholder='Repeat Password' value={passwordcheck} onChangeText={text => setRegisteredPasswordCheck(text)} style={styles.input} secureTextEntry/>
+                <TextInput placeholder='Username' value={username} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredUsername(text)} style={styles.input}/>
+                <TextInput placeholder='Email' value={email} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredEmail(text)} style={styles.input}/>
+                <TextInput placeholder='Password' value={password} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredPassword(text)} style={styles.input} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}/>
+                <TextInput placeholder='Repeat Password' value={passwordcheck} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredPasswordCheck(text)} style={styles.input} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}/>
             </View>
-
             <View style={styles.buttonContainer}>
                 <TouchableOpacity onPress={handleSignUp} style={[styles.button]}>
                     <Text style={styles.buttonText}>Register</Text>
@@ -217,7 +230,6 @@ const styles = StyleSheet.create({
     input: {
       backgroundColor: 'white',
       paddingHorizontal: 15,
-      paddingVertical: 10,
       borderRadius: 10,
       marginTop: 5,
     },

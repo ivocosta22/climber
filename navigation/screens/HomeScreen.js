@@ -6,20 +6,15 @@ import { firebaseConfig } from '../../firebase'
 import { initializeApp } from 'firebase/app'
 import { getFirestore, collection, getDocs, orderBy, getDoc, deleteDoc, doc } from 'firebase/firestore'
 import { deleteObject, getStorage, ref } from 'firebase/storage'
-import { getAuth } from 'firebase/auth'
-import * as Database from 'firebase/database'
 import SkeletonLoader from 'expo-skeleton-loader'
 import PostCard from '../../components/PostCard'
 import AppLoader from '../../components/AppLoader'
 
 export default function HomeScreen({navigation}) {
   //TODO: remove warnings from app as much as possible
-  //TODO: refresh when there's 0 posts
     const app = initializeApp(firebaseConfig)
     const db = getFirestore(app)
     const storage = getStorage(app)
-    const database = Database.getDatabase(app)
-    const auth = getAuth(app)
     const [posts, setPosts] = React.useState(null)
     const [loading, setLoading] = React.useState(true)
     const [deleting, setDeleting] = React.useState(false)
@@ -88,6 +83,7 @@ export default function HomeScreen({navigation}) {
     }
 
     React.useEffect(() => {
+      setLoading(true)
       fetchPosts()
     },[])
 

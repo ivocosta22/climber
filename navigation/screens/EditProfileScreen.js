@@ -10,8 +10,8 @@ import * as Database from 'firebase/database'
 import * as ImagePicker from 'expo-image-picker'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import FormButton from '../../components/FormButton'
+import AppLoader from '../../components/AppLoader'
 
-//TODO: Change username under image at the same time as i change it in textinput. It's in the video playlist
   const EditProfileScreen = () => {
     const app = initializeApp(firebaseConfig)
     const auth = getAuth(app)
@@ -20,6 +20,7 @@ import FormButton from '../../components/FormButton'
     const navigation = useNavigation()
     const [image, setImage] = React.useState(null)
     const [hasGalleryPermission, setHasGalleryPermission] = React.useState(null)
+    const [loading, setLoading] = React.useState(false)
     var [email, setEmail] = React.useState(null)
     var [password, setPassword] = React.useState(null)
     var [currentpassword, setCurrentPassword] = React.useState(null)
@@ -84,22 +85,19 @@ import FormButton from '../../components/FormButton'
     }
 
     const editProfile = async () => {
+      setLoading(true)
       var didChangeEmail = ''
       var didChangePassword = ''
-
       await editUsername()
-
       await editProfilePicture()
-
       await editAboutMe()
-
       didChangeEmail = await editEmail()
-      
       didChangePassword = await editPassword()
 
       switch (true) {
         // Changed both Email and Password successfully
         case (didChangeEmail == 'Success' && didChangePassword == 'Success'):
+          setLoading(false)
           Alert.alert('Account Changed', 'Both your Email and Password were changed. Please verify your new Email and re-login using your new Email and Password into the app.')
           auth.signOut().then(() => {
             navigation.navigate('Login')
@@ -107,6 +105,7 @@ import FormButton from '../../components/FormButton'
           break
         // Changed Email successfully
         case (didChangeEmail == 'Success' && didChangePassword == 'Failed'):
+          setLoading(false)
           Alert.alert('Account Changed', 'Your Email was changed. Please verify your new Email and re-login using your new Email into the app.')
           auth.signOut().then(() => {
             navigation.navigate('Login')
@@ -114,6 +113,7 @@ import FormButton from '../../components/FormButton'
           break
         // Changed Password successfully
         case (didChangeEmail == 'Failed' && didChangePassword == 'Success'):
+          setLoading(false)
           Alert.alert('Account Changed', 'Your Password was changed. Please re-login into the app using your new Password.')
           auth.signOut().then(() => {
             navigation.navigate('Login')
@@ -121,14 +121,17 @@ import FormButton from '../../components/FormButton'
           break
         // Error changing Email
         case (didChangeEmail != 'Success' && didChangeEmail != 'Failed' && didChangePassword == 'Failed'):
+          setLoading(false)
           Alert.alert('Error!', didChangeEmail)
           break
         // Error changing Password
         case (didChangeEmail == 'Failed' && didChangePassword != 'Success' && didChangePassword != 'Failed'):
+          setLoading(false)
           Alert.alert('Error!', didChangePassword)
           break
         // Error changing Email but Password was changed
         case (didChangeEmail != 'Success' && didChangeEmail != 'Failed' && didChangePassword == 'Success'):
+          setLoading(false)
           Alert.alert('Account Changed (ERROR!)', 'Your Password was changed. But there was an error changing your Email. Please re-login into the app using your new Password. (ERROR: ' + didChangeEmail + ')')
           auth.signOut().then(() => {
             navigation.navigate('Login')
@@ -136,17 +139,20 @@ import FormButton from '../../components/FormButton'
           break
         // Error changing Password but Email was changed
         case (didChangeEmail == 'Success' && didChangePassword != 'Success' && didChangePassword != 'Failed'):
+          setLoading(false)
           Alert.alert('Account Changed (ERROR!)', 'Your Email was changed. But there was an error changing your Password. Please verify your new Email and re-login into the app. (ERROR: ' + didChangePassword + ')')
           auth.signOut().then(() => {
             navigation.navigate('Login')
           })
           break
-        // Error changing Password and Error changing Email
+        // Error changing Email and Error changing Password
         case (didChangeEmail != 'Success' && didChangeEmail != 'Failed' && didChangePassword != 'Success' && didChangePassword != 'Failed'):
+          setLoading(false)
           Alert.alert('Error!', 'There was an error changing both your Email and Password. (EMAIL ERROR: ' + didChangeEmail + ')' + ' (PASSWORD ERROR: ' + didChangePassword + ')')
           break
         // Didn't change anything
         case (didChangeEmail == 'Failed' && didChangePassword == 'Failed'):
+          setLoading(false)
           Alert.alert('Profile Updated!', 'Your Profile was updated successfully!')
           break
       }
@@ -226,6 +232,7 @@ import FormButton from '../../components/FormButton'
 
     return (
       <View style={styles.container}>
+      {loading ? <AppLoader/> : null}
           <View style={{alignItems: 'center', paddingTop: 30}}>
             <TouchableOpacity onPress={pickImage}>
               <View style={{height: 100, width: 100, borderRadius: 15, justifyContent: 'center', alignItems: 'center',

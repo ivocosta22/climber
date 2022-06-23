@@ -143,7 +143,7 @@ const AddPostScreen = () => {
                         <SubmitBtn onPress={submitPost}>
                             <SubmitBtnText>Post</SubmitBtnText>
                         </SubmitBtn>
-                    )}    
+                    )}
                 </InputWrapper>
                 <ActionButton buttonColor='rgba(7, 130, 249, 1)'>
                     <ActionButton.Item

@@ -204,8 +204,8 @@ const ProfileScreen = ({navigation, route}) => {
           const imageRef = ref(storage, postImg)
           deleteObject(imageRef).then(() => {
             deleteFirestoreData(postId)
-          }).catch((e) => {
-            console.log(e)
+          }).catch((error) => {
+            Alert.alert("Error!", error)
           })
         } else {
           deleteFirestoreData(postId)

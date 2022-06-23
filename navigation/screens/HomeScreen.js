@@ -78,6 +78,7 @@ export default function HomeScreen({navigation}) {
         }
 
       } catch(error) {
+        setLoading(false)
         Alert.alert('Error!', error.message)
       }
     }
@@ -123,8 +124,8 @@ export default function HomeScreen({navigation}) {
             const imageRef = ref(storage, postImg)
             deleteObject(imageRef).then(() => {
               deleteFirestoreData(postId)
-            }).catch((e) => {
-              console.log(e)
+            }).catch((error) => {
+              Alert.alert('Error!', error.message)
             })
           } else {
             deleteFirestoreData(postId)

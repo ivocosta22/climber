@@ -2,13 +2,12 @@ import React from 'react'
 import { useNavigation } from '@react-navigation/core'
 import { KeyboardAvoidingView, StyleSheet, Text, View, TouchableOpacity, Image, Alert } from 'react-native'
 import { TextInput } from 'react-native-paper'
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
+import { getAuth, sendPasswordResetEmail, signInWithEmailAndPassword } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
 import { firebaseConfig } from '../../firebase'
 import AppLoader from '../../components/AppLoader'
 
 const LoginScreen = () => {
-  //TODO: I forgot my password
     var [email, setEmail] = React.useState('')
     var [password, setPassword] = React.useState('')
     const [passwordVisible, setPasswordVisible] = React.useState(true)
@@ -56,6 +55,20 @@ const LoginScreen = () => {
       })
     }
 
+    const resetPassword = () => {
+      setLoading(true)
+      email = email.replace(/\s/g,'')
+      sendPasswordResetEmail(auth, email).then(() => {
+        emailTextInput.current.clear()
+        passwordTextInput.current.clear()
+        Alert.alert('Password Reset', 'Please check your email in order to reset your password.')
+        setLoading(false)
+      }).catch((error) => {
+        Alert.alert('Error!', error.message)
+        setLoading(false)
+      })
+    }
+
     return (
         <KeyboardAvoidingView style={styles.container} behavior="padding">
         {loading ? <AppLoader/> : null}
@@ -72,6 +85,10 @@ const LoginScreen = () => {
 
                 <TouchableOpacity onPress={() => {navigation.navigate('Register')}} style={[styles.button, styles.buttonOutline]}>
                     <Text style={styles.buttonOutlineText}>Register</Text>
+                </TouchableOpacity> 
+                
+                <TouchableOpacity onPress={resetPassword}>
+                    <Text style={[styles.buttonOutlineText]}>I Forgot my Password</Text>
                 </TouchableOpacity> 
             </View>
         </KeyboardAvoidingView>
@@ -124,6 +141,7 @@ const styles = StyleSheet.create({
       color: '#0782F9',
       fontWeight: '700',
       fontSize: 16,
+      alignSelf: 'center'
     },
     tinyLogo: {
       height: 200,

@@ -80,6 +80,7 @@ const RegisterScreen = () => {
                   photoURL: imageUrl
                 },
               },
+              likedPosts:['0'],
               photoURL: imageUrl,
               useraboutme: 'Go to the Edit Profile Page to change this text :)',
               username: username
@@ -199,7 +200,7 @@ const RegisterScreen = () => {
             </TouchableOpacity>
             <View style={styles.inputContainer}>
                 <TextInput placeholder='Username' value={username} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredUsername(text)} style={styles.input}/>
-                <TextInput placeholder='Email' value={email} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredEmail(text)} style={styles.input}/>
+                <TextInput placeholder='Email' value={email} selectionColor='#0782F9' activeUnderlineColor='#0782F9' onChangeText={text => setRegisteredEmail(text)} style={styles.input}/>
                 <TextInput placeholder='Password' value={password} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredPassword(text)} style={styles.input} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}/>
                 <TextInput placeholder='Repeat Password' value={passwordcheck} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredPasswordCheck(text)} style={styles.input} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}/>
             </View>

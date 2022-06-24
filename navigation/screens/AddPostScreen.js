@@ -83,8 +83,8 @@ const AddPostScreen = () => {
                         post: post,
                         postImg: imageUrl,
                         postTime: Timestamp.fromDate(new Date()),
-                        likes: '0',
-                        comments: '0'
+                        likes: 0,
+                        comments: 0
                     })
                     Alert.alert('Post Published!', 'Your Post has been published successfully!')
                 }).catch((error) => {

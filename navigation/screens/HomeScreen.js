@@ -4,22 +4,28 @@ import { useRoute, useFocusEffect } from '@react-navigation/native'
 import { Container } from '../../styles/FeedStyles'
 import { firebaseConfig } from '../../firebase'
 import { initializeApp } from 'firebase/app'
-import { getFirestore, collection, getDocs, orderBy, getDoc, deleteDoc, doc } from 'firebase/firestore'
+import { getFirestore, collection, getDocs, orderBy, getDoc, deleteDoc, doc, updateDoc, documentId } from 'firebase/firestore'
 import { deleteObject, getStorage, ref } from 'firebase/storage'
+import { getAuth } from 'firebase/auth'
+import * as Database from 'firebase/database'
 import SkeletonLoader from 'expo-skeleton-loader'
 import PostCard from '../../components/PostCard'
 import AppLoader from '../../components/AppLoader'
+
 
 export default function HomeScreen({navigation}) {
   //TODO: remove warnings from app as much as possible
     const app = initializeApp(firebaseConfig)
     const db = getFirestore(app)
     const storage = getStorage(app)
+    const database = Database.getDatabase(app)
+    const auth = getAuth(app)
     const [posts, setPosts] = React.useState(null)
     const [loading, setLoading] = React.useState(true)
     const [deleting, setDeleting] = React.useState(false)
     const [deleted, setDeleted] = React.useState(false)
     const [refreshing, setRefreshing] = React.useState(false)
+    const [postLiked, setPostLiked] = React.useState([{liked: false, id: '0'}])
 
     const wait = (timeout) => {
       return new Promise(resolve => setTimeout(resolve, timeout))
@@ -52,9 +58,23 @@ export default function HomeScreen({navigation}) {
     const fetchPosts = async() => {
       try {
         const postList = []
+        const databaseLikesRef = Database.ref(database, '/users/' + auth.currentUser.uid + `/likedPosts/`)
+        const likesList = []
+        
+        let likessnapshot = await Database.get(databaseLikesRef)
+        likessnapshot.forEach(likedPost => {
+          likesList.push(likedPost)
+        })
+
+        let isPostLiked
         let querySnapshot = await getDocs(collection(db, 'posts'), orderBy('postTime','desc'))
         querySnapshot.forEach(doc => {
           const {userId ,userName, userImg, post, postImg, postTime, likes, comments} = doc.data()
+          if (JSON.stringify(likesList).includes(doc.id)) {
+            isPostLiked = true
+          } else {
+            isPostLiked = false
+          }
           postList.push({
             id: doc.id,
             userId,
@@ -63,7 +83,7 @@ export default function HomeScreen({navigation}) {
             postTime: postTime,
             post,
             postImg,
-            liked: false,
+            liked: isPostLiked,
             likes: likes,
             comments : comments
           })
@@ -72,11 +92,7 @@ export default function HomeScreen({navigation}) {
           return y.postTime - x.postTime
         })
         setPosts(postList)
-
-        if (loading) {
-          setLoading(false)
-        }
-
+        setLoading(false)
       } catch(error) {
         setLoading(false)
         Alert.alert('Error!', error.message)
@@ -115,30 +131,71 @@ export default function HomeScreen({navigation}) {
     const deletePost = async (postId) => {
         setDeleting(true)
         const docRef = doc(db, 'posts', postId)
-        const docSnap = await getDoc(docRef)
+        const docSnap = await getDoc(docRef).catch((error) => {
+          setDeleting(false)
+          Alert.alert('Error!', error.message)
+        })
 
         if (docSnap.exists) {
           const {postImg} = docSnap.data()
-
           if (postImg != null) {
             const imageRef = ref(storage, postImg)
             deleteObject(imageRef).then(() => {
               deleteFirestoreData(postId)
             }).catch((error) => {
+              setDeleting(false)
               Alert.alert('Error!', error.message)
             })
           } else {
             deleteFirestoreData(postId)
           }
+        } else {
+          setDeleting(false)
+          Alert.alert('Error!', 'This Post has been deleted already.')
         }
     }
 
     const deleteFirestoreData = async (postId) => {
       await deleteDoc(doc(db, 'posts', postId)).then(() => {
-        setDeleted(true)
         setDeleting(false)
         Alert.alert('Post Deleted!', 'Your Post has been deleted successfully!')
-      }).catch(error => Alert.alert('Error!', error.message))
+      }).catch(error => {
+        setDeleting(false)
+        Alert.alert('Error!', error.message)
+      })
+    }
+
+    const handleLike = async (postId) => {
+      const docRef = doc(db, 'posts', postId)
+      const docSnap = await getDoc(docRef).catch((error) => {
+        Alert.alert('Error!', error.message)
+      })
+
+      if (docSnap.exists) {
+        const {likes} = docSnap.data()
+
+        await updateDoc(docRef, {likes: likes + 1}).catch((error) => {
+          Alert.alert('Error!', error.message)
+        })
+
+        posts.forEach((post) => {
+          if (post.id == postId) {
+            if (!post.liked) {
+              const databasepostid = post.id
+              post.liked = true
+              setPostLiked(postLiked => [...postLiked, {liked: true, id: post.id}])
+              databaseUpdate('likedPosts', databasepostid)
+              //fetchPosts()
+            }
+          }
+        })
+      }
+    }
+
+    const databaseUpdate = async (path, id) => {
+      const ref = Database.ref(database, '/users/' + auth.currentUser.uid + `/${path}/`)
+      const push = Database.push(ref)
+      Database.set(push, id)
     }
 
     return(
@@ -176,11 +233,11 @@ export default function HomeScreen({navigation}) {
         <>
         <AppLoader/>
         <Container>
-            <FlatList data={posts} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>} renderItem={({item}) => <PostCard item={item} onDelete={handleDelete} onPress={() => navigation.navigate('HomeProfile', {userId: item.userId})}/>} keyExtractor={item=>item.id} showsVerticalScrollIndicator={false}></FlatList>
+            <FlatList data={posts} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>} renderItem={({item}) => <PostCard item={item} onDelete={handleDelete} onLike={handleLike} onPress={() => navigation.navigate('HomeProfile', {userId: item.userId})}/>} keyExtractor={item=>item.id} showsVerticalScrollIndicator={false}></FlatList>
         </Container>
         </> :
         <Container>
-            <FlatList data={posts} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>} renderItem={({item}) => <PostCard item={item} onDelete={handleDelete} onPress={() => navigation.navigate('HomeProfile', {userId: item.userId})}/>} keyExtractor={item=>item.id} showsVerticalScrollIndicator={false}></FlatList>
+            <FlatList data={posts} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>} renderItem={({item}) => <PostCard item={item} onDelete={handleDelete} onLike={handleLike} onPress={() => navigation.navigate('HomeProfile', {userId: item.userId})}/>} keyExtractor={item=>item.id} showsVerticalScrollIndicator={false}></FlatList>
         </Container>}
       </SafeAreaView>
     )

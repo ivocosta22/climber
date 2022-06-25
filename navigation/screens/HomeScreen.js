@@ -15,6 +15,7 @@ import AppLoader from '../../components/AppLoader'
 
 export default function HomeScreen({navigation}) {
   //TODO: ability for users to add comments for posts
+  //TODO: Messages Screen not functional
   //TODO: remove warnings from app as much as possible
     const app = initializeApp(firebaseConfig)
     const db = getFirestore(app)

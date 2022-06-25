@@ -235,24 +235,37 @@ const ProfileScreen = ({navigation, route}) => {
   }
 
   const followUser = async () => {
-    //TODO: Unfollow not handled
     const fetchedUserId = route.params.userId
-    let fetchedUsername, fetchedUserProfilePic = null
+    let fetchedUsername, fetchedUserProfilePic, fetchedfollowers = null
     await get(child(ref(database), `users/${fetchedUserId}/`)).then((snapshot) => {
       fetchedUsername = snapshot.child('username').toJSON()
       fetchedUserProfilePic = snapshot.child('photoURL').toJSON()
+      fetchedfollowers = snapshot.child('followers').toJSON()
 
-      updateDatabase(auth.currentUser.uid, 'following', {
-          username: fetchedUsername,
-          photoURL: fetchedUserProfilePic
-      }, fetchedUserId)
+      if (Object.keys(fetchedfollowers).includes(auth.currentUser.uid)) {
+        updateDatabase(auth.currentUser.uid, 'following', {
+          username: null,
+          photoURL: null
+        }, fetchedUserId)
 
-      updateDatabase(fetchedUserId, 'followers', {
+        updateDatabase(fetchedUserId, 'followers', {
+          username: null,
+          photoURL: null   
+        }, auth.currentUser.uid)
+        setFollowText('Follow')
+      } else {
+        updateDatabase(auth.currentUser.uid, 'following', {
+            username: fetchedUsername,
+            photoURL: fetchedUserProfilePic
+        }, fetchedUserId)
+
+        updateDatabase(fetchedUserId, 'followers', {
           username: auth.currentUser.displayName,
           photoURL: auth.currentUser.photoURL   
-      }, auth.currentUser.uid)
+        }, auth.currentUser.uid)
+        setFollowText('Following')
+      }
     })
-    setFollowText('Following')
   }
 
   const updateDatabase = async (fromUser, path, info, toUser) => {

@@ -130,7 +130,6 @@ const ProfileScreen = ({navigation, route}) => {
     const fetchCurrentUser = async() => {
       setIsLoggedInUser(true)
       try {
-        //TODO: ability for users to follow, and comments for posts
         const postList = []
         let usernamedb, photoURL, useraboutme, followersnumber, followingnumber = null
 
@@ -236,6 +235,7 @@ const ProfileScreen = ({navigation, route}) => {
   }
 
   const followUser = async () => {
+    //TODO: Unfollow not handled
     const fetchedUserId = route.params.userId
     let fetchedUsername, fetchedUserProfilePic = null
     await get(child(ref(database), `users/${fetchedUserId}/`)).then((snapshot) => {

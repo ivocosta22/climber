@@ -4,7 +4,7 @@ import { useRoute, useFocusEffect } from '@react-navigation/native'
 import { Container } from '../../styles/FeedStyles'
 import { firebaseConfig } from '../../firebase'
 import { initializeApp } from 'firebase/app'
-import { getFirestore, collection, getDocs, orderBy, getDoc, deleteDoc, doc, updateDoc, documentId } from 'firebase/firestore'
+import { getFirestore, collection, getDocs, orderBy, getDoc, deleteDoc, doc, updateDoc, documentId, query } from 'firebase/firestore'
 import { deleteObject, getStorage, ref } from 'firebase/storage'
 import { getAuth } from 'firebase/auth'
 import * as Database from 'firebase/database'
@@ -14,8 +14,8 @@ import AppLoader from '../../components/AppLoader'
 
 
 export default function HomeScreen({navigation}) {
+  //TODO: ability for users to add comments for posts
   //TODO: remove warnings from app as much as possible
-  //TODO: Unlike posts
     const app = initializeApp(firebaseConfig)
     const db = getFirestore(app)
     const storage = getStorage(app)
@@ -175,18 +175,28 @@ export default function HomeScreen({navigation}) {
       if (docSnap.exists) {
         const {likes} = docSnap.data()
 
-        await updateDoc(docRef, {likes: likes + 1}).catch((error) => {
-          Alert.alert('Error!', error.message)
-        })
-
         posts.forEach((post) => {
           if (post.id == postId) {
+            const databasepostid = post.id
+
             if (!post.liked) {
-              const databasepostid = post.id
-              post.liked = true
-              setPostLiked(postLiked => [...postLiked, {liked: true, id: post.id}])
-              databaseUpdate('likedPosts', databasepostid)
-              //fetchPosts()
+              updateDoc(docRef, {likes: likes + 1}).then(() => {
+                post.liked = true
+                databaseUpdate('likedPosts', databasepostid)
+                setPostLiked(postLiked => [...postLiked, {liked: true, id: post.id}])
+              }).catch((error) => {
+                Alert.alert('Error!', error.message)
+              })
+            } else if (post.liked) {
+              updateDoc(docRef, {likes: likes - 1}).then(() => {
+                post.liked = false
+                databaseRemove('likedPosts', databasepostid)
+                setPostLiked(postLiked => postLiked.filter(postlike => {
+                  return postlike.id == databasepostid
+                }))
+              }).catch((error) => {
+                Alert.alert('Error!', error.message)
+              })
             }
           }
         })
@@ -197,6 +207,17 @@ export default function HomeScreen({navigation}) {
       const ref = Database.ref(database, '/users/' + auth.currentUser.uid + `/${path}/`)
       const push = Database.push(ref)
       Database.set(push, id)
+    }
+
+    const databaseRemove = async (path, id) => {
+      const ref = Database.ref(database, `users/${auth.currentUser.uid}/${path}/`)
+      await Database.get(Database.child(Database.ref(database), `users/${auth.currentUser.uid}/${path}/`)).then((snapshot) => {
+        snapshot.forEach(child => {
+          if (JSON.stringify(child).includes(id)) {
+            Database.remove(child.ref)
+          }
+        })
+      })
     }
 
     return(

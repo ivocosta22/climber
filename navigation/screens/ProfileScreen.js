@@ -2,7 +2,7 @@ import React from 'react'
 import { View, SafeAreaView, StyleSheet, Text, Image, ScrollView, Alert, RefreshControl } from 'react-native'
 import { getAuth } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
-import { get, getDatabase, ref, child } from 'firebase/database'
+import { get, getDatabase, ref, child, update } from 'firebase/database'
 import { getFirestore, collection, getDocs, orderBy, getDoc, deleteDoc, doc } from 'firebase/firestore'
 import { firebaseConfig } from '../../firebase'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -25,6 +25,7 @@ const ProfileScreen = ({navigation, route}) => {
     const [postsnumber, setPostsNumber] = React.useState(null)
     const [followers, setFollowers] = React.useState(null)
     const [following, setFollowing] = React.useState(null)
+    const [followText, setFollowText] = React.useState(null)
 
     const wait = (timeout) => {
       return new Promise(resolve => setTimeout(resolve, timeout))
@@ -77,6 +78,13 @@ const ProfileScreen = ({navigation, route}) => {
           followersnumber = snapshot.child('followers').toJSON()
           followingnumber = snapshot.child('following').toJSON()
           useraboutme = snapshot.child('useraboutme').toJSON()
+
+          if (Object.keys(followersnumber).includes(auth.currentUser.uid)) {
+            setFollowText('Following')
+          } else {
+            setFollowText('Follow')
+          }
+
           setFollowers(Object.keys(followersnumber).length)
           setFollowing(Object.keys(followingnumber).length)
           setUsername(usernamedb)
@@ -122,7 +130,7 @@ const ProfileScreen = ({navigation, route}) => {
     const fetchCurrentUser = async() => {
       setIsLoggedInUser(true)
       try {
-        //TODO: ability for users to follow, make likes and comments for posts
+        //TODO: ability for users to follow, and comments for posts
         const postList = []
         let usernamedb, photoURL, useraboutme, followersnumber, followingnumber = null
 
@@ -227,6 +235,33 @@ const ProfileScreen = ({navigation, route}) => {
       }).catch(error => Alert.alert('Error!', error.message))
   }
 
+  const followUser = async () => {
+    const fetchedUserId = route.params.userId
+    let fetchedUsername, fetchedUserProfilePic = null
+    await get(child(ref(database), `users/${fetchedUserId}/`)).then((snapshot) => {
+      fetchedUsername = snapshot.child('username').toJSON()
+      fetchedUserProfilePic = snapshot.child('photoURL').toJSON()
+
+      updateDatabase(auth.currentUser.uid, 'following', {
+          username: fetchedUsername,
+          photoURL: fetchedUserProfilePic
+      }, fetchedUserId)
+
+      updateDatabase(fetchedUserId, 'followers', {
+          username: auth.currentUser.displayName,
+          photoURL: auth.currentUser.photoURL   
+      }, auth.currentUser.uid)
+    })
+    setFollowText('Following')
+  }
+
+  const updateDatabase = async (fromUser, path, info, toUser) => {
+    const data = info
+    const updates = {}
+    updates['/users/' + fromUser + `/${path}/` + toUser] = data
+    update(ref(database), updates)
+  }
+
   return (
     <SafeAreaView style={{flex:1, backgroundColor: '#fff'}}>
       {loading ? <AppLoader/> : null}
@@ -243,8 +278,8 @@ const ProfileScreen = ({navigation, route}) => {
               <TouchableOpacity style={styles.userBtn} onPress={() => {}}>
                 <Text style={styles.userBtnTxt}>Message</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.userBtn} onPress={() => {}}>
-                <Text style={styles.userBtnTxt}>Follow</Text>
+              <TouchableOpacity style={styles.userBtn} onPress={followUser}>
+                <Text style={styles.userBtnTxt}>{followText}</Text>
               </TouchableOpacity>
             </>
           ) : (

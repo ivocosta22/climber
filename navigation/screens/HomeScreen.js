@@ -15,6 +15,7 @@ import AppLoader from '../../components/AppLoader'
 
 export default function HomeScreen({navigation}) {
   //TODO: remove warnings from app as much as possible
+  //TODO: Unlike posts
     const app = initializeApp(firebaseConfig)
     const db = getFirestore(app)
     const storage = getStorage(app)

@@ -17,7 +17,6 @@ export default function HomeScreen({navigation}) {
   //TODO: remove warnings from app as much as possible
   //TODO: dark mode
   //TODO: language settings
-  //TODO: remove bottom drawer when going into comments screen or profile screen
     const app = initializeApp(firebaseConfig)
     const db = getFirestore(app)
     const storage = getStorage(app)

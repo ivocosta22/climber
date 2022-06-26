@@ -12,7 +12,7 @@ import ProgressiveImage from './ProgressiveImage'
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 
-const PostCard = ({item, onDelete, onLike, onPress}) => {
+const PostCard = ({item, onDelete, onLike, onComment, onPress}) => {
 
     likeIcon = item.liked ? 'heart' : 'heart-outline'
     likeIconColor = item.liked ? '#0782F9' : '#333'
@@ -53,15 +53,15 @@ const PostCard = ({item, onDelete, onLike, onPress}) => {
                     resizeMode='cover'
                 />
             ) : <PostDivider />}
-            <InteractionWrapper>{
-                <Interaction active={item.liked} onPress={() => onLike(item.id)}>
+            <InteractionWrapper>
+                {<Interaction active={item.liked} onPress={() => onLike(item.id)}>
                     <Ionicons name={likeIcon} size={25} color={likeIconColor}/>
                     <InteractionText active={item.liked}>{likeText}</InteractionText>
                 </Interaction>}
-                <Interaction>
+                {<Interaction onPress={() => onComment(item.id)}>
                     <Ionicons name="md-chatbubble-outline" size={25}/>
                     <InteractionText>{commentText}</InteractionText>
-                </Interaction>
+                </Interaction>}
                 {auth.currentUser.uid == item.userId ? 
                 <Interaction onPress={() => onDelete(item.id)}>
                     <Ionicons name="md-trash-bin" size={25}/>

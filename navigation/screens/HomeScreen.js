@@ -14,9 +14,10 @@ import AppLoader from '../../components/AppLoader'
 
 
 export default function HomeScreen({navigation}) {
-  //TODO: ability for users to add comments for posts
-  //TODO: Messages Screen not functional
   //TODO: remove warnings from app as much as possible
+  //TODO: dark mode
+  //TODO: language settings
+  //TODO: remove bottom drawer when going into comments screen or profile screen
     const app = initializeApp(firebaseConfig)
     const db = getFirestore(app)
     const storage = getStorage(app)
@@ -256,11 +257,11 @@ export default function HomeScreen({navigation}) {
         <>
         <AppLoader/>
         <Container>
-            <FlatList data={posts} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>} renderItem={({item}) => <PostCard item={item} onDelete={handleDelete} onLike={handleLike} onPress={() => navigation.navigate('HomeProfile', {userId: item.userId})}/>} keyExtractor={item=>item.id} showsVerticalScrollIndicator={false}></FlatList>
+            <FlatList data={posts} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>} renderItem={({item}) => <PostCard item={item} onDelete={handleDelete} onLike={handleLike} onComment={() => navigation.navigate('Comments', {userId: item.userId})} onPress={() => navigation.navigate('HomeProfile', {userId: item.userId})}/>} keyExtractor={item=>item.id} showsVerticalScrollIndicator={false}></FlatList>
         </Container>
         </> :
         <Container>
-            <FlatList data={posts} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>} renderItem={({item}) => <PostCard item={item} onDelete={handleDelete} onLike={handleLike} onPress={() => navigation.navigate('HomeProfile', {userId: item.userId})}/>} keyExtractor={item=>item.id} showsVerticalScrollIndicator={false}></FlatList>
+            <FlatList data={posts} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>} renderItem={({item}) => <PostCard item={item} onDelete={handleDelete} onLike={handleLike} onComment={() => navigation.navigate('Comments', {userId: item.userId})} onPress={() => navigation.navigate('HomeProfile', {userId: item.userId})}/>} keyExtractor={item=>item.id} showsVerticalScrollIndicator={false}></FlatList>
         </Container>}
       </SafeAreaView>
     )

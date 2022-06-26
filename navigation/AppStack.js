@@ -7,6 +7,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
 
 import HomeScreen from './screens/HomeScreen'
+import CommentsScreen from './screens/CommentsScreen'
 import ChatScreen from './screens/ChatScreen'
 import MessagesScreen from './screens/MessagesScreen'
 import AddPostScreen from './screens/AddPostScreen'
@@ -61,6 +62,24 @@ const FeedStack = ({navigation}) => (
       }}
     />
     <Stack.Screen
+      name="Comments"
+      component={CommentsScreen}
+      options={{
+        title: 'Comments',
+        headerTitleAlign: 'left',
+        headerStyle: {
+          backgroundColor: '#fff',
+          elevation: 0,
+        },
+        headerBackTitleVisible: false,
+        headerBackImage: () => (
+          <View style={{marginLeft: 15}}>
+            <Ionicons name="arrow-back" size={25} color="#0782F9" />
+          </View>
+        ),
+      }}
+      />
+    <Stack.Screen
       name="HomeProfile"
       component={ProfileScreen}
       options={{
@@ -81,7 +100,7 @@ const FeedStack = ({navigation}) => (
   </Stack.Navigator>
 )
 
-const MessageStack = ({navigation}) => (
+const MessageStack = () => (
   <Stack.Navigator>
     <Stack.Screen name="HomeMessages" component={MessagesScreen} options={{title:"Messages"}} />
     <Stack.Screen
@@ -95,7 +114,7 @@ const MessageStack = ({navigation}) => (
   </Stack.Navigator>
 )
 
-const ProfileStack = ({navigation}) => (
+const ProfileStack = () => (
   <Stack.Navigator>
     <Stack.Screen name="HomeProfile" component={ProfileScreen} options={{title:"Profile"}} />
     <Stack.Screen
@@ -137,7 +156,7 @@ function AppStack() {
       tabBarShowLabel: false,
       tabBarStyle: [
         {
-          'display': getFocusedRouteNameFromRoute(route) === 'Chat' || getFocusedRouteNameFromRoute(route) === 'AddPost' || getFocusedRouteNameFromRoute(route) === 'EditProfile' ? 'none' : 'flex'
+          'display': getFocusedRouteNameFromRoute(route) === 'Chat' || getFocusedRouteNameFromRoute(route) === 'AddPost' || getFocusedRouteNameFromRoute(route) === 'EditProfile' || getFocusedRouteNameFromRoute(route) === 'HomeProfile' || getFocusedRouteNameFromRoute(route) === 'Comments' ? 'none' : 'flex'
         },
         null
       ]

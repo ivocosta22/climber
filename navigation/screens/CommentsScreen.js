@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { FlatList } from 'react-native'
-import { Container, Card, UserInfo, UserImgWrapper, UserImg, UserInfoText, UserName, PostTime, MessageText, TextSection } from '../../styles/MessageStyles'
+import { Container, Card, UserInfo, UserImgWrapper, UserImg, UserInfoText, UserName, PostTime, MessageText, TextSection } from '../../styles/CommentsStyles'
 
-const Messages = [
+const Comments = [
     {
         id: '1',
         userName: 'Jenny Doe',
@@ -40,27 +40,23 @@ const Messages = [
     },
 ]
 
-const MessagesScreen = ({navigation}) => {
+const CommentsScreen = () => {
     return (
         <Container>
-            <FlatList data={Messages} keyExtractor={item=>item.id} renderItem={({item}) => (
-                <Card onPress={() => navigation.navigate('Chat', {userName: item.userName})}>
-                    <UserInfo>
-                        <UserImgWrapper>
-                            <UserImg source={item.userImg}/>
-                        </UserImgWrapper>
-                        <TextSection>
-                            <UserInfoText>
-                                <UserName>{item.userName}</UserName>    
-                                <PostTime>{item.messageTime}</PostTime>
-                            </UserInfoText>
-                            <MessageText>{item.messageText}</MessageText>
-                        </TextSection>
-                    </UserInfo>
-                </Card>
+            <FlatList data={Comments} keyExtractor={item=>item.id} renderItem={({item}) => (
+                <UserInfo>
+                    <UserImgWrapper>
+                        <UserImg source={item.userImg}/>
+                    </UserImgWrapper>
+                    <TextSection>
+                        <UserName>{item.userName}</UserName>        
+                        <MessageText>{item.messageText}</MessageText>
+                        <PostTime>{item.messageTime}</PostTime>
+                    </TextSection>
+                </UserInfo>
             )}/>
         </Container>
     )
 }
 
-export default MessagesScreen
+export default CommentsScreen

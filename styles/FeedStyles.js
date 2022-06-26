@@ -1,15 +1,30 @@
 import styled from 'styled-components'
 
 export const Container = styled.View`
-flex: 1;
-justify-content: center;
-align-items: center;
-padding: 0px;
-background-color: #fff;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    padding: 0px;
+    background-color: #fff;
+`;
+
+export const ContainerDark = styled.View`
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    padding: 0px;
+    background-color: #000;
 `;
 
 export const Card = styled.View`
-    background-color: #f8f8f8;
+    width: 350px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+`;
+
+export const CardDark = styled.View`
+    background-color: #222;
     width: 350px;
     margin-top: 10px;
     margin-bottom: 10px;
@@ -36,7 +51,12 @@ export const UserInfoText = styled.View`
 
 export const PostTime = styled.Text`
     font-size: 12px;
-    color: #666;
+    color: #333;
+`;
+
+export const PostTimeDark = styled.Text`
+    font-size: 12px;
+    color: #999;
 `;
 
 export const UserName = styled.Text`
@@ -44,11 +64,25 @@ export const UserName = styled.Text`
     font-weight: bold;
 `;
 
+export const UserNameDark = styled.Text`
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+`;
+
 export const PostText = styled.Text`
     font-size: 14px;
     padding-left: 15px;
     padding-right: 15px;
     margin-bottom: 15px;
+`;
+
+export const PostTextDark = styled.Text`
+    font-size: 14px;
+    padding-left: 15px;
+    padding-right: 15px;
+    margin-bottom: 15px;
+    color: #fff;
 `;
 
 export const PostImg = styled.Image`
@@ -77,6 +111,15 @@ export const InteractionText = styled.Text`
     margin-top: 5px;
     margin-left: 5px;
     color: ${props => props.active ? '#0782F9' : '#333'}
+`;
+
+export const InteractionTextDark = styled.Text`
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+    margin-top: 5px;
+    margin-left: 5px;
+    color: ${props => props.active ? '#0782F9' : '#fff'}
 `;
 
 export const PostDivider = styled.View`

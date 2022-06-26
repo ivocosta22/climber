@@ -8,6 +8,14 @@ export const InputWrapper = styled.View`
     background-color: #fff;
 `;
 
+export const InputWrapperDark = styled.View`
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    background-color: #000;
+`;
+
 export const InputField = styled.TextInput`
     justify-content: center;
     align-items: center;
@@ -35,8 +43,22 @@ export const SubmitBtn = styled.TouchableOpacity`
     padding: 10px 25px;
 `;
 
+export const SubmitBtnDark = styled.TouchableOpacity`
+    flex-direction: row;
+    justify-content: center;
+    background-color: #0782F9;
+    border-radius: 5px;
+    padding: 10px 25px;
+`;
+
 export const SubmitBtnText = styled.Text`
     font-size: 18px;
     font-weight: bold;
     color: #0782F9;
+`;
+
+export const SubmitBtnTextDark = styled.Text`
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
 `;

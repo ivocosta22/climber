@@ -5,7 +5,15 @@ export const Container = styled.View`
     padding-left: 20px;
     padding-right: 20px;
     align-items: center;
-    background-color: #ffffff;
+    background-color: #fff;
+`;
+
+export const ContainerDark = styled.View`
+    flex: 1;
+    padding-left: 20px;
+    padding-right: 20px;
+    align-items: center;
+    background-color: #000;
 `;
 
 export const Card = styled.TouchableOpacity`
@@ -48,12 +56,28 @@ export const UserName = styled.Text`
     font-weight: bold;
 `;
 
+export const UserNameDark = styled.Text`
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+`;
+
 export const PostTime = styled.Text`
     font-size: 12px;
     color: #666;
 `;
 
+export const PostTimeDark = styled.Text`
+    font-size: 12px;
+    color: #888;
+`;
+
 export const MessageText = styled.Text`
     font-size: 14px;
-    color: #333333;
+    color: #333;
+`;
+
+export const MessageTextDark = styled.Text`
+    font-size: 14px;
+    color: #bbb;
 `;

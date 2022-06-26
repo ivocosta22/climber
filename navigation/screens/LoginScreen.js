@@ -6,6 +6,7 @@ import { getAuth, sendPasswordResetEmail, signInWithEmailAndPassword } from 'fir
 import { initializeApp } from 'firebase/app'
 import { firebaseConfig } from '../../firebase'
 import AppLoader from '../../components/AppLoader'
+import Ionicons from 'react-native-vector-icons/Ionicons'
 
 const LoginScreen = () => {
     var [email, setEmail] = React.useState('')
@@ -89,7 +90,17 @@ const LoginScreen = () => {
                 
                 <TouchableOpacity onPress={resetPassword}>
                     <Text style={[styles.buttonOutlineText]}>I Forgot my Password</Text>
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.iconContainer}>
+                <TouchableOpacity style={styles.ionicon}>
+                  <Ionicons name="moon" size={25} color="black"/>
                 </TouchableOpacity> 
+
+                <TouchableOpacity style={styles.ionicon}>
+                  <Ionicons name="language" size={25} color="black"/>
+                </TouchableOpacity>
             </View>
         </KeyboardAvoidingView>
     )
@@ -117,6 +128,15 @@ const styles = StyleSheet.create({
       width: '60%',
       justifyContent: 'center',
       marginTop: 40,
+    },
+    iconContainer: {
+      flexDirection: 'row',
+      marginHorizontal: 30,
+      paddingTop: 30
+    },
+    ionicon: {
+      marginLeft: 15,
+      marginRight: 15
     },
     button: {
       backgroundColor: '#0782F9',

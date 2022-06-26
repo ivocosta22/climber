@@ -14,7 +14,6 @@ import AppLoader from '../../components/AppLoader'
 
 
 export default function HomeScreen({navigation}) {
-  //TODO: remove warnings from app as much as possible
   //TODO: dark mode
   //TODO: language settings
     const app = initializeApp(firebaseConfig)

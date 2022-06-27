@@ -3,12 +3,28 @@ import { View } from 'react-native'
 import { GiftedChat, Bubble, Send } from 'react-native-gifted-chat'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import 'dayjs/locale/en'
+import 'dayjs/locale/pt'
 
 const ChatScreen = () => {
 
     const [messages, setMessages] = React.useState([])
+    let [locale, setLocale] = React.useState('en')
 
         React.useEffect(() => {
+
+            AsyncStorage.getItem('currentLanguage').then(value => {
+                if (value == null) {
+                  AsyncStorage.setItem('currentLanguage', 'en')
+                  setLocale('en')
+                } else if (value == 'en') {
+                  setLocale('en')
+                } else if (value == 'pt') {
+                  setLocale('pt')
+                }
+              })
+
             setMessages([
                 {
                     _id: 1,
@@ -63,7 +79,7 @@ const ChatScreen = () => {
     }
 
     return (
-        <GiftedChat messages={messages} onSend={messages => onSend(messages)} user={{_id: 1,}} renderBubble={renderBubble} alwaysShowSend renderSend={renderSend} scrollToBottom scrollToBottomComponent={scrolltoBottomComponent}/>
+        <GiftedChat placeholder={locale == 'pt' ? 'Escreve uma mensagem...' : 'Type a message...'} messages={messages} onSend={messages => onSend(messages)} user={{_id: 1,}} renderBubble={renderBubble} alwaysShowSend renderSend={renderSend} scrollToBottom scrollToBottomComponent={scrolltoBottomComponent}/>
     )
 }
 

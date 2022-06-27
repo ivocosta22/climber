@@ -15,8 +15,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 
 
 export default function HomeScreen({navigation}) {
-  //TODO: dark mode
-  //TODO: language settings
+  //TODO: Comment code, organize strings/styles into a file
+  //TODO: Handle error language
     const app = initializeApp(firebaseConfig)
     const db = getFirestore(app)
     const storage = getStorage(app)

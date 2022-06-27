@@ -6,6 +6,8 @@ import { get, getDatabase, ref, child, update } from 'firebase/database'
 import { getFirestore, collection, getDocs, orderBy, getDoc, deleteDoc, doc } from 'firebase/firestore'
 import { firebaseConfig } from '../../firebase'
 import { TouchableOpacity } from 'react-native-gesture-handler'
+import { en, pt } from './../../localizations'
+import i18n from 'i18n-js'
 import PostCard from '../../components/PostCard'
 import AppLoader from '../../components/AppLoader'
 import AsyncStorage from "@react-native-async-storage/async-storage"
@@ -28,6 +30,10 @@ const ProfileScreen = ({navigation, route}) => {
     const [followers, setFollowers] = React.useState(null)
     const [following, setFollowing] = React.useState(null)
     const [followText, setFollowText] = React.useState(null)
+    let [locale, setLocale] = React.useState('en')
+    i18n.fallbacks = true
+    i18n.translations = {en, pt}
+    i18n.locale = locale
 
     const wait = (timeout) => {
       return new Promise(resolve => setTimeout(resolve, timeout))
@@ -57,6 +63,17 @@ const ProfileScreen = ({navigation, route}) => {
         }
       })
 
+      AsyncStorage.getItem('currentLanguage').then(value => {
+        if (value == null) {
+          AsyncStorage.setItem('currentLanguage', 'en')
+          setLocale('en')
+        } else if (value == 'en') {
+          setLocale('en')
+        } else if (value == 'pt') {
+          setLocale('pt')
+        }
+      })
+      
       if (route.params) {
         fetchUserInfo()
       } else {
@@ -265,7 +282,7 @@ const ProfileScreen = ({navigation, route}) => {
           username: null,
           photoURL: null   
         }, auth.currentUser.uid)
-        setFollowText('Follow')
+          setFollowText('Follow')
       } else {
         updateDatabase(auth.currentUser.uid, 'following', {
             username: fetchedUsername,
@@ -276,7 +293,7 @@ const ProfileScreen = ({navigation, route}) => {
           username: auth.currentUser.displayName,
           photoURL: auth.currentUser.photoURL   
         }, auth.currentUser.uid)
-        setFollowText('Following')
+          setFollowText('Following')
       }
     })
   }
@@ -296,25 +313,25 @@ const ProfileScreen = ({navigation, route}) => {
 
         <Image style={styles.userImg} source={userPhotoURL != null ? {uri: userPhotoURL} : require('../../assets/users/question-mark.png')}/>
         <Text style={theme == 'light' ? styles.userName : styles.userNameDark}>{username}</Text>
-        <Text style={styles.aboutUser}>{useraboutme == null ? 'Go to the Edit Profile Page to change this text :)' : useraboutme }</Text>
+        <Text style={styles.aboutUser}>{useraboutme == 'Go to the Edit Profile Page to change this text :)' ? (i18n.t('aboutmeDefault')) : useraboutme }</Text>
 
         <View style={styles.userBtnWrapper}>
           {!isloggedInUser ? (
             <>
               <TouchableOpacity style={styles.userBtn} onPress={() => {}}>
-                <Text style={styles.userBtnTxt}>Message</Text>
+                <Text style={styles.userBtnTxt}>{i18n.t('message')}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.userBtn} onPress={followUser}>
-                <Text style={styles.userBtnTxt}>{followText}</Text>
+                <Text style={styles.userBtnTxt}>{followText == 'Follow' ? i18n.t('followButtonText') : i18n.t('followingButtonText')}</Text>
               </TouchableOpacity>
             </>
           ) : (
             <>
               <TouchableOpacity style={styles.userBtn} onPress={() => {navigation.navigate('EditProfile')}}>
-                <Text style={styles.userBtnTxt}>Edit</Text>
+                <Text style={styles.userBtnTxt}>{i18n.t('edit')}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.userBtn} onPress={handleSignOut}>
-                <Text style={styles.userBtnTxt}>Logout</Text>
+                <Text style={styles.userBtnTxt}>{i18n.t('logout')}</Text>
               </TouchableOpacity>
             </>
           ) }
@@ -324,17 +341,17 @@ const ProfileScreen = ({navigation, route}) => {
         <View style={styles.userInfoWrapper}>
           <View style={styles.userInfoItem}>
             <Text style={theme == 'light' ? styles.userInfoTitle : styles.userInfoTitleDark}>{postsnumber}</Text>
-            <Text style={styles.userInfoSubTitle}>Posts</Text>
+            <Text style={styles.userInfoSubTitle}>{i18n.t('posts')}</Text>
           </View>
 
           <View style={styles.userInfoItem}>
             <Text style={theme == 'light' ? styles.userInfoTitle : styles.userInfoTitleDark}>{followers - 1}</Text>
-            <Text style={styles.userInfoSubTitle}>Followers</Text>
+            <Text style={styles.userInfoSubTitle}>{i18n.t('followers')}</Text>
           </View>
 
           <View style={styles.userInfoItem}>
             <Text style={theme == 'light' ? styles.userInfoTitle : styles.userInfoTitleDark}>{following - 1}</Text>
-            <Text style={styles.userInfoSubTitle}>Following</Text>
+            <Text style={styles.userInfoSubTitle}>{i18n.t('following')}</Text>
           </View>
         </View>
 

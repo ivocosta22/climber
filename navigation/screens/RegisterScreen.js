@@ -5,14 +5,20 @@ import { TextInput } from 'react-native-paper'
 import { getAuth, createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
 import { firebaseConfig } from '../../firebase'
+import { en, pt } from './../../localizations'
 import * as Database from 'firebase/database'
 import * as Storage from 'firebase/storage'
 import * as ImagePicker from 'expo-image-picker'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import AppLoader from '../../components/AppLoader'
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import i18n from 'i18n-js'
 
 const RegisterScreen = () => {
+    let [locale, setLocale] = React.useState('en')
+    i18n.fallbacks = true
+    i18n.translations = {en, pt}
+    i18n.locale = locale
     var [username, setRegisteredUsername] = React.useState('')
     var [email, setRegisteredEmail] = React.useState('')
     var [password, setRegisteredPassword] = React.useState('')
@@ -37,6 +43,16 @@ const RegisterScreen = () => {
           setTheme('light')
         } else if (value == 'dark') {
           setTheme('dark')
+        }
+      })
+      AsyncStorage.getItem('currentLanguage').then(value => {
+        if (value == null) {
+          AsyncStorage.setItem('currentLanguage', 'en')
+          setLocale('en')
+        } else if (value == 'en') {
+          setLocale('en')
+        } else if (value == 'pt') {
+          setLocale('pt')
         }
       })
   },[])
@@ -212,24 +228,24 @@ const RegisterScreen = () => {
             <View style={styles.inputContainer}>
             {theme == 'light' ?
             <>
-                <TextInput placeholder='Username' value={username} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredUsername(text)} style={styles.input}/>
-                <TextInput placeholder='Email' value={email} selectionColor='#0782F9' activeUnderlineColor='#0782F9' onChangeText={text => setRegisteredEmail(text)} style={styles.input}/>
-                <TextInput placeholder='Password' value={password} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredPassword(text)} style={styles.input} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}/>
-                <TextInput placeholder='Repeat Password' value={passwordcheck} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredPasswordCheck(text)} style={styles.input} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}/>
+                <TextInput placeholder={i18n.t('username')} value={username} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredUsername(text)} style={styles.input}/>
+                <TextInput placeholder={i18n.t('email')} value={email} selectionColor='#0782F9' activeUnderlineColor='#0782F9' onChangeText={text => setRegisteredEmail(text)} style={styles.input}/>
+                <TextInput placeholder={i18n.t('password')} value={password} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredPassword(text)} style={styles.input} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}/>
+                <TextInput placeholder={i18n.t('repeatpassword')} value={passwordcheck} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredPasswordCheck(text)} style={styles.input} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}/>
             </> :
             <>
-                <TextInput placeholder='Username' theme={{colors: {text: 'white'}}} placeholderTextColor='#fff' value={username} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredUsername(text)} style={styles.inputDark}/>
-                <TextInput placeholder='Email' theme={{colors: {text: 'white'}}} placeholderTextColor='#fff' value={email} selectionColor='#0782F9' activeUnderlineColor='#0782F9' onChangeText={text => setRegisteredEmail(text)} style={styles.inputDark}/>
-                <TextInput placeholder='Password' theme={{colors: {text: 'white'}}} placeholderTextColor='#fff' value={password} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredPassword(text)} style={styles.inputDark} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} color={'white'}  onPress={() => setPasswordVisible(!passwordVisible)} />}/>
-                <TextInput placeholder='Repeat Password' theme={{colors: {text: 'white'}}} placeholderTextColor='#fff' value={passwordcheck} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredPasswordCheck(text)} style={styles.inputDark} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} color={'white'}  onPress={() => setPasswordVisible(!passwordVisible)} />}/>
+                <TextInput placeholder={i18n.t('username')} theme={{colors: {text: 'white'}}} placeholderTextColor='#fff' value={username} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredUsername(text)} style={styles.inputDark}/>
+                <TextInput placeholder={i18n.t('email')} theme={{colors: {text: 'white'}}} placeholderTextColor='#fff' value={email} selectionColor='#0782F9' activeUnderlineColor='#0782F9' onChangeText={text => setRegisteredEmail(text)} style={styles.inputDark}/>
+                <TextInput placeholder={i18n.t('password')} theme={{colors: {text: 'white'}}} placeholderTextColor='#fff' value={password} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredPassword(text)} style={styles.inputDark} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} color={'white'}  onPress={() => setPasswordVisible(!passwordVisible)} />}/>
+                <TextInput placeholder={i18n.t('repeatpassword')} theme={{colors: {text: 'white'}}} placeholderTextColor='#fff' value={passwordcheck} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredPasswordCheck(text)} style={styles.inputDark} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} color={'white'}  onPress={() => setPasswordVisible(!passwordVisible)} />}/>
             </>}
             </View>
             <View style={styles.buttonContainer}>
                 <TouchableOpacity onPress={handleSignUp} style={[styles.button]}>
-                    <Text style={styles.buttonText}>Register</Text>
+                    <Text style={styles.buttonText}>{i18n.t('register')}</Text>
                 </TouchableOpacity> 
                 <TouchableOpacity onPress={() => {navigation.navigate('Login')}} style={[styles.button, styles.buttonOutline]}>
-                    <Text style={styles.buttonOutlineText}>Login</Text>
+                    <Text style={styles.buttonOutlineText}>{i18n.t('login')}</Text>
                 </TouchableOpacity> 
             </View>
         </KeyboardAvoidingView>

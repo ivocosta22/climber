@@ -3,7 +3,10 @@ import { View } from 'react-native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native'
+import { en, pt } from './../localizations'
 import Ionicons from 'react-native-vector-icons/Ionicons'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import i18n from 'i18n-js'
 import HomeScreen from './screens/HomeScreen'
 import CommentsScreen from './screens/CommentsScreen'
 import ChatScreen from './screens/ChatScreen'
@@ -21,7 +24,7 @@ const FeedStack = ({navigation}) => (
       name="Climber"
       component={HomeScreen}
       options={{
-        title: 'Home',
+        title: (i18n.t('home')),
         headerTitleAlign: 'left',
         headerStyle: {
           shadowColor: '#fff',
@@ -45,7 +48,7 @@ const FeedStack = ({navigation}) => (
       name="AddPost"
       component={AddPostScreen}
       options={{
-        title: 'Add a Post',
+        title: (i18n.t('addPostTitle')),
         headerTitleAlign: 'left',
         headerStyle: {
           elevation: 0,
@@ -62,7 +65,7 @@ const FeedStack = ({navigation}) => (
       name="Comments"
       component={CommentsScreen}
       options={{
-        title: 'Comments',
+        title: (i18n.t('commentsTitle')),
         headerTitleAlign: 'left',
         headerStyle: {
           elevation: 0,
@@ -79,7 +82,7 @@ const FeedStack = ({navigation}) => (
       name="HomeProfile"
       component={ProfileScreen}
       options={{
-        title: 'Profile',
+        title: (i18n.t('profileTitle')),
         headerTitleAlign: 'left',
         headerStyle: {
           elevation: 0,
@@ -97,7 +100,7 @@ const FeedStack = ({navigation}) => (
 
 const MessageStack = () => (
   <Stack.Navigator>
-    <Stack.Screen name="HomeMessages" component={MessagesScreen} options={{title:"Messages"}} />
+    <Stack.Screen name="HomeMessages" component={MessagesScreen} options={{title:(i18n.t('messages'))}} />
     <Stack.Screen
       name="Chat"
       component={ChatScreen}
@@ -111,12 +114,12 @@ const MessageStack = () => (
 
 const ProfileStack = () => (
   <Stack.Navigator>
-    <Stack.Screen name="HomeProfile" component={ProfileScreen} options={{title:"Profile"}} />
+    <Stack.Screen name="HomeProfile" component={ProfileScreen} options={{title:(i18n.t('profileTitle'))}} />
     <Stack.Screen
       name="EditProfile"
       component={EditProfileScreen}
       options={{
-        title: 'Edit Profile',
+        title: (i18n.t('editProfileTitle')),
         headerBackTitleVisible: false,
         headerTitleAlign: 'left',
         headerStyle: {
@@ -128,6 +131,24 @@ const ProfileStack = () => (
 )
 
 function AppStack() {
+
+  let [locale, setLocale] = React.useState('en')
+  i18n.fallbacks = true
+  i18n.translations = {en, pt}
+  i18n.locale = locale
+
+  React.useEffect(() => {
+    AsyncStorage.getItem('currentLanguage').then(value => {
+      if (value == null) {
+        AsyncStorage.setItem('currentLanguage', 'en')
+        setLocale('en')
+      } else if (value == 'en') {
+        setLocale('en')
+      } else if (value == 'pt') {
+        setLocale('pt')
+      }
+    })
+  })
 
   return (
     <Tab.Navigator initialRouteName='Home' screenOptions={({route}) => ({tabBarIcon: ({focused, color, size}) => {

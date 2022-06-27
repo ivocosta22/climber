@@ -5,12 +5,18 @@ import { TextInput } from 'react-native-paper'
 import { getAuth, sendPasswordResetEmail, signInWithEmailAndPassword } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
 import { firebaseConfig } from '../../firebase'
+import { Restart } from 'fiction-expo-restart'
+import { en, pt } from './../../localizations'
 import AppLoader from '../../components/AppLoader'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import { Restart } from 'fiction-expo-restart'
+import i18n from 'i18n-js'
 
 const LoginScreen = () => {
+    let [locale, setLocale] = React.useState('en')
+    i18n.fallbacks = true
+    i18n.translations = {en, pt}
+    i18n.locale = locale
     var [email, setEmail] = React.useState('')
     var [password, setPassword] = React.useState('')
     const [passwordVisible, setPasswordVisible] = React.useState(true)
@@ -33,6 +39,17 @@ const LoginScreen = () => {
           setTheme('light')
         } else if (value == 'dark') {
           setTheme('dark')
+        }
+      })
+
+      AsyncStorage.getItem('currentLanguage').then(value => {
+        if (value == null) {
+          AsyncStorage.setItem('currentLanguage', 'en')
+          setLocale('en')
+        } else if (value == 'en') {
+          setLocale('en')
+        } else if (value == 'pt') {
+          setLocale('pt')
         }
       })
 
@@ -120,6 +137,20 @@ const LoginScreen = () => {
         }
       )
     }
+
+    const handleLanguage = () => {
+      AsyncStorage.getItem('currentLanguage').then(value => {
+        if (value == null) {
+          AsyncStorage.setItem('currentLanguage', 'en')
+          setLocale('en')
+        } else if (value == 'en') {
+          AsyncStorage.setItem('currentLanguage', 'pt')
+          setLocale('pt')
+        } else if (value == 'pt') {
+          AsyncStorage.setItem('currentLanguage', 'en')
+          setLocale('en')
+        }
+    })}
     
     return (
         <KeyboardAvoidingView style={theme == 'light' ? styles.container : styles.containerDark} behavior="padding">
@@ -128,26 +159,26 @@ const LoginScreen = () => {
             <View style={styles.inputContainer}>
             {theme == "light" ?
             <>
-              <TextInput placeholder='Email' value={email} selectionColor='#0782F9' activeUnderlineColor='#0782F9' onChangeText={text => setEmail(text)} style={styles.input} ref={emailTextInput} />
-              <TextInput placeholder='Password' value={password} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setPassword(text)} style={styles.input} ref={passwordTextInput} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}/>
+              <TextInput placeholder={i18n.t('email')} value={email} selectionColor='#0782F9' activeUnderlineColor='#0782F9' onChangeText={text => setEmail(text)} style={styles.input} ref={emailTextInput} />
+              <TextInput placeholder={i18n.t('password')} value={password} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setPassword(text)} style={styles.input} ref={passwordTextInput} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}/>
             </>: 
             <>
-              <TextInput placeholder='Email' theme={{colors: {text: 'white'}}} value={email} placeholderTextColor='#fff' selectionColor='#0782F9' activeUnderlineColor='#0782F9' onChangeText={text => setEmail(text)} style={styles.inputDark} ref={emailTextInput} />
-              <TextInput placeholder='Password' theme={{colors: {text: 'white'}}} value={password} placeholderTextColor='#fff' selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setPassword(text)} style={styles.inputDark} ref={passwordTextInput} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} color={'white'} onPress={() => setPasswordVisible(!passwordVisible)} />}/>
+              <TextInput placeholder={i18n.t('email')} theme={{colors: {text: 'white'}}} value={email} placeholderTextColor='#fff' selectionColor='#0782F9' activeUnderlineColor='#0782F9' onChangeText={text => setEmail(text)} style={styles.inputDark} ref={emailTextInput} />
+              <TextInput placeholder={i18n.t('password')} theme={{colors: {text: 'white'}}} value={password} placeholderTextColor='#fff' selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setPassword(text)} style={styles.inputDark} ref={passwordTextInput} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} color={'white'} onPress={() => setPasswordVisible(!passwordVisible)} />}/>
             </>}
             </View>
 
             <View style={styles.buttonContainer}>
                 <TouchableOpacity onPress={handleLogin} style={styles.button}>
-                    <Text style={styles.buttonText}>Login</Text>
+                    <Text style={styles.buttonText}>{i18n.t('login')}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={() => {navigation.navigate('Register')}} style={[styles.button, styles.buttonOutline]}>
-                    <Text style={styles.buttonOutlineText}>Register</Text>
+                    <Text style={styles.buttonOutlineText}>{i18n.t('register')}</Text>
                 </TouchableOpacity> 
                 
                 <TouchableOpacity onPress={resetPassword}>
-                    <Text style={[styles.buttonOutlineText]}>I Forgot my Password</Text>
+                    <Text style={[styles.buttonOutlineText]}>{i18n.t('forgotpassword')}</Text>
                 </TouchableOpacity>
             </View>
 
@@ -156,7 +187,7 @@ const LoginScreen = () => {
                   {theme == 'light' ? <Ionicons name="moon" size={25} color="black"/> : <Ionicons name="sunny" size={25} color="white"/>}
                 </TouchableOpacity> 
 
-                <TouchableOpacity style={styles.ionicon}>
+                <TouchableOpacity style={styles.ionicon} onPress={handleLanguage}>
                   {theme == 'light' ? <Ionicons name="language" size={25} color="black"/> : <Ionicons name="language" size={25} color="white"/>}
                 </TouchableOpacity>
             </View>

@@ -7,9 +7,11 @@ import { getAuth } from 'firebase/auth'
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage'
 import { getFirestore, collection, addDoc, Timestamp } from 'firebase/firestore'
 import { firebaseConfig } from '../../firebase'
+import { en, pt } from './../../localizations'
 import ActionButton from 'react-native-action-button'
 import Icon from 'react-native-vector-icons/Ionicons'
 import AppLoader from '../../components/AppLoader'
+import i18n from 'i18n-js'
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import * as ImagePicker from 'expo-image-picker'
 import * as Database from 'firebase/database'
@@ -27,6 +29,10 @@ const AddPostScreen = () => {
     const auth = getAuth(app)
     const db = getFirestore(app)
     const database = Database.getDatabase(app)
+    let [locale, setLocale] = React.useState('en')
+    i18n.fallbacks = true
+    i18n.translations = {en, pt}
+    i18n.locale = locale
 
     React.useEffect(() => {
         AsyncStorage.getItem('isDarkMode').then(value => {
@@ -39,6 +45,16 @@ const AddPostScreen = () => {
               setTheme('dark')
             }
         })
+        AsyncStorage.getItem('currentLanguage').then(value => {
+            if (value == null) {
+              AsyncStorage.setItem('currentLanguage', 'en')
+              setLocale('en')
+            } else if (value == 'en') {
+              setLocale('en')
+            } else if (value == 'pt') {
+              setLocale('pt')
+            }
+          })
     },[])
 
     const pickImage = async () => {
@@ -145,7 +161,7 @@ const AddPostScreen = () => {
                 <InputWrapper>
                     {image != null ? <AddImage source={{uri: image}} /> : null}
                     <InputField
-                        placeholder = "What's on your mind?"
+                        placeholder={i18n.t('addPost')}
                         multiline
                         numberOfLines={4}
                         value={post}
@@ -155,20 +171,20 @@ const AddPostScreen = () => {
                         <AppLoader/>
                     ) : (
                         <SubmitBtn onPress={submitPost}>
-                            <SubmitBtnText>Post</SubmitBtnText>
+                            <SubmitBtnText>{i18n.t('post')}</SubmitBtnText>
                         </SubmitBtn>
                     )}
                 </InputWrapper>
                 <ActionButton buttonColor='rgba(7, 130, 249, 1)'>
                     <ActionButton.Item
                         buttonColor="#9b59b6"
-                        title="Take Photo"
+                        title={i18n.t('takePhoto')}
                         onPress={useCamera}>
                         <Icon name="camera-outline" style={styles.actionButtonIcon} />
                     </ActionButton.Item>
                     <ActionButton.Item
                         buttonColor="#e84d3c"
-                        title="Choose Photo"
+                        title={i18n.t('choosePhoto')}
                         onPress={pickImage}>
                         <Icon name="md-images-outline" style={styles.actionButtonIcon} />
                     </ActionButton.Item>
@@ -180,7 +196,7 @@ const AddPostScreen = () => {
                     <InputField 
                         style={{color: '#fff'}}
                         placeholderTextColor="#fff"
-                        placeholder="What's on your mind?"
+                        placeholder={i18n.t('addPost')}
                         multiline
                         numberOfLines={4}
                         value={post}
@@ -190,20 +206,20 @@ const AddPostScreen = () => {
                         <AppLoader/>
                     ) : (
                         <SubmitBtnDark onPress={submitPost}>
-                            <SubmitBtnTextDark>Post</SubmitBtnTextDark>
+                            <SubmitBtnTextDark>{i18n.t('post')}</SubmitBtnTextDark>
                         </SubmitBtnDark>
                     )}
                 </InputWrapperDark>
                 <ActionButton buttonColor='rgba(7, 130, 249, 1)'>
                     <ActionButton.Item
                         buttonColor="#9b59b6"
-                        title="Take Photo"
+                        title={i18n.t('takePhoto')}
                         onPress={useCamera}>
                         <Icon name="camera-outline" style={styles.actionButtonIcon} />
                     </ActionButton.Item>
                     <ActionButton.Item
                         buttonColor="#e84d3c"
-                        title="Choose Photo"
+                        title={i18n.t('choosePhoto')}
                         onPress={pickImage}>
                         <Icon name="md-images-outline" style={styles.actionButtonIcon} />
                     </ActionButton.Item>

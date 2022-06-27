@@ -4,10 +4,13 @@ import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { firebaseConfig } from '../firebase'
 import { TouchableOpacity } from 'react-native-gesture-handler'
+import { en, pt } from './../localizations'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import moment from 'moment'
+import 'moment/locale/pt'
 import ProgressiveImage from './ProgressiveImage'
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import i18n from 'i18n-js'
 
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
@@ -15,6 +18,10 @@ const auth = getAuth(app)
 const PostCard = ({item, onDelete, onLike, onComment, onPress}) => {
 
     const [theme, setTheme] = React.useState(null)
+    let [locale, setLocale] = React.useState('en')
+    i18n.fallbacks = true
+    i18n.translations = {en, pt}
+    i18n.locale = locale
 
     React.useEffect(() => {
         AsyncStorage.getItem('isDarkMode').then(value => {
@@ -27,6 +34,16 @@ const PostCard = ({item, onDelete, onLike, onComment, onPress}) => {
               setTheme('dark')
             }
           })
+        AsyncStorage.getItem('currentLanguage').then(value => {
+            if (value == null) {
+                AsyncStorage.setItem('currentLanguage', 'en')
+                setLocale('en')
+            } else if (value == 'en') {
+                setLocale('en')
+            } else if (value == 'pt') {
+                setLocale('pt')
+            }
+          })
     },[])
 
     let likeIcon = item.liked ? 'heart' : 'heart-outline'
@@ -34,21 +51,55 @@ const PostCard = ({item, onDelete, onLike, onComment, onPress}) => {
     let likeIconColorDark = item.liked ? '#0782F9' : '#fff'
 
     if (item.likes == 1) {
-        likeText = '1 Like'
+        if (locale == 'en') {
+            likeText = '1 Like'
+        } else if (locale == 'pt') {
+            likeText == '1 Gosto'
+        } else {
+            likeText = '1 Like'
+        }
     } else if (item.likes > 1) {
-        likeText = item.likes + ' Likes'
+        if (locale == 'en') {
+            likeText = item.likes + ' Likes'
+        } else if (locale == 'pt') {
+            likeText = item.likes + ' Gostos'
+        } 
     } else {
-        likeText = 'Like'
+        if (locale == 'en') {
+            likeText = 'Like'
+        } else if (locale == 'pt') {
+            likeText = 'Gostar'
+        } else {
+            likeText = 'Like'
+        }
+        
     }
 
     if (item.comments == 1) {
-        commentText = '1 Comment'
+        if (locale == 'en') {
+            commentText = '1 Comment'
+        } else if (locale == 'pt') {
+            commentText = '1 Comentário'
+        } else {
+            commentText = '1 Comment'
+        }
     } else if (item.comments > 1) {
-        commentText = item.comments + ' Comments'
+        if (locale == 'en') {
+            commentText = item.comments + ' Comments'
+        } else if (locale == 'pt') {
+            commentText = item.comments + ' Comentários'
+        } else {
+            commentText = item.comments + ' Comments'
+        }
     } else {
-        commentText = 'Comment'
+        if (locale == 'en') {
+            commentText = 'Comment'
+        } else if (locale == 'pt') {
+            commentText = 'Comentar'
+        } else {
+            commentText = 'Comment'
+        }
     }
-
     return (
         <>
             {theme == 'light' ?
@@ -59,7 +110,7 @@ const PostCard = ({item, onDelete, onLike, onComment, onPress}) => {
                     <TouchableOpacity onPress={onPress}>
                         <UserName>{item.userName}</UserName>
                     </TouchableOpacity>
-                        <PostTime>{moment(item.postTime.toDate()).fromNow()}</PostTime>
+                        <PostTime>{moment(item.postTime.toDate()).locale(locale).fromNow()}</PostTime>
                     </UserInfoText>
                 </UserInfo>
                 <PostText>{item.post}</PostText>
@@ -94,7 +145,7 @@ const PostCard = ({item, onDelete, onLike, onComment, onPress}) => {
                     <TouchableOpacity onPress={onPress}>
                         <UserNameDark>{item.userName}</UserNameDark>
                     </TouchableOpacity>
-                        <PostTimeDark>{moment(item.postTime.toDate()).fromNow()}</PostTimeDark>
+                        <PostTimeDark>{moment(item.postTime.toDate()).locale(locale).fromNow()}</PostTimeDark>
                     </UserInfoText>
                 </UserInfo>
                 <PostTextDark>{item.post}</PostTextDark>

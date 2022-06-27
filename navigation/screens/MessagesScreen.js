@@ -1,6 +1,8 @@
 import * as React from 'react'
 import { FlatList } from 'react-native'
 import { Container, Card, UserInfo, UserImgWrapper, UserImg, UserInfoText, UserName, PostTime, MessageText, TextSection, ContainerDark, UserNameDark, PostTimeDark, MessageTextDark } from '../../styles/MessageStyles'
+import { en, pt } from './../../localizations'
+import i18n from 'i18n-js'
 import AsyncStorage from "@react-native-async-storage/async-storage"
 
 const Messages = [
@@ -9,6 +11,7 @@ const Messages = [
         userName: 'Jenny Doe',
         userImg: require('../../assets/users/user3.png'),
         messageTime: '4 mins ago',
+        messageTimePT: 'há 4 minutos',
         messageText: 'Hey there, this is my test for a post of my social app in React Native.',
     },
     {
@@ -16,6 +19,7 @@ const Messages = [
         userName: 'John Doe',
         userImg: require('../../assets/users/user1.png'),
         messageTime: '2 hours ago',
+        messageTimePT: 'há 2 horas',
         messageText: 'Hey there, this is my test for a post of my social app in React Native.',
     },
     {
@@ -23,6 +27,7 @@ const Messages = [
         userName: 'Ken William',
         userImg: require('../../assets/users/user4.png'),
         messageTime: '1 hour ago',
+        messageTimePT: 'há 1 hora',
         messageText: 'Hey there, this is my test for a post of my social app in React Native.',
     },
     {
@@ -30,6 +35,7 @@ const Messages = [
         userName: 'Selina Paul',
         userImg: require('../../assets/users/user6.png'),
         messageTime: '1 day ago',
+        messageTimePT: 'há 1 dia',
         messageText: 'Hey there, this is my test for a post of my social app in React Native.',
     },
     {
@@ -37,6 +43,7 @@ const Messages = [
         userName: 'Christy Alex',
         userImg: require('../../assets/users/user7.png'),
         messageTime: '2 days ago',
+        messageTimePT: 'há 2 dias',
         messageText: 'Hey there, this is my test for a post of my social app in React Native.',
     },
 ]
@@ -44,6 +51,10 @@ const Messages = [
 const MessagesScreen = ({navigation}) => {
 
     const [theme, setTheme] = React.useState(null)
+    let [locale, setLocale] = React.useState('en')
+    i18n.fallbacks = true
+    i18n.translations = {en, pt}
+    i18n.locale = locale
 
     React.useEffect(() => {
         AsyncStorage.getItem('isDarkMode').then(value => {
@@ -56,6 +67,16 @@ const MessagesScreen = ({navigation}) => {
             setTheme('dark')
           }
         })
+        AsyncStorage.getItem('currentLanguage').then(value => {
+            if (value == null) {
+              AsyncStorage.setItem('currentLanguage', 'en')
+              setLocale('en')
+            } else if (value == 'en') {
+              setLocale('en')
+            } else if (value == 'pt') {
+              setLocale('pt')
+            }
+          })
       },[])
 
     return (
@@ -70,7 +91,7 @@ const MessagesScreen = ({navigation}) => {
                             <TextSection>
                                 <UserInfoText>
                                     <UserName>{item.userName}</UserName>    
-                                    <PostTime>{item.messageTime}</PostTime>
+                                    <PostTime>{locale == 'pt' ? item.messageTimePT : item.messageTime}</PostTime>
                                 </UserInfoText>
                                 <MessageText>{item.messageText}</MessageText>
                             </TextSection>
@@ -89,7 +110,7 @@ const MessagesScreen = ({navigation}) => {
                             <TextSection>
                                 <UserInfoText>
                                     <UserNameDark>{item.userName}</UserNameDark>    
-                                    <PostTimeDark>{item.messageTime}</PostTimeDark>
+                                    <PostTimeDark>{locale == 'pt' ? item.messageTimePT : item.messageTime}</PostTimeDark>
                                 </UserInfoText>
                                 <MessageTextDark>{item.messageText}</MessageTextDark>
                             </TextSection>

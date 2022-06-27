@@ -6,12 +6,14 @@ import { initializeApp } from 'firebase/app'
 import { firebaseConfig } from '../../firebase'
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import { TouchableOpacity } from 'react-native-gesture-handler'
+import { en, pt } from './../../localizations'
 import * as Database from 'firebase/database'
 import * as ImagePicker from 'expo-image-picker'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import FormButton from '../../components/FormButton'
 import AppLoader from '../../components/AppLoader'
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import i18n from 'i18n-js'
 
   const EditProfileScreen = () => {
     const app = initializeApp(firebaseConfig)
@@ -23,11 +25,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
     const [hasGalleryPermission, setHasGalleryPermission] = React.useState(null)
     const [loading, setLoading] = React.useState(false)
     const [theme, setTheme] = React.useState(null)
+    let [locale, setLocale] = React.useState('en')
     var [email, setEmail] = React.useState(null)
     var [password, setPassword] = React.useState(null)
     var [currentpassword, setCurrentPassword] = React.useState(null)
     var [username, setUsername] = React.useState(null)
     var [aboutme, setAboutMe] = React.useState(null)
+    i18n.fallbacks = true
+    i18n.translations = {en, pt}
+    i18n.locale = locale
 
       React.useEffect(() => {
         (async () => {
@@ -39,6 +45,17 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
               setTheme('light')
             } else if (value == 'dark') {
               setTheme('dark')
+            }
+          })
+
+          AsyncStorage.getItem('currentLanguage').then(value => {
+            if (value == null) {
+              AsyncStorage.setItem('currentLanguage', 'en')
+              setLocale('en')
+            } else if (value == 'en') {
+              setLocale('en')
+            } else if (value == 'pt') {
+              setLocale('pt')
             }
           })
           
@@ -99,13 +116,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 
     const editProfile = async () => {
       setLoading(true)
-      var didChangeEmail = ''
-      var didChangePassword = ''
-      await editUsername()
+
+      var didChangeUsername = await editUsername()
       await editProfilePicture()
       await editAboutMe()
-      didChangeEmail = await editEmail()
-      didChangePassword = await editPassword()
+      var didChangeEmail = await editEmail()
+      var didChangePassword = await editPassword()
+      console.log(didChangeUsername)
+      console.log(didChangeEmail)
+      console.log(didChangePassword)
 
       switch (true) {
         // Changed both Email and Password successfully
@@ -165,9 +184,25 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
           break
         // Didn't change anything
         case (didChangeEmail == 'Failed' && didChangePassword == 'Failed'):
-          setLoading(false)
-          Alert.alert('Profile Updated!', 'Your Profile was updated successfully!')
-          break
+          if (didChangeUsername != 'Failed') {
+            if (didChangeUsername == 'ErrorEmptyUsername') {
+              setLoading(false)
+              Alert.alert('Error!', 'Username cannot be empty.')
+              break
+            } else if (didChangeUsername != 'Error' && didChangeUsername != 'Success') {
+              setLoading(false)
+              Alert.alert('Error!', didChangeUsername)
+              break
+            } else if (didChangeUsername == 'Success') {
+              setLoading(false)
+              Alert.alert('Profile Updated!', 'Your Profile was updated successfully!')
+              break
+            }
+          } else {
+            setLoading(false)
+            Alert.alert('Profile Updated!', 'Your Profile was updated successfully!')
+            break
+          }
       }
     }
 
@@ -180,13 +215,19 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 
     const editUsername = async () => {
       if (username != auth.currentUser.displayName && username != null) {
-        await updateProfile(auth.currentUser, {displayName: username}).catch(error => {
-          Alert.alert('Error!', error.message)
-        })
-        await updateProfileInfo('username', username).catch(error => {
-          Alert.alert('Error!', error.message)
-        })
+        if (username == '') {
+          return 'ErrorEmptyUsername'
+        } else {
+          await updateProfile(auth.currentUser, {displayName: username}).catch((error) => {
+            return error.message
+          })
+          await updateProfileInfo('username', username).catch((error) => {
+            return error.message
+          })
+          return 'Success'
+        }
       }
+      return 'Failed'
     }
 
     const editProfilePicture = async () => {
@@ -212,16 +253,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
     const editEmail = async () => {
       if (email != auth.currentUser.email && email != null) {
         const credentialsforEmail = EmailAuthProvider.credential(auth.currentUser.email, currentpassword)
-
-        await reauthenticateWithCredential(auth.currentUser, credentialsforEmail).then(() => {
-          verifyBeforeUpdateEmail(auth.currentUser, email).then(() => {
-            return 'Success'
-          }).catch(error => {
-            return error.message
-          })
-        }).catch(error => {
+        await reauthenticateWithCredential(auth.currentUser, credentialsforEmail).catch((error) => {
           return error.message
         })
+        await verifyBeforeUpdateEmail(auth.currentUser, email).catch((error) => {
+          return error.message
+        })
+        return 'Success'
       }
       return 'Failed'
     }
@@ -230,15 +268,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
       if (password != '' && password != null) {
         const credentialsforPassword = EmailAuthProvider.credential(auth.currentUser.email, currentpassword)
 
-        await reauthenticateWithCredential(auth.currentUser, credentialsforPassword).then(() => {
-          updatePassword(auth.currentUser, password).then(() => {
-            return 'Success'
-          }).catch(error => {
-            return error.message
-          })
-        }).catch(error => {
+        await reauthenticateWithCredential(auth.currentUser, credentialsforPassword).catch((error) => {
           return error.message
-        })  
+        })
+        await updatePassword(auth.currentUser, password).catch((error) => {
+          return error.message
+        })
+        return 'Success'
       }
       return 'Failed'
     }
@@ -300,7 +336,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
             <Ionicons name="person-outline" size={20} style={theme == 'light' ? styles.ionicon : styles.ioniconDark} />
             {theme == 'light' ? 
             <TextInput
-              placeholder="Change Username"
+              placeholder={i18n.t('changeUsername')}
               placeholderTextColor="#666"
               autoCorrect={false}
               defaultValue= { auth.currentUser.displayName != null ? auth.currentUser.displayName : username}
@@ -308,7 +344,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
               style={styles.textInput}
             /> :
             <TextInput
-              placeholder="Change Username"
+              placeholder={i18n.t('changeUsername')}
               placeholderTextColor="#fff"
               autoCorrect={false}
               defaultValue= { auth.currentUser.displayName != null ? auth.currentUser.displayName : username}
@@ -320,7 +356,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
             <Ionicons name="mail-outline" size={20} style={theme == 'light' ? styles.ionicon : styles.ioniconDark} />
             {theme == 'light' ?
             <TextInput
-              placeholder="Change Email"
+              placeholder={i18n.t('changeEmail')}
               placeholderTextColor="#666"
               defaultValue={auth.currentUser.email}
               onChangeText={text => setEmail(text)}
@@ -329,7 +365,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
               keyboardType='email-address'
             /> :
             <TextInput
-              placeholder="Change Email"
+              placeholder={i18n.t('changeEmail')}
               placeholderTextColor="#fff"
               defaultValue={auth.currentUser.email}
               onChangeText={text => setEmail(text)}
@@ -342,7 +378,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
             <Ionicons name="key-outline" size={20} style={theme == 'light' ? styles.ionicon : styles.ioniconDark} />
             {theme == 'light' ?
             <TextInput
-              placeholder="Current Password (Needed to change Email/Password)"
+              placeholder={i18n.t('changePasswordCurrent')}
               placeholderTextColor="#666"
               defaultValue=''
               onChangeText={text => setCurrentPassword(text)}
@@ -351,7 +387,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
               secureTextEntry
             /> :
             <TextInput
-              placeholder="Current Password (Needed to change Email/Password)"
+              placeholder={i18n.t('changePasswordCurrent')}
               placeholderTextColor="#fff"
               defaultValue=''
               onChangeText={text => setCurrentPassword(text)}
@@ -364,7 +400,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
             <Ionicons name="key-outline" size={20} style={theme == 'light' ? styles.ionicon : styles.ioniconDark} />
             {theme == 'light' ?
             <TextInput
-              placeholder="New Password"
+              placeholder={i18n.t('changePasswordNew')}
               placeholderTextColor="#666"
               defaultValue=''
               onChangeText={text => setPassword(text)}
@@ -373,7 +409,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
               secureTextEntry
             /> :
             <TextInput
-              placeholder="New Password"
+              placeholder={i18n.t('changePasswordNew')}
               placeholderTextColor="#fff"
               defaultValue=''
               onChangeText={text => setPassword(text)}
@@ -388,7 +424,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
             <TextInput
               multiline
               numberOfLines={3}
-              placeholder="About Me"
+              placeholder={i18n.t('changeAboutme')}
               placeholderTextColor="#666"
               defaultValue={ aboutme == 'Go to the Edit Profile Page to change this text :)' ? '' : aboutme}
               onChangeText={text => setAboutMe(text)}
@@ -398,7 +434,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
             <TextInput
               multiline
               numberOfLines={3}
-              placeholder="About Me"
+              placeholder={i18n.t('changeAboutme')}
               placeholderTextColor="#fff"
               defaultValue={ aboutme == 'Go to the Edit Profile Page to change this text :)' ? '' : aboutme}
               onChangeText={text => setAboutMe(text)}
@@ -406,7 +442,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
               style={[styles.textInputDark, {height: 40}]}
             />}
           </View>
-          <FormButton buttonTitle="Update" onPress={editProfile} />
+          <FormButton buttonTitle={i18n.t('update')} onPress={editProfile} />
       </View>
     )
   }

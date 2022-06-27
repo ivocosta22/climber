@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, StyleSheet, Alert } from 'react-native'
 import { useNavigation } from '@react-navigation/core'
-import { InputField, InputWrapper, AddImage, SubmitBtn, SubmitBtnText } from '../../styles/AddPost'
+import { InputField, InputWrapper, AddImage, SubmitBtn, SubmitBtnText, InputWrapperDark, SubmitBtnTextDark, SubmitBtnDark } from '../../styles/AddPost'
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage'
@@ -10,6 +10,7 @@ import { firebaseConfig } from '../../firebase'
 import ActionButton from 'react-native-action-button'
 import Icon from 'react-native-vector-icons/Ionicons'
 import AppLoader from '../../components/AppLoader'
+import AsyncStorage from "@react-native-async-storage/async-storage"
 import * as ImagePicker from 'expo-image-picker'
 import * as Database from 'firebase/database'
 
@@ -19,6 +20,7 @@ const AddPostScreen = () => {
     const [image, setImage] = React.useState(null)
     const [loading, setLoading] = React.useState(false)
     const [post, setPost] = React.useState(null)
+    const [theme, setTheme] = React.useState(null)
     const navigation = useNavigation()
     const app = initializeApp(firebaseConfig)
     const storage = getStorage(app)
@@ -27,15 +29,22 @@ const AddPostScreen = () => {
     const database = Database.getDatabase(app)
 
     React.useEffect(() => {
-        (async () => {
-            const cameraPermission = await ImagePicker.requestCameraPermissionsAsync()
-            const galleryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync()
-            setHasCameraPermission(cameraPermission.status === 'granted')
-            setHasGalleryPermission(galleryStatus.status === 'granted')
-        })()
+        AsyncStorage.getItem('isDarkMode').then(value => {
+            if (value == null) {
+              AsyncStorage.setItem('isDarkMode', 'light')
+              setTheme('light')
+            } else if (value == 'light') {
+              setTheme('light')
+            } else if (value == 'dark') {
+              setTheme('dark')
+            }
+        })
     },[])
 
     const pickImage = async () => {
+        const galleryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync()
+        setHasGalleryPermission(galleryStatus.status === 'granted')
+
         if (hasGalleryPermission === false) {
             Alert.alert('Error!', 'Please give storage permissions to the application.')
         } else {
@@ -52,6 +61,9 @@ const AddPostScreen = () => {
     }
 
     const useCamera = async () => {
+        const cameraPermission = await ImagePicker.requestCameraPermissionsAsync()
+        setHasCameraPermission(cameraPermission.status === 'granted')
+
         if (hasCameraPermission === false) {
             Alert.alert('Error!', 'Please give camera permissions to the application.')
         } else {
@@ -127,7 +139,9 @@ const AddPostScreen = () => {
     }
 
     return(
-        <View style={styles.container}> 
+        <View style={styles.container}>
+            {theme == 'light' ?
+            <>
                 <InputWrapper>
                     {image != null ? <AddImage source={{uri: image}} /> : null}
                     <InputField
@@ -159,6 +173,42 @@ const AddPostScreen = () => {
                         <Icon name="md-images-outline" style={styles.actionButtonIcon} />
                     </ActionButton.Item>
                 </ActionButton>
+            </> : 
+            <>
+                <InputWrapperDark>
+                    {image != null ? <AddImage source={{uri: image}} /> : null}
+                    <InputField 
+                        style={{color: '#fff'}}
+                        placeholderTextColor="#fff"
+                        placeholder="What's on your mind?"
+                        multiline
+                        numberOfLines={4}
+                        value={post}
+                        onChangeText={(content) => setPost(content)}
+                    />
+                    {loading ? (
+                        <AppLoader/>
+                    ) : (
+                        <SubmitBtnDark onPress={submitPost}>
+                            <SubmitBtnTextDark>Post</SubmitBtnTextDark>
+                        </SubmitBtnDark>
+                    )}
+                </InputWrapperDark>
+                <ActionButton buttonColor='rgba(7, 130, 249, 1)'>
+                    <ActionButton.Item
+                        buttonColor="#9b59b6"
+                        title="Take Photo"
+                        onPress={useCamera}>
+                        <Icon name="camera-outline" style={styles.actionButtonIcon} />
+                    </ActionButton.Item>
+                    <ActionButton.Item
+                        buttonColor="#e84d3c"
+                        title="Choose Photo"
+                        onPress={pickImage}>
+                        <Icon name="md-images-outline" style={styles.actionButtonIcon} />
+                    </ActionButton.Item>
+                </ActionButton>
+            </>}
         </View>        
     )
 }
@@ -175,13 +225,5 @@ const styles = StyleSheet.create({
         fontSize: 20,
         height: 22,
         color: 'white',
-    },
-    cameraContainer: {
-        flex: 1,
-        flexDirection: 'row'
-    },
-    fixedRatio: {
-        flex: 0,
-        aspectRatio: 1
     },
 })

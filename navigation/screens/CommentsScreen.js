@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { FlatList } from 'react-native'
-import { Container, Card, UserInfo, UserImgWrapper, UserImg, UserInfoText, UserName, PostTime, MessageText, TextSection } from '../../styles/CommentsStyles'
+import { Container, UserInfo, UserImgWrapper, UserImg, UserName, PostTime, MessageText, TextSection } from '../../styles/CommentsStyles'
 
 const Comments = [
     {

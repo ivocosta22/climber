@@ -4,8 +4,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native'
 import Ionicons from 'react-native-vector-icons/Ionicons'
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
-
 import HomeScreen from './screens/HomeScreen'
 import CommentsScreen from './screens/CommentsScreen'
 import ChatScreen from './screens/ChatScreen'
@@ -13,7 +11,6 @@ import MessagesScreen from './screens/MessagesScreen'
 import AddPostScreen from './screens/AddPostScreen'
 import ProfileScreen from './screens/ProfileScreen'
 import EditProfileScreen from './screens/EditProfileScreen'
-
 
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
@@ -32,13 +29,14 @@ const FeedStack = ({navigation}) => (
         },
         headerRight: () => (
           <View>
-            <FontAwesome5.Button
-              name="plus"
-              size={22}
-              backgroundColor="#fff"
+          <Ionicons
+              style={{marginTop: 5}}
+              name="add-circle"
+              size={34}
+              backgroundColor="#121212"
               color="#0782F9"
               onPress={() => navigation.navigate('AddPost')}
-            />
+          />
           </View>
         ),
       }}
@@ -50,7 +48,6 @@ const FeedStack = ({navigation}) => (
         title: 'Add a Post',
         headerTitleAlign: 'left',
         headerStyle: {
-          backgroundColor: '#fff',
           elevation: 0,
         },
         headerBackTitleVisible: false,
@@ -68,7 +65,6 @@ const FeedStack = ({navigation}) => (
         title: 'Comments',
         headerTitleAlign: 'left',
         headerStyle: {
-          backgroundColor: '#fff',
           elevation: 0,
         },
         headerBackTitleVisible: false,
@@ -86,7 +82,6 @@ const FeedStack = ({navigation}) => (
         title: 'Profile',
         headerTitleAlign: 'left',
         headerStyle: {
-          backgroundColor: '#fff',
           elevation: 0,
         },
         headerBackTitleVisible: false,
@@ -125,8 +120,6 @@ const ProfileStack = () => (
         headerBackTitleVisible: false,
         headerTitleAlign: 'left',
         headerStyle: {
-          backgroundColor: '#fff',
-          shadowColor: '#fff',
           elevation: 0,
         },
       }}
@@ -156,7 +149,7 @@ function AppStack() {
       tabBarShowLabel: false,
       tabBarStyle: [
         {
-          'display': getFocusedRouteNameFromRoute(route) === 'Chat' || getFocusedRouteNameFromRoute(route) === 'AddPost' || getFocusedRouteNameFromRoute(route) === 'EditProfile' || getFocusedRouteNameFromRoute(route) === 'HomeProfile' || getFocusedRouteNameFromRoute(route) === 'Comments' ? 'none' : 'flex'
+          'display': getFocusedRouteNameFromRoute(route) === 'Chat' || getFocusedRouteNameFromRoute(route) === 'AddPost' || getFocusedRouteNameFromRoute(route) === 'EditProfile' || getFocusedRouteNameFromRoute(route) === 'OtherProfile' || getFocusedRouteNameFromRoute(route) === 'Comments' ? 'none' : 'flex'
         },
         null
       ]

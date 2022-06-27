@@ -27,6 +27,7 @@
     "expo-skeleton-loader": "^1.1.3",
     "expo-status-bar": "~1.3.0",
     "expo-updates": "~0.13.2",
+    "fiction-expo-restart": "^1.1.3",
     "firebase": "^9.6.11",
     "lottie-react-native": "5.0.1",
     "moment": "^2.29.3",

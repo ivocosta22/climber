@@ -8,6 +8,7 @@ import { firebaseConfig } from '../../firebase'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import PostCard from '../../components/PostCard'
 import AppLoader from '../../components/AppLoader'
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 const ProfileScreen = ({navigation, route}) => {
     const app = initializeApp(firebaseConfig)
@@ -19,6 +20,7 @@ const ProfileScreen = ({navigation, route}) => {
     const [deleted, setDeleted] = React.useState(false)
     const [refreshing, setRefreshing] = React.useState(false)
     const [username, setUsername] = React.useState(null)
+    const [theme, setTheme] = React.useState(null)
     const [userPhotoURL, setUserPhotoURL] = React.useState(null)
     const [useraboutme, setUserAboutMe] = React.useState(null)
     const [isloggedInUser, setIsLoggedInUser] = React.useState(false)
@@ -44,6 +46,17 @@ const ProfileScreen = ({navigation, route}) => {
     }, [])
 
     React.useEffect(() => {
+      AsyncStorage.getItem('isDarkMode').then(value => {
+        if (value == null) {
+          AsyncStorage.setItem('isDarkMode', 'light')
+          setTheme('light')
+        } else if (value == 'light') {
+          setTheme('light')
+        } else if (value == 'dark') {
+          setTheme('dark')
+        }
+      })
+
       if (route.params) {
         fetchUserInfo()
       } else {
@@ -276,13 +289,13 @@ const ProfileScreen = ({navigation, route}) => {
   }
 
   return (
-    <SafeAreaView style={{flex:1, backgroundColor: '#fff'}}>
+    <SafeAreaView style={{flex:1}}>
       {loading ? <AppLoader/> : null}
-      <ScrollView style={styles.container} contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}} showsVerticalScrollIndicator={false} 
+      <ScrollView style={theme == 'light' ? styles.container : styles.containerDark} contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}} showsVerticalScrollIndicator={false} 
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
 
         <Image style={styles.userImg} source={userPhotoURL != null ? {uri: userPhotoURL} : require('../../assets/users/question-mark.png')}/>
-        <Text style={styles.userName}>{username}</Text>
+        <Text style={theme == 'light' ? styles.userName : styles.userNameDark}>{username}</Text>
         <Text style={styles.aboutUser}>{useraboutme == null ? 'Go to the Edit Profile Page to change this text :)' : useraboutme }</Text>
 
         <View style={styles.userBtnWrapper}>
@@ -310,17 +323,17 @@ const ProfileScreen = ({navigation, route}) => {
 
         <View style={styles.userInfoWrapper}>
           <View style={styles.userInfoItem}>
-            <Text style={styles.userInfoTitle}>{postsnumber}</Text>
+            <Text style={theme == 'light' ? styles.userInfoTitle : styles.userInfoTitleDark}>{postsnumber}</Text>
             <Text style={styles.userInfoSubTitle}>Posts</Text>
           </View>
 
           <View style={styles.userInfoItem}>
-            <Text style={styles.userInfoTitle}>{followers - 1}</Text>
+            <Text style={theme == 'light' ? styles.userInfoTitle : styles.userInfoTitleDark}>{followers - 1}</Text>
             <Text style={styles.userInfoSubTitle}>Followers</Text>
           </View>
 
           <View style={styles.userInfoItem}>
-            <Text style={styles.userInfoTitle}>{following - 1}</Text>
+            <Text style={theme == 'light' ? styles.userInfoTitle : styles.userInfoTitleDark}>{following - 1}</Text>
             <Text style={styles.userInfoSubTitle}>Following</Text>
           </View>
         </View>
@@ -341,6 +354,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     padding: 20,
   },
+  containerDark: {
+    flex: 1,
+    backgroundColor: '#000',
+    padding: 20,
+  },
   userImg: {
     height: 150,
     width: 150,
@@ -351,6 +369,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 10,
     marginBottom: 10,
+    color: '#000',
+  },
+  userNameDark: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 10,
+    marginBottom: 10,
+    color: '#fff',
   },
   aboutUser: {
     fontSize: 12,
@@ -390,6 +416,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 5,
     textAlign: 'center',
+  },
+  userInfoTitleDark: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    textAlign: 'center',
+    color: '#fff'
   },
   userInfoSubTitle: {
     fontSize: 12,

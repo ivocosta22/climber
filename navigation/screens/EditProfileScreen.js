@@ -11,6 +11,7 @@ import * as ImagePicker from 'expo-image-picker'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import FormButton from '../../components/FormButton'
 import AppLoader from '../../components/AppLoader'
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
   const EditProfileScreen = () => {
     const app = initializeApp(firebaseConfig)
@@ -21,6 +22,7 @@ import AppLoader from '../../components/AppLoader'
     const [image, setImage] = React.useState(null)
     const [hasGalleryPermission, setHasGalleryPermission] = React.useState(null)
     const [loading, setLoading] = React.useState(false)
+    const [theme, setTheme] = React.useState(null)
     var [email, setEmail] = React.useState(null)
     var [password, setPassword] = React.useState(null)
     var [currentpassword, setCurrentPassword] = React.useState(null)
@@ -29,6 +31,17 @@ import AppLoader from '../../components/AppLoader'
 
       React.useEffect(() => {
         (async () => {
+          AsyncStorage.getItem('isDarkMode').then(value => {
+            if (value == null) {
+              AsyncStorage.setItem('isDarkMode', 'light')
+              setTheme('light')
+            } else if (value == 'light') {
+              setTheme('light')
+            } else if (value == 'dark') {
+              setTheme('dark')
+            }
+          })
+          
             const galleryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync()
             setHasGalleryPermission(galleryStatus.status === 'granted')
             await getAboutme()
@@ -231,7 +244,7 @@ import AppLoader from '../../components/AppLoader'
     }
 
     return (
-      <View style={styles.container}>
+      <View style={theme == 'light' ? styles.container : styles.containerDark}>
       {loading ? <AppLoader/> : null}
           <View style={{alignItems: 'center', paddingTop: 30}}>
             <TouchableOpacity onPress={pickImage}>
@@ -278,70 +291,120 @@ import AppLoader from '../../components/AppLoader'
                 </ImageBackground>}
               </View>
             </TouchableOpacity>
-            <Text style={{marginTop: 10, fontSize: 18, fontWeight: 'bold'}}>
+            <Text style={theme == 'light' ? styles.userText : styles.userTextDark}>
                   { auth.currentUser.displayName != null ? auth.currentUser.displayName : 'Username' }
             </Text>
           </View>
   
           <View style={styles.action}>
-            <Ionicons name="person-outline" color="#333333" size={20} style={{marginLeft: 5, marginBottom: 10}} />
+            <Ionicons name="person-outline" size={20} style={theme == 'light' ? styles.ionicon : styles.ioniconDark} />
+            {theme == 'light' ? 
             <TextInput
               placeholder="Change Username"
-              placeholderTextColor="#666666"
+              placeholderTextColor="#666"
               autoCorrect={false}
               defaultValue= { auth.currentUser.displayName != null ? auth.currentUser.displayName : username}
               onChangeText={text => setUsername(text)}
               style={styles.textInput}
-            />
+            /> :
+            <TextInput
+              placeholder="Change Username"
+              placeholderTextColor="#fff"
+              autoCorrect={false}
+              defaultValue= { auth.currentUser.displayName != null ? auth.currentUser.displayName : username}
+              onChangeText={text => setUsername(text)}
+              style={styles.textInputDark}
+            />}
           </View>
           <View style={styles.action}>
-            <Ionicons name="mail-outline" color="#333333" size={20} style={{marginLeft: 5, marginBottom: 10}} />
+            <Ionicons name="mail-outline" size={20} style={theme == 'light' ? styles.ionicon : styles.ioniconDark} />
+            {theme == 'light' ?
             <TextInput
               placeholder="Change Email"
-              placeholderTextColor="#666666"
+              placeholderTextColor="#666"
               defaultValue={auth.currentUser.email}
               onChangeText={text => setEmail(text)}
               autoCorrect={false}
               style={styles.textInput}
               keyboardType='email-address'
-            />
+            /> :
+            <TextInput
+              placeholder="Change Email"
+              placeholderTextColor="#fff"
+              defaultValue={auth.currentUser.email}
+              onChangeText={text => setEmail(text)}
+              autoCorrect={false}
+              style={styles.textInputDark}
+              keyboardType='email-address'
+            />}
           </View>
           <View style={styles.action}>
-            <Ionicons name="key-outline" color="#333333" size={20} style={{marginLeft: 5, marginBottom: 10}} />
+            <Ionicons name="key-outline" size={20} style={theme == 'light' ? styles.ionicon : styles.ioniconDark} />
+            {theme == 'light' ?
             <TextInput
               placeholder="Current Password (Needed to change Email/Password)"
-              placeholderTextColor="#666666"
+              placeholderTextColor="#666"
               defaultValue=''
               onChangeText={text => setCurrentPassword(text)}
               autoCorrect={false}
               style={styles.textInput}
               secureTextEntry
-            />
+            /> :
+            <TextInput
+              placeholder="Current Password (Needed to change Email/Password)"
+              placeholderTextColor="#fff"
+              defaultValue=''
+              onChangeText={text => setCurrentPassword(text)}
+              autoCorrect={false}
+              style={styles.textInputDark}
+              secureTextEntry
+            />}
           </View>
           <View style={styles.action}>
-            <Ionicons name="key-outline" color="#333333" size={20} style={{marginLeft: 5, marginBottom: 10}} />
+            <Ionicons name="key-outline" size={20} style={theme == 'light' ? styles.ionicon : styles.ioniconDark} />
+            {theme == 'light' ?
             <TextInput
               placeholder="New Password"
-              placeholderTextColor="#666666"
+              placeholderTextColor="#666"
               defaultValue=''
               onChangeText={text => setPassword(text)}
               autoCorrect={false}
               style={styles.textInput}
               secureTextEntry
-            />
+            /> :
+            <TextInput
+              placeholder="New Password"
+              placeholderTextColor="#fff"
+              defaultValue=''
+              onChangeText={text => setPassword(text)}
+              autoCorrect={false}
+              style={styles.textInputDark}
+              secureTextEntry
+            />}
           </View>
           <View style={styles.action}>
-            <Ionicons name="ios-clipboard-outline" color="#333333" size={20} style={{marginLeft: 5, marginBottom: 10}} />
+            <Ionicons name="ios-clipboard-outline" size={20} style={theme == 'light' ? styles.ionicon : styles.ioniconDark} />
+            {theme == 'light' ?
             <TextInput
               multiline
               numberOfLines={3}
               placeholder="About Me"
-              placeholderTextColor="#666666"
+              placeholderTextColor="#666"
               defaultValue={ aboutme == 'Go to the Edit Profile Page to change this text :)' ? '' : aboutme}
               onChangeText={text => setAboutMe(text)}
               autoCorrect={true}
               style={[styles.textInput, {height: 40}]}
-            />
+            /> :
+            <TextInput
+              multiline
+              numberOfLines={3}
+              placeholder="About Me"
+              placeholderTextColor="#fff"
+              defaultValue={ aboutme == 'Go to the Edit Profile Page to change this text :)' ? '' : aboutme}
+              onChangeText={text => setAboutMe(text)}
+              autoCorrect={true}
+              style={[styles.textInputDark, {height: 40}]}
+            />}
           </View>
           <FormButton buttonTitle="Update" onPress={editProfile} />
       </View>
@@ -355,60 +418,9 @@ import AppLoader from '../../components/AppLoader'
       flex: 1,
       backgroundColor: '#fff',
     },
-    commandButton: {
-      padding: 15,
-      borderRadius: 10,
-      backgroundColor: '#FF6347',
-      alignItems: 'center',
-      marginTop: 10,
-    },
-    panel: {
-      padding: 20,
-      backgroundColor: '#FFFFFF',
-      paddingTop: 20,
-      width: '100%',
-    },
-    header: {
-      backgroundColor: '#FFFFFF',
-      shadowColor: '#333333',
-      shadowOffset: {width: -1, height: -3},
-      shadowRadius: 2,
-      shadowOpacity: 0.4,
-      paddingTop: 20,
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
-    },
-    panelHeader: {
-      alignItems: 'center',
-    },
-    panelHandle: {
-      width: 40,
-      height: 8,
-      borderRadius: 4,
-      backgroundColor: '#00000040',
-      marginBottom: 10,
-    },
-    panelTitle: {
-      fontSize: 27,
-      height: 35,
-    },
-    panelSubtitle: {
-      fontSize: 14,
-      color: 'gray',
-      height: 30,
-      marginBottom: 10,
-    },
-    panelButton: {
-      padding: 13,
-      borderRadius: 10,
-      backgroundColor: '#2e64e5',
-      alignItems: 'center',
-      marginVertical: 7,
-    },
-    panelButtonTitle: {
-      fontSize: 17,
-      fontWeight: 'bold',
-      color: 'white',
+    containerDark: {
+      flex: 1,
+      backgroundColor: '#000',
     },
     action: {
       flexDirection: 'row',
@@ -418,17 +430,36 @@ import AppLoader from '../../components/AppLoader'
       borderBottomColor: '#f2f2f2',
       paddingBottom: 5,
     },
-    actionError: {
-      flexDirection: 'row',
-      marginTop: 10,
-      borderBottomWidth: 1,
-      borderBottomColor: '#FF0000',
-      paddingBottom: 5,
-    },
     textInput: {
       flex: 1,
       marginTop: -12,
       paddingLeft: 10,
-      color: '#333333',
+      color: '#333',
     },
+    textInputDark: {
+      flex: 1,
+      marginTop: -12,
+      paddingLeft: 10,
+      color: '#fff',
+    },
+    userText: {
+      marginTop: 10, 
+      fontSize: 18, 
+      fontWeight: 'bold',
+    },
+    userTextDark: {
+      marginTop: 10, 
+      fontSize: 18, 
+      fontWeight: 'bold',
+      color: '#fff'
+    },
+    ionicon: {
+      marginLeft: 5, 
+      marginBottom: 10
+    },
+    ioniconDark: {
+      marginLeft: 5, 
+      marginBottom: 10,
+      color: '#fff'
+    }
   })

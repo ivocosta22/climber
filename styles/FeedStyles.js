@@ -21,6 +21,7 @@ export const Card = styled.View`
     margin-top: 10px;
     margin-bottom: 10px;
     border-radius: 10px;
+    background-color: #f8f8f8;
 `;
 
 export const CardDark = styled.View`

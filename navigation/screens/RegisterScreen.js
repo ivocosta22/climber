@@ -10,6 +10,7 @@ import * as Storage from 'firebase/storage'
 import * as ImagePicker from 'expo-image-picker'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import AppLoader from '../../components/AppLoader'
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 const RegisterScreen = () => {
     var [username, setRegisteredUsername] = React.useState('')
@@ -20,17 +21,24 @@ const RegisterScreen = () => {
     const [hasGalleryPermission, setHasGalleryPermission] = React.useState(null)
     const [image, setImage] = React.useState(null)
     const [loading, setLoading] = React.useState(false)
+    const [theme, setTheme] = React.useState(null)
     const app = initializeApp(firebaseConfig)
     const auth = getAuth(app)
     const storage = Storage.getStorage(app)
     const db = Database.getDatabase(app)
     const navigation = useNavigation()
 
-    React.useEffect(() => {
-      (async () => {
-          const galleryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync()
-          setHasGalleryPermission(galleryStatus.status === 'granted')
-      })()
+  React.useEffect(() => {
+      AsyncStorage.getItem('isDarkMode').then(value => {
+        if (value == null) {
+          AsyncStorage.setItem('isDarkMode', 'light')
+          setTheme('light')
+        } else if (value == 'light') {
+          setTheme('light')
+        } else if (value == 'dark') {
+          setTheme('dark')
+        }
+      })
   },[])
 
   const handleSignUp = async () => {
@@ -112,6 +120,9 @@ const RegisterScreen = () => {
   }
 
     const pickImage = async () => {
+      const galleryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync()
+      setHasGalleryPermission(galleryStatus.status === 'granted')
+
       if (hasGalleryPermission === false) {
         setLoading(false)
         Alert.alert('Error!', 'Please give storage permissions to the application.')
@@ -153,7 +164,7 @@ const RegisterScreen = () => {
     }
 
     return (
-        <KeyboardAvoidingView style={styles.container} behavior="padding">
+        <KeyboardAvoidingView style={theme == 'light' ? styles.container : styles.containerDark} behavior="padding">
         {loading ? <AppLoader/> : null}
         <TouchableOpacity onPress={pickImage}>
               <View>
@@ -199,10 +210,19 @@ const RegisterScreen = () => {
               </View>
             </TouchableOpacity>
             <View style={styles.inputContainer}>
+            {theme == 'light' ?
+            <>
                 <TextInput placeholder='Username' value={username} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredUsername(text)} style={styles.input}/>
                 <TextInput placeholder='Email' value={email} selectionColor='#0782F9' activeUnderlineColor='#0782F9' onChangeText={text => setRegisteredEmail(text)} style={styles.input}/>
                 <TextInput placeholder='Password' value={password} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredPassword(text)} style={styles.input} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}/>
                 <TextInput placeholder='Repeat Password' value={passwordcheck} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredPasswordCheck(text)} style={styles.input} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}/>
+            </> :
+            <>
+                <TextInput placeholder='Username' theme={{colors: {text: 'white'}}} placeholderTextColor='#fff' value={username} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredUsername(text)} style={styles.inputDark}/>
+                <TextInput placeholder='Email' theme={{colors: {text: 'white'}}} placeholderTextColor='#fff' value={email} selectionColor='#0782F9' activeUnderlineColor='#0782F9' onChangeText={text => setRegisteredEmail(text)} style={styles.inputDark}/>
+                <TextInput placeholder='Password' theme={{colors: {text: 'white'}}} placeholderTextColor='#fff' value={password} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredPassword(text)} style={styles.inputDark} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} color={'white'}  onPress={() => setPasswordVisible(!passwordVisible)} />}/>
+                <TextInput placeholder='Repeat Password' theme={{colors: {text: 'white'}}} placeholderTextColor='#fff' value={passwordcheck} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setRegisteredPasswordCheck(text)} style={styles.inputDark} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} color={'white'}  onPress={() => setPasswordVisible(!passwordVisible)} />}/>
+            </>}
             </View>
             <View style={styles.buttonContainer}>
                 <TouchableOpacity onPress={handleSignUp} style={[styles.button]}>
@@ -225,11 +245,23 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       backgroundColor: '#EEEEEE',
     },
+    containerDark: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#000',
+    },
     inputContainer: {
       width: '80%'
     },
     input: {
       backgroundColor: 'white',
+      paddingHorizontal: 15,
+      borderRadius: 10,
+      marginTop: 5,
+    },
+    inputDark: {
+      backgroundColor: 'black',
       paddingHorizontal: 15,
       borderRadius: 10,
       marginTop: 5,

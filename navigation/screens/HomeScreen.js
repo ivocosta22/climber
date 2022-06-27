@@ -1,16 +1,17 @@
 import React from 'react'
 import { FlatList, Alert, SafeAreaView, ScrollView, BackHandler, RefreshControl } from 'react-native'
 import { useRoute, useFocusEffect } from '@react-navigation/native'
-import { Container } from '../../styles/FeedStyles'
+import { Container, ContainerDark } from '../../styles/FeedStyles'
 import { firebaseConfig } from '../../firebase'
 import { initializeApp } from 'firebase/app'
-import { getFirestore, collection, getDocs, orderBy, getDoc, deleteDoc, doc, updateDoc, documentId, query } from 'firebase/firestore'
+import { getFirestore, collection, getDocs, orderBy, getDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore'
 import { deleteObject, getStorage, ref } from 'firebase/storage'
 import { getAuth } from 'firebase/auth'
 import * as Database from 'firebase/database'
 import SkeletonLoader from 'expo-skeleton-loader'
 import PostCard from '../../components/PostCard'
 import AppLoader from '../../components/AppLoader'
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 
 export default function HomeScreen({navigation}) {
@@ -22,6 +23,7 @@ export default function HomeScreen({navigation}) {
     const database = Database.getDatabase(app)
     const auth = getAuth(app)
     const [posts, setPosts] = React.useState(null)
+    const [theme, setTheme] = React.useState(null)
     const [loading, setLoading] = React.useState(true)
     const [deleting, setDeleting] = React.useState(false)
     const [deleted, setDeleted] = React.useState(false)
@@ -101,6 +103,16 @@ export default function HomeScreen({navigation}) {
     }
 
     React.useEffect(() => {
+      AsyncStorage.getItem('isDarkMode').then(value => {
+        if (value == null) {
+          AsyncStorage.setItem('isDarkMode', 'light')
+          setTheme('light')
+        } else if (value == 'light') {
+          setTheme('light')
+        } else if (value == 'dark') {
+          setTheme('dark')
+        }
+      })
       setLoading(true)
       fetchPosts()
     },[])
@@ -221,7 +233,7 @@ export default function HomeScreen({navigation}) {
     }
 
     return(
-      <SafeAreaView style={{flex:1}}>
+      <SafeAreaView style={theme == 'light' ? {flex:1} : {flex:1, backgroundColor:'black'}}>
       {loading ? <ScrollView style={[{flex: 1}]} contentContainerStyle={{alignItems: 'center'}}>
             <SkeletonLoader boneColor='#b6b6b6' highlightColor='#fff'>
                 <SkeletonLoader.Container style={{ flexDirection: 'row', alignItems: 'center'}}>
@@ -254,13 +266,28 @@ export default function HomeScreen({navigation}) {
         </ScrollView> : deleting ? 
         <>
         <AppLoader/>
+        {theme == 'light' ? 
         <Container>
             <FlatList data={posts} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>} renderItem={({item}) => <PostCard item={item} onDelete={handleDelete} onLike={handleLike} onComment={() => navigation.navigate('Comments', {userId: item.userId})} onPress={() => navigation.navigate('HomeProfile', {userId: item.userId})}/>} keyExtractor={item=>item.id} showsVerticalScrollIndicator={false}></FlatList>
-        </Container>
+        </Container> :
+
+        <ContainerDark>
+            <FlatList data={posts} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>} renderItem={({item}) => <PostCard item={item} onDelete={handleDelete} onLike={handleLike} onComment={() => navigation.navigate('Comments', {userId: item.userId})} onPress={() => navigation.navigate('HomeProfile', {userId: item.userId})}/>} keyExtractor={item=>item.id} showsVerticalScrollIndicator={false}></FlatList>
+        </ContainerDark>
+        }
         </> :
+        <>
+        {theme == 'light' ?
         <Container>
             <FlatList data={posts} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>} renderItem={({item}) => <PostCard item={item} onDelete={handleDelete} onLike={handleLike} onComment={() => navigation.navigate('Comments', {userId: item.userId})} onPress={() => navigation.navigate('HomeProfile', {userId: item.userId})}/>} keyExtractor={item=>item.id} showsVerticalScrollIndicator={false}></FlatList>
-        </Container>}
+        </Container> :
+
+        <ContainerDark>
+            <FlatList data={posts} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>} renderItem={({item}) => <PostCard item={item} onDelete={handleDelete} onLike={handleLike} onComment={() => navigation.navigate('Comments', {userId: item.userId})} onPress={() => navigation.navigate('HomeProfile', {userId: item.userId})}/>} keyExtractor={item=>item.id} showsVerticalScrollIndicator={false}></FlatList>
+        </ContainerDark>
+        }
+        </>
+      }
       </SafeAreaView>
     )
 }

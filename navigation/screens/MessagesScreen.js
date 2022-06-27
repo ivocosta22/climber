@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { FlatList } from 'react-native'
-import { Container, Card, UserInfo, UserImgWrapper, UserImg, UserInfoText, UserName, PostTime, MessageText, TextSection } from '../../styles/MessageStyles'
+import { Container, Card, UserInfo, UserImgWrapper, UserImg, UserInfoText, UserName, PostTime, MessageText, TextSection, ContainerDark, UserNameDark, PostTimeDark, MessageTextDark } from '../../styles/MessageStyles'
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 const Messages = [
     {
@@ -41,25 +42,62 @@ const Messages = [
 ]
 
 const MessagesScreen = ({navigation}) => {
+
+    const [theme, setTheme] = React.useState(null)
+
+    React.useEffect(() => {
+        AsyncStorage.getItem('isDarkMode').then(value => {
+          if (value == null) {
+            AsyncStorage.setItem('isDarkMode', 'light')
+            setTheme('light')
+          } else if (value == 'light') {
+            setTheme('light')
+          } else if (value == 'dark') {
+            setTheme('dark')
+          }
+        })
+      },[])
+
     return (
-        <Container>
-            <FlatList data={Messages} keyExtractor={item=>item.id} renderItem={({item}) => (
-                <Card onPress={() => navigation.navigate('Chat', {userName: item.userName})}>
-                    <UserInfo>
-                        <UserImgWrapper>
-                            <UserImg source={item.userImg}/>
-                        </UserImgWrapper>
-                        <TextSection>
-                            <UserInfoText>
-                                <UserName>{item.userName}</UserName>    
-                                <PostTime>{item.messageTime}</PostTime>
-                            </UserInfoText>
-                            <MessageText>{item.messageText}</MessageText>
-                        </TextSection>
-                    </UserInfo>
-                </Card>
-            )}/>
-        </Container>
+        <>{theme == 'light' ?
+            <Container>
+                <FlatList data={Messages} keyExtractor={item=>item.id} renderItem={({item}) => (
+                    <Card onPress={() => navigation.navigate('Chat', {userName: item.userName})}>
+                        <UserInfo>
+                            <UserImgWrapper>
+                                <UserImg source={item.userImg}/>
+                            </UserImgWrapper>
+                            <TextSection>
+                                <UserInfoText>
+                                    <UserName>{item.userName}</UserName>    
+                                    <PostTime>{item.messageTime}</PostTime>
+                                </UserInfoText>
+                                <MessageText>{item.messageText}</MessageText>
+                            </TextSection>
+                        </UserInfo>
+                    </Card>
+                )}/>
+            </Container> 
+            : 
+            <ContainerDark>
+                <FlatList data={Messages} keyExtractor={item=>item.id} renderItem={({item}) => (
+                    <Card onPress={() => navigation.navigate('Chat', {userName: item.userName})}>
+                        <UserInfo>
+                            <UserImgWrapper>
+                                <UserImg source={item.userImg}/>
+                            </UserImgWrapper>
+                            <TextSection>
+                                <UserInfoText>
+                                    <UserNameDark>{item.userName}</UserNameDark>    
+                                    <PostTimeDark>{item.messageTime}</PostTimeDark>
+                                </UserInfoText>
+                                <MessageTextDark>{item.messageText}</MessageTextDark>
+                            </TextSection>
+                        </UserInfo>
+                    </Card>
+                )}/>
+            </ContainerDark>
+        }</>
     )
 }
 

@@ -121,7 +121,7 @@ const ProfileScreen = ({navigation, route}) => {
           setUserAboutMe(useraboutme)
           setUserPhotoURL(photoURL)
         }).catch((error) => {
-          Alert.alert('Error!', error.message)
+          Alert.alert(i18n.t('error'), error.message)
         })
 
         let querySnapshot = await getDocs(collection(db, 'posts'), orderBy('postTime','desc'))
@@ -153,7 +153,7 @@ const ProfileScreen = ({navigation, route}) => {
         }
 
       } catch (error) {
-        Alert.alert('Error!', error.message)
+        Alert.alert(i18n.t('error'), error.message)
       }
     }
 
@@ -174,7 +174,7 @@ const ProfileScreen = ({navigation, route}) => {
           setUserAboutMe(useraboutme)
           setUsername(usernamedb)
           }).catch((error) => {
-            Alert.alert('Error!', error.message)
+            Alert.alert(i18n.t('error'), error.message)
           })
 
         let querySnapshot = await getDocs(collection(db, 'posts'), orderBy('postTime','desc'))
@@ -207,22 +207,22 @@ const ProfileScreen = ({navigation, route}) => {
         }
 
       } catch(error) {
-        Alert.alert('Error!', error.message)
+        Alert.alert(i18n.t('error'), error.message)
       }
     }
 
     const handleDelete = (postId) => {
-      Alert.alert(
-        'Delete post',
-        'Are you sure?',
+       Alert.alert(
+        i18n.t('deletePost'),
+        i18n.t('areYouSure'),
         [
           {
-            text: 'Cancel',
+            text: i18n.t('cancel'),
             onPress: () => {},
             style: 'cancel'
           },
           {
-            text: 'Confirm',
+            text: i18n.t('confirm'),
             onPress: () => deletePost(postId),
           },  
         ],
@@ -242,7 +242,7 @@ const ProfileScreen = ({navigation, route}) => {
           deleteObject(imageRef).then(() => {
             deleteFirestoreData(postId)
           }).catch((error) => {
-            Alert.alert("Error!", error)
+            Alert.alert(i18n.t('error'), error)
           })
         } else {
           deleteFirestoreData(postId)
@@ -253,15 +253,15 @@ const ProfileScreen = ({navigation, route}) => {
   const deleteFirestoreData = async (postId) => {
     await deleteDoc(doc(db, 'posts', postId)).then(() => {
       setDeleted(true)
-      Alert.alert('Post Deleted!', 'Your Post has been deleted successfully!')
-    }).catch(error => Alert.alert('Error!', error.message))
+      Alert.alert(i18n.t('postDeleted'), i18n.t('postDeletedMessage'))
+    }).catch(error => Alert.alert(i18n.t('error'), error.message))
   }
 
   const handleSignOut = async () => {
       setLoading(true)
       await auth.signOut().then(() => {
         navigation.navigate('Login')
-      }).catch(error => Alert.alert('Error!', error.message))
+      }).catch(error => Alert.alert(i18n.t('error'), error.message))
   }
 
   const followUser = async () => {

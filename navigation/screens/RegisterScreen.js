@@ -66,7 +66,7 @@ const RegisterScreen = () => {
 
     if (password != passwordcheck) {
       setLoading(false)
-      Alert.alert('Error!', 'Passwords do not match.')
+      Alert.alert(i18n.t('error'), i18n.t('passwordsMatchError'))
     } else {
       Database.get(usernamesref).then((snapshot) => {
         snapshot.forEach((childSnapshot) => {
@@ -76,12 +76,12 @@ const RegisterScreen = () => {
         })
       }).catch(error => {
         setLoading(false)
-        Alert.alert('Error!', error.message)
+        Alert.alert(i18n.t('error'), error.message)
     })
 
       if (doesUserNameExist) {
         setLoading(false)
-        Alert.alert('Error!', 'Username already exists.')
+        Alert.alert(i18n.t('error'), i18n.t('usernameErrorAlreadyExists'))
       } else {
         createUserWithEmailAndPassword(auth, email, password)
         .then(async userCredentials => {
@@ -89,7 +89,7 @@ const RegisterScreen = () => {
           const imageUrl = await uploadImage(userid)
           updateProfile(userCredentials.user, {displayName: username, photoURL: imageUrl} ).catch((error => {
             setLoading(false)
-            Alert.alert('Error!', error.message)
+            Alert.alert(i18n.t('error'), error.message)
           }))
           saveProfileInfo({
               followers:{
@@ -114,12 +114,12 @@ const RegisterScreen = () => {
             navigation.navigate('Login')
           }).catch((error => {
             setLoading(false)
-            Alert.alert('Error!', error.message) 
+            Alert.alert(i18n.t('error'), error.message) 
           }))
           
         }).catch(error => { 
           setLoading(false)
-          Alert.alert('Error!', error.message)
+          Alert.alert(i18n.t('error'), error.message)
         })
       }    
     } 
@@ -131,7 +131,7 @@ const RegisterScreen = () => {
     updates['/users/' + user + '/'] = data
     Database.update(Database.ref(db), updates).catch((error) => {
       setLoading(false)
-      Alert.alert('Error!', error.message)
+      Alert.alert(i18n.t('error'), error.message)
     })
   }
 
@@ -141,7 +141,7 @@ const RegisterScreen = () => {
 
       if (hasGalleryPermission === false) {
         setLoading(false)
-        Alert.alert('Error!', 'Please give storage permissions to the application.')
+        Alert.alert(i18n.t('error'), i18n.t('permissionsErrorStorage'))
       }
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -174,7 +174,7 @@ const RegisterScreen = () => {
             const url = await Storage.getDownloadURL(storageRef)
             return url
       } catch(error) {
-            Alert.alert('Error!', error.message)
+            Alert.alert(i18n.t('error'), error.message)
             return null
       }
     }

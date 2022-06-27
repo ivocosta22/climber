@@ -7,16 +7,18 @@ import { initializeApp } from 'firebase/app'
 import { getFirestore, collection, getDocs, orderBy, getDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore'
 import { deleteObject, getStorage, ref } from 'firebase/storage'
 import { getAuth } from 'firebase/auth'
+import { en, pt } from './../../localizations'
 import * as Database from 'firebase/database'
 import SkeletonLoader from 'expo-skeleton-loader'
 import PostCard from '../../components/PostCard'
 import AppLoader from '../../components/AppLoader'
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import i18n from 'i18n-js'
 
 
 export default function HomeScreen({navigation}) {
   //TODO: Comment code, organize strings/styles into a file
-  //TODO: Handle error language
+  //TODO: Handle Alerts with language translation
     const app = initializeApp(firebaseConfig)
     const db = getFirestore(app)
     const storage = getStorage(app)
@@ -29,6 +31,10 @@ export default function HomeScreen({navigation}) {
     const [deleted, setDeleted] = React.useState(false)
     const [refreshing, setRefreshing] = React.useState(false)
     const [postLiked, setPostLiked] = React.useState([{liked: false, id: '0'}])
+    let [locale, setLocale] = React.useState('en')
+    i18n.fallbacks = true
+    i18n.translations = {en, pt}
+    i18n.locale = locale
 
     const wait = (timeout) => {
       return new Promise(resolve => setTimeout(resolve, timeout))
@@ -72,33 +78,37 @@ export default function HomeScreen({navigation}) {
         let isPostLiked
         let querySnapshot = await getDocs(collection(db, 'posts'), orderBy('postTime','desc'))
         querySnapshot.forEach(doc => {
-          const {userId ,userName, userImg, post, postImg, postTime, likes, comments} = doc.data()
-          if (JSON.stringify(likesList).includes(doc.id)) {
-            isPostLiked = true
-          } else {
-            isPostLiked = false
-          }
-          postList.push({
-            id: doc.id,
-            userId,
-            userName: userName,
-            userImg: userImg,
-            postTime: postTime,
-            post,
-            postImg,
-            liked: isPostLiked,
-            likes: likes,
-            comments : comments
-          })
-        })
-        postList.sort(function(x, y) {
-          return y.postTime - x.postTime
-        })
-        setPosts(postList)
-        setLoading(false)
+          const {userId, post, postImg, postTime, likes, comments} = doc.data()
+          Database.get(Database.child(Database.ref(database), `users/${userId}/`)).then((snapshot) => {
+            let username = snapshot.child('username').toJSON()
+            let photoURL = snapshot.child('photoURL').toJSON()
+            if (JSON.stringify(likesList).includes(doc.id)) {
+              isPostLiked = true
+            } else {
+              isPostLiked = false
+            }
+            postList.push({
+              id: doc.id,
+              userId,
+              userName: username,
+              userImg: photoURL,
+              postTime: postTime,
+              post,
+              postImg,
+              liked: isPostLiked,
+              likes: likes,
+              comments : comments
+            })
+            postList.sort(function(x, y) {
+              return y.postTime - x.postTime
+            })
+            setPosts(postList)
+            setLoading(false)
+          }) 
+        }) 
       } catch(error) {
         setLoading(false)
-        Alert.alert('Error!', error.message)
+        Alert.alert(i18n.t('error'), error.message)
       }
     }
 
@@ -113,6 +123,19 @@ export default function HomeScreen({navigation}) {
           setTheme('dark')
         }
       })
+
+      AsyncStorage.getItem('currentLanguage').then(value => {
+        if (value == null) {
+          AsyncStorage.setItem('currentLanguage', 'en')
+          setLocale('en')
+        } else if (value == 'en') {
+          setLocale('en')
+        } else if (value == 'pt') {
+          setLocale('pt')
+        }
+      })
+
+
       setLoading(true)
       fetchPosts()
     },[])
@@ -124,16 +147,16 @@ export default function HomeScreen({navigation}) {
 
     const handleDelete = (postId) => {
       Alert.alert(
-        'Delete post',
-        'Are you sure?',
+        i18n.t('deletePost'),
+        i18n.t('areYouSure'),
         [
           {
-            text: 'Cancel',
+            text: i18n.t('cancel'),
             onPress: () => {},
             style: 'cancel'
           },
           {
-            text: 'Confirm',
+            text: i18n.t('confirm'),
             onPress: () => deletePost(postId),
           },  
         ],
@@ -146,7 +169,7 @@ export default function HomeScreen({navigation}) {
         const docRef = doc(db, 'posts', postId)
         const docSnap = await getDoc(docRef).catch((error) => {
           setDeleting(false)
-          Alert.alert('Error!', error.message)
+          Alert.alert(i18n.t('error'), error.message)
         })
 
         if (docSnap.exists) {
@@ -157,31 +180,31 @@ export default function HomeScreen({navigation}) {
               deleteFirestoreData(postId)
             }).catch((error) => {
               setDeleting(false)
-              Alert.alert('Error!', error.message)
+              Alert.alert(i18n.t('error'), error.message)
             })
           } else {
             deleteFirestoreData(postId)
           }
         } else {
           setDeleting(false)
-          Alert.alert('Error!', 'This Post has been deleted already.')
+          Alert.alert(i18n.t('error'), i18n.t('deletedPostAlready'))
         }
     }
 
     const deleteFirestoreData = async (postId) => {
       await deleteDoc(doc(db, 'posts', postId)).then(() => {
         setDeleting(false)
-        Alert.alert('Post Deleted!', 'Your Post has been deleted successfully!')
+        Alert.alert(i18n.t('postDeleted'), i18n.t('postDeletedMessage'))
       }).catch(error => {
         setDeleting(false)
-        Alert.alert('Error!', error.message)
+        Alert.alert(i18n.t('error'), error.message)
       })
     }
 
     const handleLike = async (postId) => {
       const docRef = doc(db, 'posts', postId)
       const docSnap = await getDoc(docRef).catch((error) => {
-        Alert.alert('Error!', error.message)
+        Alert.alert(i18n.t('error'), error.message)
       })
 
       if (docSnap.exists) {
@@ -197,7 +220,7 @@ export default function HomeScreen({navigation}) {
                 databaseUpdate('likedPosts', databasepostid)
                 setPostLiked(postLiked => [...postLiked, {liked: true, id: post.id}])
               }).catch((error) => {
-                Alert.alert('Error!', error.message)
+                Alert.alert(i18n.t('error'), error.message)
               })
             } else if (post.liked) {
               updateDoc(docRef, {likes: likes - 1}).then(() => {
@@ -207,7 +230,7 @@ export default function HomeScreen({navigation}) {
                   return postlike.id == databasepostid
                 }))
               }).catch((error) => {
-                Alert.alert('Error!', error.message)
+                Alert.alert(i18n.t('error'), error.message)
               })
             }
           }

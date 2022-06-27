@@ -62,7 +62,7 @@ const AddPostScreen = () => {
         setHasGalleryPermission(galleryStatus.status === 'granted')
 
         if (hasGalleryPermission === false) {
-            Alert.alert('Error!', 'Please give storage permissions to the application.')
+            Alert.alert(i18n.t('error'), i18n.t('permissionsErrorStorage'))
         } else {
             let libraryresult = await ImagePicker.launchImageLibraryAsync({
                 mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -81,7 +81,7 @@ const AddPostScreen = () => {
         setHasCameraPermission(cameraPermission.status === 'granted')
 
         if (hasCameraPermission === false) {
-            Alert.alert('Error!', 'Please give camera permissions to the application.')
+            Alert.alert(i18n.t('error'), i18n.t('permissionsErrorCamera'))
         } else {
             let cameraresult = await ImagePicker.launchCameraAsync({
                 mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -97,32 +97,24 @@ const AddPostScreen = () => {
     
     const submitPost = async () => {
         const imageUrl = await uploadImage()
-        if (post == null && image == null) {
-            Alert.alert('Error!', 'You need to either have Text or an Image in your post')
+        if ((post == null && image == null) || (post == '' && image == null)) {
+            Alert.alert(i18n.t('error'), i18n.t('errorPostEmpty'))
         } else {
             try {
-                Database.get(Database.child(Database.ref(database), `users/${auth.currentUser.uid}/`)).then((snapshot) => {
-                    let username = snapshot.child('username').toJSON()
-                    let photoURL = snapshot.child('photoURL').toJSON()
-                    const docRef = addDoc(collection(db, 'posts'), {
-                        userId: auth.currentUser.uid,
-                        userName: username,
-                        userImg: photoURL,
-                        post: post,
-                        postImg: imageUrl,
-                        postTime: Timestamp.fromDate(new Date()),
-                        likes: 0,
-                        comments: 0
-                    })
-                    Alert.alert('Post Published!', 'Your Post has been published successfully!')
-                }).catch((error) => {
-                    Alert.alert('Error!', error.message)
+                const docRef = addDoc(collection(db, 'posts'), {
+                    userId: auth.currentUser.uid,
+                    post: post,
+                    postImg: imageUrl,
+                    postTime: Timestamp.fromDate(new Date()),
+                    likes: 0,
+                    comments: 0
                 })
+                Alert.alert(i18n.t('postPublishedTitle'), i18n.t('postPublishedMessage'))
                 setPost(null)
                 setImage(null)
                 navigation.goBack()
-            } catch (e) {
-                console.log(e)
+            } catch (error) {
+                Alert.alert(i18n.t('error'), error.message)
             }
         }
     }
@@ -149,7 +141,7 @@ const AddPostScreen = () => {
                 setLoading(false)
                 return url
             } catch(error) {
-                Alert.alert('Error!', error.message)
+                Alert.alert(i18n.t('error'), error.message)
                 return null
             }
     }

@@ -58,7 +58,7 @@ const LoginScreen = () => {
           if (user.emailVerified) {
             navigation.navigate('AppStack')
           } else {
-            Alert.alert('Email Verification', 'Please verify your email in order to login.')
+            Alert.alert(i18n.t('emailVerification'), i18n.t('emailVerificationMessage'))
           }     
         } else {
           emailTextInput.current.clear()
@@ -79,11 +79,11 @@ const LoginScreen = () => {
           setLoading(false)
           navigation.navigate('AppStack')
         } else {
-          Alert.alert('Email Verification', 'Please verify your email in order to login.')
+          Alert.alert(i18n.t('emailVerification'), i18n.t('emailVerificationMessage'))
           setLoading(false)
         }
       }).catch((error) => {
-          Alert.alert('Error!', error.message)
+          Alert.alert(i18n.t('error'), error.message)
           setLoading(false)
       })
     }
@@ -94,25 +94,25 @@ const LoginScreen = () => {
       sendPasswordResetEmail(auth, email).then(() => {
         emailTextInput.current.clear()
         passwordTextInput.current.clear()
-        Alert.alert('Password Reset', 'Please check your email in order to reset your password.')
+        Alert.alert(i18n.t('passwordReset'), i18n.t('passwordResetMessage'))
         setLoading(false)
       }).catch((error) => {
-        Alert.alert('Error!', error.message)
+        Alert.alert(i18n.t('error'), error.message)
         setLoading(false)
       })
     }
 
     const handleTheme = () => {
-      Alert.alert('Warning!', 
-      'In order to change theme, the app must be restarted. Press OK to Restart.',
+      Alert.alert(i18n.t('warning'), 
+      i18n.t('themeMessage'),
         [
           {
-            text: "Cancel",
+            text: i18n.t('cancel'),
             onPress: () => {},
             style: 'cancel',
           },
           {
-            text: "OK",
+            text: i18n.t('ok'),
             onPress: () => {
               AsyncStorage.getItem('isDarkMode').then(value => {
               if (value == null) {

@@ -67,7 +67,7 @@ import i18n from 'i18n-js'
 
     const pickImage = async () => {
       if (hasGalleryPermission === false) {
-        Alert.alert('Error!', 'Please give storage permissions to the application.')
+        Alert.alert(i18n.t('error'), i18n.t('permissionsErrorStorage'))
       }
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -100,7 +100,7 @@ import i18n from 'i18n-js'
             const url = await getDownloadURL(storageRef)
             return url
       } catch(error) {
-            Alert.alert('Error!', error.message)
+            Alert.alert(i18n.t('error'), error.message)
             return null
       }
     }
@@ -110,7 +110,7 @@ import i18n from 'i18n-js'
         const json = snapshot.child('useraboutme').toJSON()
         setAboutMe(json)
         }).catch((error) => {
-          Alert.alert('Error!', error.message)
+          Alert.alert(i18n.t('error'), error.message)
         }) 
     }
 
@@ -122,15 +122,12 @@ import i18n from 'i18n-js'
       await editAboutMe()
       var didChangeEmail = await editEmail()
       var didChangePassword = await editPassword()
-      console.log(didChangeUsername)
-      console.log(didChangeEmail)
-      console.log(didChangePassword)
 
       switch (true) {
         // Changed both Email and Password successfully
         case (didChangeEmail == 'Success' && didChangePassword == 'Success'):
           setLoading(false)
-          Alert.alert('Account Changed', 'Both your Email and Password were changed. Please verify your new Email and re-login using your new Email and Password into the app.')
+          Alert.alert(i18n.t('accountChanged'), i18n.t('emailAndPasswordChanged'))
           auth.signOut().then(() => {
             navigation.navigate('Login')
           })
@@ -138,7 +135,7 @@ import i18n from 'i18n-js'
         // Changed Email successfully
         case (didChangeEmail == 'Success' && didChangePassword == 'Failed'):
           setLoading(false)
-          Alert.alert('Account Changed', 'Your Email was changed. Please verify your new Email and re-login using your new Email into the app.')
+          Alert.alert(i18n.t('accountChanged'), i18n.t('emailChanged'))
           auth.signOut().then(() => {
             navigation.navigate('Login')
           })
@@ -146,7 +143,7 @@ import i18n from 'i18n-js'
         // Changed Password successfully
         case (didChangeEmail == 'Failed' && didChangePassword == 'Success'):
           setLoading(false)
-          Alert.alert('Account Changed', 'Your Password was changed. Please re-login into the app using your new Password.')
+          Alert.alert(i18n.t('accountChanged'), i18n.t('passwordChanged'))
           auth.signOut().then(() => {
             navigation.navigate('Login')
           })
@@ -154,17 +151,17 @@ import i18n from 'i18n-js'
         // Error changing Email
         case (didChangeEmail != 'Success' && didChangeEmail != 'Failed' && didChangePassword == 'Failed'):
           setLoading(false)
-          Alert.alert('Error!', didChangeEmail)
+          Alert.alert(i18n.t('error'), didChangeEmail)
           break
         // Error changing Password
         case (didChangeEmail == 'Failed' && didChangePassword != 'Success' && didChangePassword != 'Failed'):
           setLoading(false)
-          Alert.alert('Error!', didChangePassword)
+          Alert.alert(i18n.t('error'), didChangePassword)
           break
         // Error changing Email but Password was changed
         case (didChangeEmail != 'Success' && didChangeEmail != 'Failed' && didChangePassword == 'Success'):
           setLoading(false)
-          Alert.alert('Account Changed (ERROR!)', 'Your Password was changed. But there was an error changing your Email. Please re-login into the app using your new Password. (ERROR: ' + didChangeEmail + ')')
+          Alert.alert(i18n.t('accountChangedError'), i18n.t('passwordChangedEmailError') + didChangeEmail)
           auth.signOut().then(() => {
             navigation.navigate('Login')
           })
@@ -172,7 +169,7 @@ import i18n from 'i18n-js'
         // Error changing Password but Email was changed
         case (didChangeEmail == 'Success' && didChangePassword != 'Success' && didChangePassword != 'Failed'):
           setLoading(false)
-          Alert.alert('Account Changed (ERROR!)', 'Your Email was changed. But there was an error changing your Password. Please verify your new Email and re-login into the app. (ERROR: ' + didChangePassword + ')')
+          Alert.alert(i18n.t('accountChangedError'), i18n.t('emailChangedPasswordError') + didChangePassword)
           auth.signOut().then(() => {
             navigation.navigate('Login')
           })
@@ -180,27 +177,27 @@ import i18n from 'i18n-js'
         // Error changing Email and Error changing Password
         case (didChangeEmail != 'Success' && didChangeEmail != 'Failed' && didChangePassword != 'Success' && didChangePassword != 'Failed'):
           setLoading(false)
-          Alert.alert('Error!', 'There was an error changing both your Email and Password. (EMAIL ERROR: ' + didChangeEmail + ')' + ' (PASSWORD ERROR: ' + didChangePassword + ')')
+          Alert.alert(i18n.t('error'), i18n.t('emailAndPasswordError') + i18n.t('emailError') + didChangeEmail + i18n.t('passwordError') + didChangePassword)
           break
         // Didn't change anything
         case (didChangeEmail == 'Failed' && didChangePassword == 'Failed'):
           if (didChangeUsername != 'Failed') {
             if (didChangeUsername == 'ErrorEmptyUsername') {
               setLoading(false)
-              Alert.alert('Error!', 'Username cannot be empty.')
+              Alert.alert(i18n.t('error'), i18n.t('usernameError'))
               break
             } else if (didChangeUsername != 'Error' && didChangeUsername != 'Success') {
               setLoading(false)
-              Alert.alert('Error!', didChangeUsername)
+              Alert.alert(i18n.t('error'), didChangeUsername)
               break
             } else if (didChangeUsername == 'Success') {
               setLoading(false)
-              Alert.alert('Profile Updated!', 'Your Profile was updated successfully!')
+              Alert.alert(i18n.t('profileUpdated'), i18n.t('profileUpdatedMessage'))
               break
             }
           } else {
             setLoading(false)
-            Alert.alert('Profile Updated!', 'Your Profile was updated successfully!')
+            Alert.alert(i18n.t('profileUpdated'), i18n.t('profileUpdatedMessage'))
             break
           }
       }
@@ -234,10 +231,10 @@ import i18n from 'i18n-js'
       const imageUrl = await uploadImage()
       if (imageUrl != auth.currentUser.photoURL && imageUrl != null) {
         await updateProfile(auth.currentUser, {photoURL: imageUrl}).catch(error => {
-          Alert.alert('Error!', error.message)
+          Alert.alert(i18n.t('error'), error.message)
         })
         await updateProfileInfo('photoURL', imageUrl).catch(error => {
-          Alert.alert('Error!', error.message)
+          Alert.alert(i18n.t('error'), error.message)
         })
       }
     }
@@ -245,7 +242,7 @@ import i18n from 'i18n-js'
     const editAboutMe = async () => {
       if (aboutme != null ) {
         await updateProfileInfo('useraboutme', aboutme).catch(error => {
-          Alert.alert('Error!', error.message)
+          Alert.alert(i18n.t('error'), error.message)
         })
       }
     }

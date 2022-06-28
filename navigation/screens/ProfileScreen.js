@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, SafeAreaView, StyleSheet, Text, Image, ScrollView, Alert, RefreshControl } from 'react-native'
+import { View, SafeAreaView, Text, Image, ScrollView, Alert, RefreshControl } from 'react-native'
 import { getAuth } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
 import { get, getDatabase, ref, child, update } from 'firebase/database'
@@ -7,6 +7,7 @@ import { getFirestore, collection, getDocs, orderBy, getDoc, deleteDoc, doc } fr
 import { firebaseConfig } from '../../firebase'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { en, pt } from './../../localizations'
+import { globalStyles } from './../../styles/global'
 import i18n from 'i18n-js'
 import PostCard from '../../components/PostCard'
 import AppLoader from '../../components/AppLoader'
@@ -308,50 +309,50 @@ const ProfileScreen = ({navigation, route}) => {
   return (
     <SafeAreaView style={{flex:1}}>
       {loading ? <AppLoader/> : null}
-      <ScrollView style={theme == 'light' ? styles.container : styles.containerDark} contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}} showsVerticalScrollIndicator={false} 
+      <ScrollView style={theme == 'light' ? [globalStyles.containerProfile, {backgroundColor: '#fff'}] : [globalStyles.containerProfile, {backgroundColor: '#000'}]} contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}} showsVerticalScrollIndicator={false} 
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
 
-        <Image style={styles.userImg} source={userPhotoURL != null ? {uri: userPhotoURL} : require('../../assets/users/question-mark.png')}/>
-        <Text style={theme == 'light' ? styles.userName : styles.userNameDark}>{username}</Text>
-        <Text style={styles.aboutUser}>{useraboutme == 'Go to the Edit Profile Page to change this text :)' ? (i18n.t('aboutmeDefault')) : useraboutme }</Text>
+        <Image style={globalStyles.userImg} source={userPhotoURL != null ? {uri: userPhotoURL} : require('../../assets/users/question-mark.png')}/>
+        <Text style={theme == 'light' ? [globalStyles.userName, {color: '#000'}] : [globalStyles.userName, {color: '#fff'}]}>{username}</Text>
+        <Text style={globalStyles.aboutUser}>{useraboutme == 'Go to the Edit Profile Page to change this text :)' ? (i18n.t('aboutmeDefault')) : useraboutme }</Text>
 
-        <View style={styles.userBtnWrapper}>
+        <View style={globalStyles.userBtnWrapper}>
           {!isloggedInUser ? (
             <>
-              <TouchableOpacity style={styles.userBtn} onPress={() => {}}>
-                <Text style={styles.userBtnTxt}>{i18n.t('message')}</Text>
+              <TouchableOpacity style={globalStyles.userBtn} onPress={() => {}}>
+                <Text style={globalStyles.userBtnTxt}>{i18n.t('message')}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.userBtn} onPress={followUser}>
-                <Text style={styles.userBtnTxt}>{followText == 'Follow' ? i18n.t('followButtonText') : i18n.t('followingButtonText')}</Text>
+              <TouchableOpacity style={globalStyles.userBtn} onPress={followUser}>
+                <Text style={globalStyles.userBtnTxt}>{followText == 'Follow' ? i18n.t('followButtonText') : i18n.t('followingButtonText')}</Text>
               </TouchableOpacity>
             </>
           ) : (
             <>
-              <TouchableOpacity style={styles.userBtn} onPress={() => {navigation.navigate('EditProfile')}}>
-                <Text style={styles.userBtnTxt}>{i18n.t('edit')}</Text>
+              <TouchableOpacity style={globalStyles.userBtn} onPress={() => {navigation.navigate('EditProfile')}}>
+                <Text style={globalStyles.userBtnTxt}>{i18n.t('edit')}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.userBtn} onPress={handleSignOut}>
-                <Text style={styles.userBtnTxt}>{i18n.t('logout')}</Text>
+              <TouchableOpacity style={globalStyles.userBtn} onPress={handleSignOut}>
+                <Text style={globalStyles.userBtnTxt}>{i18n.t('logout')}</Text>
               </TouchableOpacity>
             </>
           ) }
           
         </View>
 
-        <View style={styles.userInfoWrapper}>
-          <View style={styles.userInfoItem}>
-            <Text style={theme == 'light' ? styles.userInfoTitle : styles.userInfoTitleDark}>{postsnumber}</Text>
-            <Text style={styles.userInfoSubTitle}>{i18n.t('posts')}</Text>
+        <View style={globalStyles.userInfoWrapper}>
+          <View style={globalStyles.userInfoItem}>
+            <Text style={theme == 'light' ? globalStyles.userInfoTitle : [globalStyles.userInfoTitle, {color: '#fff'}]}>{postsnumber}</Text>
+            <Text style={globalStyles.userInfoSubTitle}>{i18n.t('posts')}</Text>
           </View>
 
-          <View style={styles.userInfoItem}>
-            <Text style={theme == 'light' ? styles.userInfoTitle : styles.userInfoTitleDark}>{followers - 1}</Text>
-            <Text style={styles.userInfoSubTitle}>{i18n.t('followers')}</Text>
+          <View style={globalStyles.userInfoItem}>
+            <Text style={theme == 'light' ? globalStyles.userInfoTitle : [globalStyles.userInfoTitle, {color: '#fff'}]}>{followers - 1}</Text>
+            <Text style={globalStyles.userInfoSubTitle}>{i18n.t('followers')}</Text>
           </View>
 
-          <View style={styles.userInfoItem}>
-            <Text style={theme == 'light' ? styles.userInfoTitle : styles.userInfoTitleDark}>{following - 1}</Text>
-            <Text style={styles.userInfoSubTitle}>{i18n.t('following')}</Text>
+          <View style={globalStyles.userInfoItem}>
+            <Text style={theme == 'light' ? globalStyles.userInfoTitle : [globalStyles.userInfoTitle, {color: '#fff'}]}>{following - 1}</Text>
+            <Text style={globalStyles.userInfoSubTitle}>{i18n.t('following')}</Text>
           </View>
         </View>
 
@@ -364,86 +365,3 @@ const ProfileScreen = ({navigation, route}) => {
 }
 
 export default ProfileScreen
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    padding: 20,
-  },
-  containerDark: {
-    flex: 1,
-    backgroundColor: '#000',
-    padding: 20,
-  },
-  userImg: {
-    height: 150,
-    width: 150,
-    borderRadius: 75,
-  },
-  userName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 10,
-    marginBottom: 10,
-    color: '#000',
-  },
-  userNameDark: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 10,
-    marginBottom: 10,
-    color: '#fff',
-  },
-  aboutUser: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  userBtnWrapper: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    width: '100%',
-    marginBottom: 10,
-  },
-  userBtn: {
-    borderColor: '#0782F9',
-    borderWidth: 2,
-    borderRadius: 3,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    marginHorizontal: 5,
-  },
-  userBtnTxt: {
-    color: '#0782F9',
-  },
-  userInfoWrapper: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    marginVertical: 20,
-  },
-  userInfoItem: {
-    justifyContent: 'center',
-  },
-  userInfoTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    textAlign: 'center',
-  },
-  userInfoTitleDark: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    textAlign: 'center',
-    color: '#fff'
-  },
-  userInfoSubTitle: {
-    fontSize: 12,
-    color: '#666',
-    textAlign: 'center',
-  },
-})

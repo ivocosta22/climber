@@ -1,12 +1,13 @@
 import React from 'react'
 import { useNavigation } from '@react-navigation/core'
-import { KeyboardAvoidingView, StyleSheet, Text, View, TouchableOpacity, Image, Alert } from 'react-native'
+import { KeyboardAvoidingView, Text, View, TouchableOpacity, Image, Alert } from 'react-native'
 import { TextInput } from 'react-native-paper'
 import { getAuth, sendPasswordResetEmail, signInWithEmailAndPassword } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
 import { firebaseConfig } from '../../firebase'
 import { Restart } from 'fiction-expo-restart'
 import { en, pt } from './../../localizations'
+import { globalStyles } from './../../styles/global'
 import AppLoader from '../../components/AppLoader'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import AsyncStorage from "@react-native-async-storage/async-storage"
@@ -153,41 +154,41 @@ const LoginScreen = () => {
     })}
     
     return (
-        <KeyboardAvoidingView style={theme == 'light' ? styles.container : styles.containerDark} behavior="padding">
+        <KeyboardAvoidingView style={theme == 'light' ? [globalStyles.container, {backgroundColor: '#EEE'}] : [globalStyles.container, {backgroundColor: '#000'}]} behavior="padding">
         {loading ? <AppLoader/> : null}
-        <Image style={styles.tinyLogo} source={require('../../assets/icon.png')}/>
-            <View style={styles.inputContainer}>
+        <Image style={[globalStyles.tinyLogo, {marginBottom: 60,}]} source={require('../../assets/icon.png')}/>
+            <View style={globalStyles.inputContainer}>
             {theme == "light" ?
             <>
-              <TextInput placeholder={i18n.t('email')} value={email} selectionColor='#0782F9' activeUnderlineColor='#0782F9' onChangeText={text => setEmail(text)} style={styles.input} ref={emailTextInput} />
-              <TextInput placeholder={i18n.t('password')} value={password} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setPassword(text)} style={styles.input} ref={passwordTextInput} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}/>
+              <TextInput placeholder={i18n.t('email')} value={email} selectionColor='#0782F9' activeUnderlineColor='#0782F9' onChangeText={text => setEmail(text)} style={[globalStyles.input, {backgroundColor: 'white'}]} ref={emailTextInput} />
+              <TextInput placeholder={i18n.t('password')} value={password} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setPassword(text)} style={[globalStyles.input, {backgroundColor: 'white'}]} ref={passwordTextInput} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}/>
             </>: 
             <>
-              <TextInput placeholder={i18n.t('email')} theme={{colors: {text: 'white'}}} value={email} placeholderTextColor='#fff' selectionColor='#0782F9' activeUnderlineColor='#0782F9' onChangeText={text => setEmail(text)} style={styles.inputDark} ref={emailTextInput} />
-              <TextInput placeholder={i18n.t('password')} theme={{colors: {text: 'white'}}} value={password} placeholderTextColor='#fff' selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setPassword(text)} style={styles.inputDark} ref={passwordTextInput} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} color={'white'} onPress={() => setPasswordVisible(!passwordVisible)} />}/>
+              <TextInput placeholder={i18n.t('email')} theme={{colors: {text: 'white'}}} value={email} placeholderTextColor='#fff' selectionColor='#0782F9' activeUnderlineColor='#0782F9' onChangeText={text => setEmail(text)} style={[globalStyles.input, {backgroundColor: 'black'}]} ref={emailTextInput} />
+              <TextInput placeholder={i18n.t('password')} theme={{colors: {text: 'white'}}} value={password} placeholderTextColor='#fff' selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setPassword(text)} style={[globalStyles.input, {backgroundColor: 'black'}]} ref={passwordTextInput} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} color={'white'} onPress={() => setPasswordVisible(!passwordVisible)} />}/>
             </>}
             </View>
 
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity onPress={handleLogin} style={styles.button}>
-                    <Text style={styles.buttonText}>{i18n.t('login')}</Text>
+            <View style={globalStyles.buttonContainer}>
+                <TouchableOpacity onPress={handleLogin} style={globalStyles.button}>
+                    <Text style={globalStyles.buttonText}>{i18n.t('login')}</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => {navigation.navigate('Register')}} style={[styles.button, styles.buttonOutline]}>
-                    <Text style={styles.buttonOutlineText}>{i18n.t('register')}</Text>
+                <TouchableOpacity onPress={() => {navigation.navigate('Register')}} style={[globalStyles.button, globalStyles.buttonOutline]}>
+                    <Text style={globalStyles.buttonOutlineText}>{i18n.t('register')}</Text>
                 </TouchableOpacity> 
                 
                 <TouchableOpacity onPress={resetPassword}>
-                    <Text style={[styles.buttonOutlineText]}>{i18n.t('forgotpassword')}</Text>
+                    <Text style={globalStyles.buttonOutlineText}>{i18n.t('forgotpassword')}</Text>
                 </TouchableOpacity>
             </View>
 
-            <View style={styles.iconContainer}>
-                <TouchableOpacity style={styles.ionicon} onPress={handleTheme}>
+            <View style={globalStyles.iconContainer}>
+                <TouchableOpacity style={globalStyles.ionicon} onPress={handleTheme}>
                   {theme == 'light' ? <Ionicons name="moon" size={25} color="black"/> : <Ionicons name="sunny" size={25} color="white"/>}
                 </TouchableOpacity> 
 
-                <TouchableOpacity style={styles.ionicon} onPress={handleLanguage}>
+                <TouchableOpacity style={globalStyles.ionicon} onPress={handleLanguage}>
                   {theme == 'light' ? <Ionicons name="language" size={25} color="black"/> : <Ionicons name="language" size={25} color="white"/>}
                 </TouchableOpacity>
             </View>
@@ -196,78 +197,3 @@ const LoginScreen = () => {
 }
 
 export default LoginScreen
-
-const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: '#EEEEEE',
-    },
-    containerDark: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: '#000',
-    },
-    inputContainer: {
-      width: '80%'
-    },
-    input: {
-      backgroundColor: 'white',
-      paddingHorizontal: 15,
-      borderRadius: 10,
-      marginTop: 5,
-    },
-    inputDark: {
-      backgroundColor: 'black',
-      paddingHorizontal: 15,
-      borderRadius: 10,
-      marginTop: 5,
-    },
-    buttonContainer: {
-      width: '60%',
-      justifyContent: 'center',
-      marginTop: 40,
-    },
-    iconContainer: {
-      flexDirection: 'row',
-      marginHorizontal: 30,
-      paddingTop: 30
-    },
-    ionicon: {
-      marginLeft: 15,
-      marginRight: 15
-    },
-    button: {
-      backgroundColor: '#0782F9',
-      width: '100%',
-      padding: 15,
-      borderRadius: 10,
-      alignItems: 'center',
-    },
-    buttonOutline: {
-      backgroundColor: 'white',
-      marginTop: 10,
-      marginBottom: 20,
-      borderColor: '#0782F9',
-      borderWidth: 2,
-    },
-    buttonText: {
-      color: 'white',
-      fontWeight: '700',
-      fontSize: 16,
-    },
-    buttonOutlineText: {
-      color: '#0782F9',
-      fontWeight: '700',
-      fontSize: 16,
-      alignSelf: 'center'
-    },
-    tinyLogo: {
-      height: 200,
-      width: 200,
-      marginBottom: 60,
-      alignItems: 'center',
-    }
-})

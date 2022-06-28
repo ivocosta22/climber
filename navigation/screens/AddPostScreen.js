@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, StyleSheet, Alert } from 'react-native'
+import { View, Alert } from 'react-native'
 import { useNavigation } from '@react-navigation/core'
 import { InputField, InputWrapper, AddImage, SubmitBtn, SubmitBtnText, InputWrapperDark, SubmitBtnTextDark, SubmitBtnDark } from '../../styles/AddPost'
 import { initializeApp } from 'firebase/app'
@@ -8,6 +8,7 @@ import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/
 import { getFirestore, collection, addDoc, Timestamp } from 'firebase/firestore'
 import { firebaseConfig } from '../../firebase'
 import { en, pt } from './../../localizations'
+import { globalStyles } from './../../styles/global'
 import ActionButton from 'react-native-action-button'
 import Icon from 'react-native-vector-icons/Ionicons'
 import AppLoader from '../../components/AppLoader'
@@ -147,7 +148,7 @@ const AddPostScreen = () => {
     }
 
     return(
-        <View style={styles.container}>
+        <View style={globalStyles.container}>
             {theme == 'light' ?
             <>
                 <InputWrapper>
@@ -172,13 +173,13 @@ const AddPostScreen = () => {
                         buttonColor="#9b59b6"
                         title={i18n.t('takePhoto')}
                         onPress={useCamera}>
-                        <Icon name="camera-outline" style={styles.actionButtonIcon} />
+                        <Icon name="camera-outline" style={globalStyles.actionButtonIcon} />
                     </ActionButton.Item>
                     <ActionButton.Item
                         buttonColor="#e84d3c"
                         title={i18n.t('choosePhoto')}
                         onPress={pickImage}>
-                        <Icon name="md-images-outline" style={styles.actionButtonIcon} />
+                        <Icon name="md-images-outline" style={globalStyles.actionButtonIcon} />
                     </ActionButton.Item>
                 </ActionButton>
             </> : 
@@ -207,13 +208,13 @@ const AddPostScreen = () => {
                         buttonColor="#9b59b6"
                         title={i18n.t('takePhoto')}
                         onPress={useCamera}>
-                        <Icon name="camera-outline" style={styles.actionButtonIcon} />
+                        <Icon name="camera-outline" style={globalStyles.actionButtonIcon} />
                     </ActionButton.Item>
                     <ActionButton.Item
                         buttonColor="#e84d3c"
                         title={i18n.t('choosePhoto')}
                         onPress={pickImage}>
-                        <Icon name="md-images-outline" style={styles.actionButtonIcon} />
+                        <Icon name="md-images-outline" style={globalStyles.actionButtonIcon} />
                     </ActionButton.Item>
                 </ActionButton>
             </>}
@@ -222,16 +223,3 @@ const AddPostScreen = () => {
 }
 
 export default AddPostScreen
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    actionButtonIcon: {
-        fontSize: 20,
-        height: 22,
-        color: 'white',
-    },
-})

@@ -1,5 +1,6 @@
 import React from 'react'
-import { View, StyleSheet, Animated } from 'react-native'
+import { View, Animated } from 'react-native'
+import { globalStyles } from './../styles/global'
 
 class ProgressiveImage extends React.Component {
 
@@ -23,7 +24,7 @@ class ProgressiveImage extends React.Component {
     render() {
         const { defaultImageSource, source, style, ...props} = this.props
         return (
-            <View style={styles.container}>
+            <View style={globalStyles.containerProgressiveImage}>
                 <Animated.Image 
                 {...props}
                 source={defaultImageSource} 
@@ -34,7 +35,7 @@ class ProgressiveImage extends React.Component {
                 <Animated.Image
                 {...props}
                 source={source} 
-                style={[style, { opacity: this.defaultImageAnimated }, styles.imageOverlay]}
+                style={[style, { opacity: this.defaultImageAnimated }, globalStyles.imageOverlay]}
                 onLoad={this.handleImageLoad}
                 blurRadius={1}
                 />
@@ -44,16 +45,3 @@ class ProgressiveImage extends React.Component {
 }
 
 export default ProgressiveImage
-
-const styles = StyleSheet.create({
-    container: {
-       backgroundColor: '#e1e4e8'
-    },
-    imageOverlay: {
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        left: 0,
-        right: 0,
-    },
-})

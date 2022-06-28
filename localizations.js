@@ -24,7 +24,7 @@ const en = {
     postDeletedMessage: 'Your Post has been deleted successfully!',
     like: 'Like',
     comment: 'Comment',
-    commentsTitle: 'Comentários',
+    commentsTitle: 'Comments',
     addPostTitle: 'Add a Post',
     addPost: `What's on your mind?`,
     post: 'Post',

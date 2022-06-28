@@ -17,8 +17,9 @@ import i18n from 'i18n-js'
 
 
 export default function HomeScreen({navigation}) {
-  //TODO: Comment code, organize strings/styles into a file
-  //TODO: Handle Alerts with language translation
+  //TODO: Comment code
+  //TODO: Check onboarding screen translation and test it. I saw an error
+  //TODO: Test APP for bugs, do Report, Prepare PowerPoint, do test presentation
     const app = initializeApp(firebaseConfig)
     const db = getFirestore(app)
     const storage = getStorage(app)
@@ -193,8 +194,8 @@ export default function HomeScreen({navigation}) {
 
     const deleteFirestoreData = async (postId) => {
       await deleteDoc(doc(db, 'posts', postId)).then(() => {
-        setDeleting(false)
         Alert.alert(i18n.t('postDeleted'), i18n.t('postDeletedMessage'))
+        setDeleting(false)
       }).catch(error => {
         setDeleting(false)
         Alert.alert(i18n.t('error'), error.message)

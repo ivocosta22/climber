@@ -1,12 +1,13 @@
 import React from 'react'
 import { useNavigation } from '@react-navigation/core'
-import { View, StyleSheet, Text, ImageBackground, TextInput, Alert } from 'react-native'
+import { View, Text, ImageBackground, TextInput, Alert } from 'react-native'
 import { EmailAuthProvider, getAuth, reauthenticateWithCredential, updatePassword, updateProfile, verifyBeforeUpdateEmail } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
 import { firebaseConfig } from '../../firebase'
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { en, pt } from './../../localizations'
+import { globalStyles } from './../../styles/global'
 import * as Database from 'firebase/database'
 import * as ImagePicker from 'expo-image-picker'
 import Ionicons from 'react-native-vector-icons/Ionicons'
@@ -277,7 +278,7 @@ import i18n from 'i18n-js'
     }
 
     return (
-      <View style={theme == 'light' ? styles.container : styles.containerDark}>
+      <View style={theme == 'light' ? [{flex:1, backgroundColor: '#fff'}] : [{flex:1, backgroundColor: '#000'}]}>
       {loading ? <AppLoader/> : null}
           <View style={{alignItems: 'center', paddingTop: 30}}>
             <TouchableOpacity onPress={pickImage}>
@@ -324,13 +325,13 @@ import i18n from 'i18n-js'
                 </ImageBackground>}
               </View>
             </TouchableOpacity>
-            <Text style={theme == 'light' ? styles.userText : styles.userTextDark}>
+            <Text style={theme == 'light' ? globalStyles.userText : [globalStyles.userText,{color: '#fff'}]}>
                   { auth.currentUser.displayName != null ? auth.currentUser.displayName : 'Username' }
             </Text>
           </View>
   
-          <View style={styles.action}>
-            <Ionicons name="person-outline" size={20} style={theme == 'light' ? styles.ionicon : styles.ioniconDark} />
+          <View style={globalStyles.action}>
+            <Ionicons name="person-outline" size={20} style={theme == 'light' ? globalStyles.ioniconEditProfile : [globalStyles.ioniconEditProfile,{color: '#fff'}]} />
             {theme == 'light' ? 
             <TextInput
               placeholder={i18n.t('changeUsername')}
@@ -338,7 +339,7 @@ import i18n from 'i18n-js'
               autoCorrect={false}
               defaultValue= { auth.currentUser.displayName != null ? auth.currentUser.displayName : username}
               onChangeText={text => setUsername(text)}
-              style={styles.textInput}
+              style={[globalStyles.textInput, {color: '#333'}]}
             /> :
             <TextInput
               placeholder={i18n.t('changeUsername')}
@@ -346,11 +347,11 @@ import i18n from 'i18n-js'
               autoCorrect={false}
               defaultValue= { auth.currentUser.displayName != null ? auth.currentUser.displayName : username}
               onChangeText={text => setUsername(text)}
-              style={styles.textInputDark}
+              style={[globalStyles.textInput, {color: '#fff'}]}
             />}
           </View>
-          <View style={styles.action}>
-            <Ionicons name="mail-outline" size={20} style={theme == 'light' ? styles.ionicon : styles.ioniconDark} />
+          <View style={globalStyles.action}>
+            <Ionicons name="mail-outline" size={20} style={theme == 'light' ? globalStyles.ioniconEditProfile : [globalStyles.ioniconEditProfile,{color: '#fff'}]} />
             {theme == 'light' ?
             <TextInput
               placeholder={i18n.t('changeEmail')}
@@ -358,7 +359,7 @@ import i18n from 'i18n-js'
               defaultValue={auth.currentUser.email}
               onChangeText={text => setEmail(text)}
               autoCorrect={false}
-              style={styles.textInput}
+              style={[globalStyles.textInput, {color: '#333'}]}
               keyboardType='email-address'
             /> :
             <TextInput
@@ -367,12 +368,12 @@ import i18n from 'i18n-js'
               defaultValue={auth.currentUser.email}
               onChangeText={text => setEmail(text)}
               autoCorrect={false}
-              style={styles.textInputDark}
+              style={[globalStyles.textInput, {color: '#fff'}]}
               keyboardType='email-address'
             />}
           </View>
-          <View style={styles.action}>
-            <Ionicons name="key-outline" size={20} style={theme == 'light' ? styles.ionicon : styles.ioniconDark} />
+          <View style={globalStyles.action}>
+            <Ionicons name="key-outline" size={20} style={theme == 'light' ? globalStyles.ioniconEditProfile : [globalStyles.ioniconEditProfile,{color: '#fff'}]} />
             {theme == 'light' ?
             <TextInput
               placeholder={i18n.t('changePasswordCurrent')}
@@ -380,7 +381,7 @@ import i18n from 'i18n-js'
               defaultValue=''
               onChangeText={text => setCurrentPassword(text)}
               autoCorrect={false}
-              style={styles.textInput}
+              style={[globalStyles.textInput, {color: '#333'}]}
               secureTextEntry
             /> :
             <TextInput
@@ -389,12 +390,12 @@ import i18n from 'i18n-js'
               defaultValue=''
               onChangeText={text => setCurrentPassword(text)}
               autoCorrect={false}
-              style={styles.textInputDark}
+              style={[globalStyles.textInput, {color: '#fff'}]}
               secureTextEntry
             />}
           </View>
-          <View style={styles.action}>
-            <Ionicons name="key-outline" size={20} style={theme == 'light' ? styles.ionicon : styles.ioniconDark} />
+          <View style={globalStyles.action}>
+            <Ionicons name="key-outline" size={20} style={theme == 'light' ? globalStyles.ioniconEditProfile : [globalStyles.ioniconEditProfile,{color: '#fff'}]} />
             {theme == 'light' ?
             <TextInput
               placeholder={i18n.t('changePasswordNew')}
@@ -402,7 +403,7 @@ import i18n from 'i18n-js'
               defaultValue=''
               onChangeText={text => setPassword(text)}
               autoCorrect={false}
-              style={styles.textInput}
+              style={[globalStyles.textInput, {color: '#333'}]}
               secureTextEntry
             /> :
             <TextInput
@@ -411,12 +412,12 @@ import i18n from 'i18n-js'
               defaultValue=''
               onChangeText={text => setPassword(text)}
               autoCorrect={false}
-              style={styles.textInputDark}
+              style={[globalStyles.textInput, {color: '#fff'}]}
               secureTextEntry
             />}
           </View>
-          <View style={styles.action}>
-            <Ionicons name="ios-clipboard-outline" size={20} style={theme == 'light' ? styles.ionicon : styles.ioniconDark} />
+          <View style={globalStyles.action}>
+            <Ionicons name="ios-clipboard-outline" size={20} style={theme == 'light' ? globalStyles.ioniconEditProfile : [globalStyles.ioniconEditProfile,{color: '#fff'}]} />
             {theme == 'light' ?
             <TextInput
               multiline
@@ -426,7 +427,7 @@ import i18n from 'i18n-js'
               defaultValue={ aboutme == 'Go to the Edit Profile Page to change this text :)' ? '' : aboutme}
               onChangeText={text => setAboutMe(text)}
               autoCorrect={true}
-              style={[styles.textInput, {height: 40}]}
+              style={[globalStyles.textInput, {height: 40, color: '#333'}]}
             /> :
             <TextInput
               multiline
@@ -436,7 +437,7 @@ import i18n from 'i18n-js'
               defaultValue={ aboutme == 'Go to the Edit Profile Page to change this text :)' ? '' : aboutme}
               onChangeText={text => setAboutMe(text)}
               autoCorrect={true}
-              style={[styles.textInputDark, {height: 40}]}
+              style={[globalStyles.textInput, {height: 40, color: '#fff'}]}
             />}
           </View>
           <FormButton buttonTitle={i18n.t('update')} onPress={editProfile} />
@@ -445,54 +446,3 @@ import i18n from 'i18n-js'
   }
   
   export default EditProfileScreen
-  
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#fff',
-    },
-    containerDark: {
-      flex: 1,
-      backgroundColor: '#000',
-    },
-    action: {
-      flexDirection: 'row',
-      marginTop: 10,
-      marginBottom: 10,
-      borderBottomWidth: 1,
-      borderBottomColor: '#f2f2f2',
-      paddingBottom: 5,
-    },
-    textInput: {
-      flex: 1,
-      marginTop: -12,
-      paddingLeft: 10,
-      color: '#333',
-    },
-    textInputDark: {
-      flex: 1,
-      marginTop: -12,
-      paddingLeft: 10,
-      color: '#fff',
-    },
-    userText: {
-      marginTop: 10, 
-      fontSize: 18, 
-      fontWeight: 'bold',
-    },
-    userTextDark: {
-      marginTop: 10, 
-      fontSize: 18, 
-      fontWeight: 'bold',
-      color: '#fff'
-    },
-    ionicon: {
-      marginLeft: 5, 
-      marginBottom: 10
-    },
-    ioniconDark: {
-      marginLeft: 5, 
-      marginBottom: 10,
-      color: '#fff'
-    }
-  })

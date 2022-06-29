@@ -63,6 +63,15 @@
 //update (Updates any path provided in the function with the data provided)
 //push (I used this for the user's liked posts) (It pushes to the database the same way the Array.push works.)
 //remove (Deletes a path/child/value provided to the database)
+
+//Additional Note: If you want to test this App using your own Firebase Project, make sure you create your own.
+//https://firebase.google.com/
+//Create a Project -> When Firebase says 'Get started by adding Firebase to your app' Click on the Web Icon
+//Give it a name and press register
+//Firebase will then give you the config for you to insert here.
+//Check firebaseConfig.png in ./images directory for better understanding
+//For now, I will leave my own config here, this will be removed in the future to preserve the secutiry of my
+//API key. Thank you.
 export const firebaseConfig = {
   apiKey: "AIzaSyDSFjmtdZ0KFpUZSuu_97vGcX9ajfHD6aQ",
   authDomain: "climber-3b27e.firebaseapp.com",

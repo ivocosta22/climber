@@ -17,8 +17,12 @@ import i18n from 'i18n-js'
 
 
 export default function HomeScreen({navigation}) {
-  //TODO: Check onboarding screen translation and test it. I saw an error
+  //Current Tasks to do:
+  //TODO: comment firebase.js explain how the database works and every function/method used
+  //TODO: add images of how the Database works inside the Project and refer to them in firebase.js
   //TODO: Test APP for bugs, do Report, Prepare PowerPoint, do test presentation
+  
+  //TODO: Shorten code by putting Database functions inside a file, get rid of repeating functions.
     const app = initializeApp(firebaseConfig)
     const db = getFirestore(app)
     const storage = getStorage(app)
@@ -36,10 +40,14 @@ export default function HomeScreen({navigation}) {
     i18n.translations = {en, pt}
     i18n.locale = locale
 
+    //The function wait uses a  Javascript timeout function for better User experience inside the function onRefresh
     const wait = (timeout) => {
       return new Promise(resolve => setTimeout(resolve, timeout))
     }
 
+    //The onRefresh React Callback function runs whenever the user slides down the Homescreen, refreshing the posts
+    //It sets a timeout of 2000 and then fetches the posts from the Database(*)
+    //(*)More info about the database in ./firebase.js
     const onRefresh = React.useCallback(() => {
       setRefreshing(true)
       wait(2000).then(() => {
@@ -48,6 +56,8 @@ export default function HomeScreen({navigation}) {
       })
     }, [])
 
+    //This useCallback function will check if the current screen is the home screen, if so, the Hardware back handler is disabled,
+    //preventing the user from returning to the login screen without logging out.
     const route = useRoute()
     useFocusEffect(
       React.useCallback(() => {
@@ -63,7 +73,23 @@ export default function HomeScreen({navigation}) {
         return () =>
         BackHandler.removeEventListener('hardwareBackPress', onBackPress)
       }, [route]),)
-      
+   
+    //The function fetchPosts is the main function in this screen. SO there's a lot of explaining here to do:
+    //First and most importantly, a try/catch statement. Very important here because I'm mostly running lots and lots of Database(*) requests.
+    //Any error along this function will be thrown as an Alert with the error.
+    //OK so now, I create 2 lists, a postList and a likesList. I will explain what they do below.
+    //A reference to the database is created and all the user's liked posts are fetched from the database.
+    //This is done in order to apply any liked posts the user has liked in the past.
+    //After that request is done, the likesList should now have every liked post ID the user liked.
+    //Secondly, another Database request is done, where it's getting all the posts from a different "section" of my Database, where only the posts are saved.
+    //A forEach statement is then run, and inside it, every parameter of the post fetched is saved onto variables individually.
+    //Now, FOR EACH POST, a Database request is done to get the username and profile picture of the owner of each post.
+    //It will then check if the current logged in user has liked each post
+    //Afterwards, the post will be pushed to the postList array variable with all it's respective parameters.
+    //After all the posts are pushed, they are organized by the time they were posted, so that the newest ones show first.
+    //The setPosts React useState Variable comes in, getting set by the postList, and then, the posts are shown in the App.
+    //After the posts are being shown, the AppLoader that was previously being shown, dissapears (./components/AppLoader.js)
+    //(*)More info about the database in ./firebase.js
     const fetchPosts = async() => {
       try {
         const postList = []
@@ -112,6 +138,12 @@ export default function HomeScreen({navigation}) {
       }
     }
 
+    //This file is using React's useEffect, which means that everything inside this function will be ran as soon as this file loads.
+    //Inside this useEffect I will get the current setting in AsyncStorage for the value of isDarkMode (Which defines if the user is in Dark Mode or not).
+    //AsyncStorage will also get the currentLanguage value to check what language the user has saved (Refer to ./navigation/screens/LoginScreen.js for more info).
+    //Everytime this screen is run, the fetchPosts function will be run, getting all the posts from the Database(*)
+    //(*)More info about the database in ./firebase.js
+    //The AppLoader also comes into effect, loading while no posts are shown. (./components/AppLoader.js)
     React.useEffect(() => {
       AsyncStorage.getItem('isDarkMode').then(value => {
         if (value == null) {
@@ -140,11 +172,19 @@ export default function HomeScreen({navigation}) {
       fetchPosts()
     },[])
 
+    //This Special React useEffect function runs whenever the useState variable 'deleted' changes
+    //In case a user deletes a post, the App will fetch all the posts again, making the deleted post dissapear from the UI.
     React.useEffect(() => {
       fetchPosts()
       setDeleted(false)
     },[deleted])
 
+    //The handleDelete function is run whenever the user clicks on the Trashbin icon inside a post
+    //Check ./components/PostCard.js for better understanding on how the onPress is handled.
+    //An alert is thrown, asking the user if they're sure they want to delete the post.
+    //If the user presses cancel, nothing happens, the alert dissappears.
+    //If the user presses confirm however, the deletePost function is run,
+    //passing the argument of the post ID, provided to this function by the PostCard.js file.
     const handleDelete = (postId) => {
       Alert.alert(
         i18n.t('deletePost'),
@@ -164,6 +204,14 @@ export default function HomeScreen({navigation}) {
       )
     }
 
+    //The function deletePost is run after the user presses confirm on the handleDelete function
+    //It sets the setDeleting React useState variable to true in order for the posts to be updated after the deletion is completed
+    //Then, it gets the current post to double check if it still exists, there's a chance that slower devices can call this function to be run
+    //whenever a post has already been deleted. So I'm checking if that post still exists.
+    //If so, I use the deleteObject function from the Database(*), deleting the image from the post if it exists.
+    //The post is then deleted by running the deleteFirestoreData function.
+    //If any error is thrown, it is handled by an Alert.
+    //(*)More info about the database in ./firebase.js
     const deletePost = async (postId) => {
         setDeleting(true)
         const docRef = doc(db, 'posts', postId)
@@ -191,6 +239,10 @@ export default function HomeScreen({navigation}) {
         }
     }
 
+    //The deleteFirestoreData function is run whenever the user is about to delete the post.
+    //It gets the Post ID as an argument from the above function and uses the deleteDoc function from my Database(*), deleting the post
+    //If any error is thrown, it will be handled by an alert.
+    //(*)More info about the database in ./firebase.js
     const deleteFirestoreData = async (postId) => {
       await deleteDoc(doc(db, 'posts', postId)).then(() => {
         Alert.alert(i18n.t('postDeleted'), i18n.t('postDeletedMessage'))
@@ -201,6 +253,14 @@ export default function HomeScreen({navigation}) {
       })
     }
 
+    //The handleLike function is run whenever the user presses the like button.
+    //It gets the post that was clicked to double check if it exists. 
+    //There's a small chance it could have been deleted between the process of liking.
+    //If it wasn't however, then the post gets updated using a Database(*) function
+    //Then a React setState variable is set to turn the Liked Icon blue, indicating the user liked the post.
+    //If the post was already liked, it will remove the like, doing the same update on the Database, but removing the like.
+    //If any error is thrown, it will be handled by an alert.
+    //(*)More info about the database in ./firebase.js
     const handleLike = async (postId) => {
       const docRef = doc(db, 'posts', postId)
       const docSnap = await getDoc(docRef).catch((error) => {
@@ -238,12 +298,19 @@ export default function HomeScreen({navigation}) {
       }
     }
 
+    //The databaseUpdate function is run whenever the code needs to do any update in the Database(*).
+    //This function is currently only used to update the post Likes
+    //It gets the path of the user and Id of the post and updates their info saying that the current logged in user is liking/not liking the post
+    //(*)More info about the database in ./firebase.js
     const databaseUpdate = async (path, id) => {
       const ref = Database.ref(database, '/users/' + auth.currentUser.uid + `/${path}/`)
       const push = Database.push(ref)
       Database.set(push, id)
     }
 
+    //The databaseRemove function is run whenever the code needs to do any removal in the Database.
+    //This function is currently only used to update the post Likes
+    //It gets the path of the user and Id of the post and updates their info saying that the current logged in user is liking/not liking the post
     const databaseRemove = async (path, id) => {
       const ref = Database.ref(database, `users/${auth.currentUser.uid}/${path}/`)
       await Database.get(Database.child(Database.ref(database), `users/${auth.currentUser.uid}/${path}/`)).then((snapshot) => {
@@ -255,6 +322,12 @@ export default function HomeScreen({navigation}) {
       })
     }
 
+    //This UI is being handled by the DarkTheme (Refer to ./navigation/screens/LoginScreen.js for more info)
+    //This UI includes an AppLoader that I created (Refer to ./components/AppLoader.js for more info).
+    //This UI is being handled by 'styled'. A library that I imported so that I could use css in some styles of my UI (Refer to ./styles/info.md)
+    //There's something special inside the UI here, the Skeleton Loader.
+    //If you test the App and look closely when you check the HomeScreen/ProfileScreen, it briefly shows an empty skeleton UI while it loads the posts
+    //This is very good for user experience, instead of just having an empty View.
     return(
       <SafeAreaView style={theme == 'light' ? {flex:1} : {flex:1, backgroundColor:'black'}}>
       {loading ? <ScrollView style={[{flex: 1}]} contentContainerStyle={{alignItems: 'center'}}>

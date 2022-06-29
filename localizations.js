@@ -1,3 +1,4 @@
+//This is where all Strings are located for translation using i18n
 const en = {
     username: 'Username',
     email: 'Email',

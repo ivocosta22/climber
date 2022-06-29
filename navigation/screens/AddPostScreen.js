@@ -180,6 +180,7 @@ const AddPostScreen = () => {
     //This UI is being handled by the DarkTheme (Refer to ./navigation/screens/LoginScreen.js for more info).
     //This UI includes an AppLoader that I created (Refer to ./components/AppLoader.js for more info).
     //This UI is being handled by 'styled'. A library that I imported so that I could use css in some styles of my UI (Refer to ./styles/info.md)
+    //This UI's styles are located in a global styles file (./styles/global.js)
     //There's an if statement inside this UI, which checks for the current state of the image(React useState) and loading(React useState).
     //If an image exists, then it will be shown in the UI. If the loading state is true, then that means the app is currently using the AppLoader.
     //Inside respective buttons, they will run their respective functions onPress.

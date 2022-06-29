@@ -10,6 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 //Basically as soon as the user would send a comment, an object containing the User ID, Message Time and Text would be sent to the Database
 //Keep in mind that the Username and Profile image would not be sent as that could be updated at any time, so that needs to be fetched from the user's info
 //not this list. For placeholder purposes, the username and userImg exist on this list.
+//(*)More info about the database in ./firebase.js
 const Comments = [
     {
         id: '1',

@@ -35,6 +35,9 @@ const RegisterScreen = () => {
     const db = Database.getDatabase(app)
     const navigation = useNavigation()
 
+  //This file is using React's useEffect, which means that everything inside this function will be ran as soon as this file loads.
+  //Inside this useEffect I will get the current setting in AsyncStorage for the value of isDarkMode (Which defines if the user is in Dark Mode or not).
+  //AsyncStorage will also get the currentLanguage value to check what language the user has saved (Refer to ./navigation/screens/LoginScreen.js for more info).
   React.useEffect(() => {
       AsyncStorage.getItem('isDarkMode').then(value => {
         if (value == null) {
@@ -58,11 +61,24 @@ const RegisterScreen = () => {
       })
   },[])
 
+  //The handleSignUp function will sign the user up to the Database(*)
+  //First, it will load up the AppLoader (./components/AppLoader.js)
+  //Then, it will remove any unnecessary spaces from the username and email. As stated in the LoginScreen (Line 109), it might create errors.
+  //Afterwards, an if statement will run checking the password and the repeat password inputs, in case the user didn't match them. It will throw an error if they didn't.
+  //Then, it will get all the current user's usernames from the Database, and check if the username the user provided already exists, if so, it throws an error, if not
+  //It proceeds to create the user with email and password using the Database method, it uploads the image the user provided(if they provided any) and creates an object
+  //of default info to the database so that it can be handled in the future
+  //This default object that is being created is composed by a username, profile image, a default bio text, an empty array/object of liked posts to be handled later,
+  //and another 2 objects of list of followers/following, with the own user inside. This will not be taken into account when checking the number of followers.
+  //As it stands, the user will always be following 0 users and will have 0 followers.
+  //After all that is done, the code will send a verification email to the provided email and alert the user to verify it in order to login.
+  //Finally, the user is navigated to the login page.
+  //If for any reason any Database connections throw an error, it will be handled as an alert.
+  //(*)More info about the database in ./firebase.js
   const handleSignUp = async () => {
     setLoading(true)
     email = email.replace(/\s/g,'')
     username = username.replace(/\s/g,'')
-    const usernamesref = Database.ref(db)
     let doesUserNameExist = false
 
     if (password != passwordcheck) {
@@ -125,6 +141,9 @@ const RegisterScreen = () => {
     } 
   }
 
+  //The saveProfileInfo function is run when the user is registering, saving default info into it so that it can be handled by Database methods later.
+  //it gets 2 arguments, 'info' and 'user'.
+  //Then, it sends an update request with the corresponding data. If there's an error, it gets thrown through an alert.
   const saveProfileInfo = async (info, user) => {
     const data = info
     const updates = {}
@@ -135,6 +154,9 @@ const RegisterScreen = () => {
     })
   }
 
+    //The pickImage function will check if the user has granted permissions for the App to access the library.
+    //If so, then it will open the library using the Operating System and allow the user to pick an image.
+    //After the user picks an image, I use the setImage(React useState) to set my image for later use in the App.
     const pickImage = async () => {
       const galleryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync()
       setHasGalleryPermission(galleryStatus.status === 'granted')
@@ -154,6 +176,12 @@ const RegisterScreen = () => {
         }
     }
 
+    //The uploadImage function will check if the user is publishing a post with an image, if so, then it will upload the image to the Database(*)
+    //It will first get the image locally buy getting it's path and the proper extension. It will give it a name and then it will add a date/time to it's name.
+    //Afterwards, It will upload the image as a blob to the path provided inside the storage of firebase(*), containing a path with the userid inside the folder 'pictures'.
+    //After the task is done, the code will get the URL of the image that was just uploaded and return it from the function to be used later. 
+    //If for some reason there's an error, the function will return null.
+    //(*)For more info about my database refer to ./firebase.js
     const uploadImage = async (user) => {
       if (image == null) {
           return null
@@ -179,6 +207,8 @@ const RegisterScreen = () => {
       }
     }
 
+    //This UI is being handled by the DarkTheme (Refer to ./navigation/screens/LoginScreen.js for more info)
+    //This UI's styles are located in a global styles file (./styles/global.js)
     return (
         <KeyboardAvoidingView style={theme == 'light' ? [globalStyles.container, {backgroundColor: '#EEE'}] : [globalStyles.container, {backgroundColor: '#000'}]} behavior="padding">
         {loading ? <AppLoader/> : null}

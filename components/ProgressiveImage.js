@@ -6,6 +6,7 @@ import { globalStyles } from './../styles/global'
 //This is mainly used to handle slow internet connections or if my database is having low response speeds.
 //For more info about my database refer to ./firebase.js
 //As soon as the real post image loads, the placeholder image will dissapear and the real image is shown.
+//This UI's styles are located in a global styles file (./styles/global.js)
 class ProgressiveImage extends React.Component {
 
     defaultImageAnimated = new Animated.Value(0)

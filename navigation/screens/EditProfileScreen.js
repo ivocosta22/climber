@@ -132,7 +132,7 @@ import i18n from 'i18n-js'
     }
 
     //The editProfile function will set the loading state to true(Triggering the AppLoader (./components/AppLoader.js for more info))
-    //This function will run when the user clicks the Update Profile button (./components/FormButton.js) in the UI (line 460)
+    //This function will run when the user clicks the Update Profile button (./components/FormButton.js) in the UI (line 548)
     //It will do lots of tasks, but one at a time. I want to remind here that this is an asynchronous function, and that I'm using await in every function
     //that I'm running, so that every single update to the database(*) runs smoothly.
     //Firstly, the AppLoader will load(./components/AppLoader.js). 
@@ -379,6 +379,7 @@ import i18n from 'i18n-js'
 
 
     //This UI is being handled by the DarkTheme (Refer to ./navigation/screens/LoginScreen.js for more info)
+    //This UI's styles are located in a global styles file (./styles/global.js)
     //When this UI is rendered, the current photoURL of the user, username and email will be fetched from the Database(*)
     //And will be updated in the UI.
     //(*)More info about the database in ./firebase.js

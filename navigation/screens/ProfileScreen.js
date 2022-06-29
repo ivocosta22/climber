@@ -40,6 +40,9 @@ const ProfileScreen = ({navigation, route}) => {
       return new Promise(resolve => setTimeout(resolve, timeout))
     }
 
+    //The onRefresh React Callback function runs whenever the user slides down the ProfileScreen, refreshing the posts
+    //It sets a timeout of 2000 and then fetches the posts from the Database(*)
+    //(*)More info about the database in ./firebase.js
     const onRefresh = React.useCallback(() => {
       setRefreshing(true)
       wait(2000).then(() => {
@@ -52,6 +55,9 @@ const ProfileScreen = ({navigation, route}) => {
       })
     }, [])
 
+    //This file is using React's useEffect, which means that everything inside this function will be ran as soon as this file loads.
+    //Inside this useEffect I will get the current setting in AsyncStorage for the value of isDarkMode (Which defines if the user is in Dark Mode or not).
+    //AsyncStorage will also get the currentLanguage value to check what language the user has saved (Refer to ./navigation/screens/LoginScreen.js for more info).
     React.useEffect(() => {
       AsyncStorage.getItem('isDarkMode').then(value => {
         if (value == null) {
@@ -75,6 +81,12 @@ const ProfileScreen = ({navigation, route}) => {
         }
       })
       
+      //If there's any parameters being passed through navigation to this screen, then this automatically means that the user navigated
+      //from the HomeScreen by clicking another user's profile, hence there's a parameter called userId being passed through the route.
+      //So, if there is any parameters, then the fetchUserInfo function will run, getting the clicked user's profile information/posts
+      //If not, that means the user clicked the profile screen through the bottom navigation drawer, which means they are looking at their
+      //own profile so the fetchCurrentUser function is run, getting the current logged in user's information/posts and 
+      //the UserPhotoURL setState variable is set by the current logged in user's profile picture.
       if (route.params) {
         fetchUserInfo()
       } else {
@@ -83,6 +95,8 @@ const ProfileScreen = ({navigation, route}) => {
       } 
     },[])
 
+    //This Special React useEffect function runs whenever the useState variable 'deleted' changes
+    //In case a user deletes a post, the App will fetch all the posts again, making the deleted post dissapear from the UI.
     React.useEffect(() => {
       if (route.params) {
         fetchUserInfo()
@@ -92,6 +106,17 @@ const ProfileScreen = ({navigation, route}) => {
       } 
     },[deleted])
 
+    //The fetchUserInfo function runs whenever the Screen is loaded through the useEffect.
+    //This function is very similar to the fetchPosts function inside ./navigation/screens/HomeScreen.js
+    //You can refer to that file->Function for better explained info. I will explain whatever is different in this function.
+    //Before fetching the posts, it will get all the clicked user's information and load it into the UI through a request to the
+    //Database(*). It gets the username, profile picture, bio and followers and following numbers to show in the UI.
+    //There's a if statement that checks if the current logged in user is currently following the clicked user, if so,
+    //then a useState variable 'followText' is set to 'Following' instead of follow, this dynamically changes if the user
+    //presses the follow button.
+    //After the user info is set, the same flow of the function fetchPosts inside ./navigation/screens/HomeScreen.js is run
+    //with an addition of the number of posts published by the pressed user, showing in the UI afterwards using another setState variable.
+    //(*)More info about the database in ./firebase.js
     const fetchUserInfo = async() => {
       try {
         const postList = []
@@ -158,6 +183,10 @@ const ProfileScreen = ({navigation, route}) => {
       }
     }
 
+    //This function does exactly the same as the above function, but for the current logged in user
+    //This is bad practice for programming as I am repeating code, besides what I already repeated,
+    //but for some reason when doing tests to the app using one function to handle both use cases was not working.
+    //I was wasting a lot of time for a limited time project to finish, so I left this behind. This will get fixed in the future.
     const fetchCurrentUser = async() => {
       setIsLoggedInUser(true)
       try {
@@ -212,6 +241,12 @@ const ProfileScreen = ({navigation, route}) => {
       }
     }
 
+    //The handleDelete function is run whenever the user clicks on the Trashbin icon inside a post
+    //Check ./components/PostCard.js for better understanding on how the onPress is handled.
+    //An alert is thrown, asking the user if they're sure they want to delete the post.
+    //If the user presses cancel, nothing happens, the alert dissappears.
+    //If the user presses confirm however, the deletePost function is run,
+    //passing the argument of the post ID, provided to this function by the PostCard.js file.
     const handleDelete = (postId) => {
        Alert.alert(
         i18n.t('deletePost'),
@@ -231,6 +266,13 @@ const ProfileScreen = ({navigation, route}) => {
       )
     }
 
+    //The function deletePost is run after the user presses confirm on the handleDelete function
+    //Then, it gets the current post to double check if it still exists, there's a chance that slower devices can call this function to be run
+    //whenever a post has already been deleted. So I'm checking if that post still exists.
+    //If so, I use the deleteObject function from the Database(*), deleting the image from the post if it exists.
+    //The post is then deleted by running the deleteFirestoreData function.
+    //If any error is thrown, it is handled by an Alert.
+    //(*)More info about the database in ./firebase.js
     const deletePost = async (postId) => {
       const docRef = doc(db, 'posts', postId)
       const docSnap = await getDoc(docRef)
@@ -251,6 +293,10 @@ const ProfileScreen = ({navigation, route}) => {
       }
   }
 
+  //The deleteFirestoreData function is run whenever the user is about to delete the post.
+  //It gets the Post ID as an argument from the above function and uses the deleteDoc function from my Database(*), deleting the post
+  //If any error is thrown, it will be handled by an alert.
+  //(*)More info about the database in ./firebase.js
   const deleteFirestoreData = async (postId) => {
     await deleteDoc(doc(db, 'posts', postId)).then(() => {
       setDeleted(true)
@@ -258,6 +304,9 @@ const ProfileScreen = ({navigation, route}) => {
     }).catch(error => Alert.alert(i18n.t('error'), error.message))
   }
 
+  //The handleSignOut function will set a small Loading from AppLoader (./components/AppLoader.js)
+  //It will then Sign out the user and navigate them to the Login Screen.
+  //If any error is thrown, it will be handled by an alert.
   const handleSignOut = async () => {
       setLoading(true)
       await auth.signOut().then(() => {
@@ -265,6 +314,21 @@ const ProfileScreen = ({navigation, route}) => {
       }).catch(error => Alert.alert(i18n.t('error'), error.message))
   }
 
+  //The followUser function is run whenever the user clicks the Follow button in the UI
+  //For better understanding let's call:
+  //user1: the current logged in user;
+  //user2: the selected user.
+  //It gets the user2's User ID and navigates to their directory in the Database(*)
+  //Then, it fetches all the necessary info for user2 in order to set them as follower/following
+  //An if statement is run to check if user2 is already in the following list of user1
+  //If user2 is already followed, that means the user pretends to unfollow, so the Database removes user2's
+  //id from user1's following list. It also removes user1 from user2's follower list.
+  //If user2 is not already followed, that means the user pretends to follow, so the Database adds user2's
+  //id to user1's following list. It also adds user1 to the user2's follower list.
+  //Refer to firebase.js for better understanding on how the Database is set up.
+  //Everytime this event happens, the text is dynamically changed from 'Follow' to 'Following' and vice versa
+  //using the followText setState Variable.
+  //(*)More info about the database in ./firebase.js
   const followUser = async () => {
     const fetchedUserId = route.params.userId
     let fetchedUsername, fetchedUserProfilePic, fetchedfollowers = null
@@ -299,6 +363,10 @@ const ProfileScreen = ({navigation, route}) => {
     })
   }
 
+  //The updateDatabse function is run whenever the code needs to do any update in the Database(*).
+  //This function is currently only used to update the user's followers/following list
+  //It gets the path of both user1 and user2 using their Id and updates their following/follower list.
+  //(*)More info about the database in ./firebase.js
   const updateDatabase = async (fromUser, path, info, toUser) => {
     const data = info
     const updates = {}
@@ -306,6 +374,9 @@ const ProfileScreen = ({navigation, route}) => {
     update(ref(database), updates)
   }
 
+  //This UI's styles are located in a global styles file (./styles/global.js)
+  //This UI includes an AppLoader that I created (Refer to ./components/AppLoader.js for more info).
+  //This UI is being handled by the DarkTheme (Refer to ./navigation/screens/LoginScreen.js for more info)
   return (
     <SafeAreaView style={{flex:1}}>
       {loading ? <AppLoader/> : null}

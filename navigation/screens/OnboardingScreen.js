@@ -11,7 +11,7 @@ import Onboarding from 'react-native-onboarding-swiper'
 const OnboardingScreen = ({navigation}) => {
     //This UI's styles are located in a global styles file (./styles/global.js)
     return (
-        <Onboarding onSkip={() => navigation.replace('LoginScreen')} onDone={() => navigation.replace('LoginScreen')} pages={[
+        <Onboarding onSkip={() => navigation.replace('LoginScreen')} onDone={() => navigation.replace('Login')} pages={[
             {
                 backgroundColor: '#2986CC',
                 image: <Image style={globalStyles.tinyLogo} source={require('../../assets/icon.png')} />,

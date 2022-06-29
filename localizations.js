@@ -5,6 +5,7 @@ const en = {
     repeatpassword: 'Repeat Password',
     register: 'Register',
     passwordsMatchError: 'Passwords do not match.',
+    usernameErrorAlreadyExists: 'That Username already exists.',
     login: 'Login',
     forgotpassword: 'I Forgot my Password',
     emailVerification: 'Email Verification',
@@ -64,7 +65,7 @@ const en = {
     emailAndPasswordError: 'There was an error changing both your Email and Password.',
     emailError: 'EMAIL ERROR: ',
     passwordError: ' PASSWORD ERROR: ',
-    usernameError: 'Username cannot be empty.',
+    usernameErrorEmpty: 'Username cannot be empty.',
     profileUpdated: 'Profile Updated!',
     profileUpdatedMessage: 'Your Profile was updated successfully!'
 }
@@ -136,7 +137,7 @@ const pt = {
     emailAndPasswordError: 'Houve um erro ao tentar alterar a tua Palavra-Passe e o teu Email.',
     emailError: 'ERRO DO EMAIL: ',
     passwordError: ' ERRO DA PALAVRA-PASSE: ',
-    usernameError: 'O Nome de Utilizador não pode estar vazio.',
+    usernameErrorEmpty: 'O Nome de Utilizador não pode estar vazio.',
     profileUpdated: 'Perfil Atualizado!',
     profileUpdatedMessage: 'O teu Perfil foi atualizado com sucesso!'
 }

@@ -69,17 +69,16 @@ const RegisterScreen = () => {
       setLoading(false)
       Alert.alert(i18n.t('error'), i18n.t('passwordsMatchError'))
     } else {
-      Database.get(usernamesref).then((snapshot) => {
-        snapshot.forEach((childSnapshot) => {
-          if (username === childSnapshot.val()) {
+      let usernamesSnapshot = await Database.get(Database.ref(db)).catch((error) => {
+        Alert.alert(i18n.t('error'), error.message)
+      })
+      usernamesSnapshot.forEach(childsnapshot => {
+        childsnapshot.forEach(value => {
+          if (username == value.child('username').val()) {
             doesUserNameExist = true
           }
         })
-      }).catch(error => {
-        setLoading(false)
-        Alert.alert(i18n.t('error'), error.message)
-    })
-
+      })
       if (doesUserNameExist) {
         setLoading(false)
         Alert.alert(i18n.t('error'), i18n.t('usernameErrorAlreadyExists'))

@@ -182,4 +182,10 @@ export const globalStyles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#ffffff',
     },
+    appLoaderContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.3)',
+        zIndex: 1,
+    }
 })

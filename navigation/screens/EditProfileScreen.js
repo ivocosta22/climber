@@ -36,6 +36,9 @@ import i18n from 'i18n-js'
     i18n.translations = {en, pt}
     i18n.locale = locale
 
+      //This file is using React's useEffect, which means that everything inside this function will be ran as soon as this file loads.
+      //Inside this useEffect I will get the current setting in AsyncStorage for the value of isDarkMode (Which defines if the user is in Dark Mode or not).
+      //AsyncStorage will also get the currentLanguage value to check what language the user has saved (Refer to ./navigation/screens/LoginScreen.js for more info).
       React.useEffect(() => {
         (async () => {
           AsyncStorage.getItem('isDarkMode').then(value => {
@@ -66,6 +69,9 @@ import i18n from 'i18n-js'
         })()
     },[])
 
+    //The pickImage function will check if the user has granted permissions for the App to access the library.
+    //If so, then it will open the library using the Operating System and allow the user to pick an image.
+    //After the user picks an image, I use the setImage(React useState) to set my image for later use in the App.
     const pickImage = async () => {
       if (hasGalleryPermission === false) {
         Alert.alert(i18n.t('error'), i18n.t('permissionsErrorStorage'))
@@ -81,6 +87,12 @@ import i18n from 'i18n-js'
         }
     }
 
+    //The uploadImage function will check if the user is publishing a post with an image, if so, then it will upload the image to the Database(*)
+    //It will first get the image locally buy getting it's path and the proper extension. It will give it a name and then it will add a date/time to it's name.
+    //Afterwards, It will upload the image as a blob to the path provided inside the storage of firebase(*), containing a path with the userid inside the folder 'pictures'.
+    //After the task is done, the code will get the URL of the image that was just uploaded and return it from the function to be used later. 
+    //If for some reason there's an error, the function will return null.
+    //(*)For more info about my database refer to ./firebase.js
     const uploadImage = async () => {
       if (image == null) {
           return null
@@ -106,6 +118,10 @@ import i18n from 'i18n-js'
       }
     }
 
+    //The getAboutme function will connect to the Database(*) and get the current profile bio of the user and set it to the aboutme variable(used by React SetState)
+    //If there's an error during the connection to the database, it will throw an alert.
+    //(Handled by translations(Refer to ./navigation/screens/LoginScreen.js for more info on Translations))
+    //(*)More info about the database in ./firebase.js
     const getAboutme = async () => {
         Database.get(Database.child(Database.ref(database), `users/${auth.currentUser.uid}/`)).then((snapshot) => {
         const json = snapshot.child('useraboutme').toJSON()
@@ -115,6 +131,25 @@ import i18n from 'i18n-js'
         }) 
     }
 
+    //The editProfile function will set the loading state to true(Triggering the AppLoader (./components/AppLoader.js for more info))
+    //This function will run when the user clicks the Update Profile button (./components/FormButton.js) in the UI (line 460)
+    //It will do lots of tasks, but one at a time. I want to remind here that this is an asynchronous function, and that I'm using await in every function
+    //that I'm running, so that every single update to the database(*) runs smoothly.
+    //Firstly, the AppLoader will load(./components/AppLoader.js). 
+    //Then, I will get the result from the editUsername function into the 'didChangeUsername' variable.
+    //Afterwards, 2 more await functions will run, editProfilePicture and editAboutMe
+    //Another 2 variables are going to be declared and will save the result of both editEmail and editPassword.
+    //(All the functions ran here are explained in their respective places throughout the code).
+    //After all the database functions are ran, a switch is ran.
+    //Inside this switch, I will go through all the possible cases of a change in username, email, or password
+    //It's important that this switch runs because it will check if the user made changes in the username, so that the code can check if the user already exists,
+    //if it's empty, or if the email/password were changed.
+    //There's 10 possible cases here, all of them are handled inside the switch and are properly commented.
+    //The username is only handled in case neither the email or password are changed, so for example, if the username is left empty and the password is changed,
+    //the user will be logged out and the username won't be changed.
+    //Everytime the user changes either the email or password, the user will be logged out and required to relog.
+    //In case the user changed their email, they will get an alert to verify their new email and relogin to the app
+    //(*)More info about the database in ./firebase.js
     const editProfile = async () => {
       setLoading(true)
 
@@ -126,6 +161,7 @@ import i18n from 'i18n-js'
 
       switch (true) {
         // Changed both Email and Password successfully
+        // The user gets an alert saying they will need to verify their new email and relogin into the app using their new email/password
         case (didChangeEmail == 'Success' && didChangePassword == 'Success'):
           setLoading(false)
           Alert.alert(i18n.t('accountChanged'), i18n.t('emailAndPasswordChanged'))
@@ -134,6 +170,7 @@ import i18n from 'i18n-js'
           })
           break
         // Changed Email successfully
+        // The user gets an alert saying they will need to verify their new email and relogin into the app using their new email
         case (didChangeEmail == 'Success' && didChangePassword == 'Failed'):
           setLoading(false)
           Alert.alert(i18n.t('accountChanged'), i18n.t('emailChanged'))
@@ -142,6 +179,7 @@ import i18n from 'i18n-js'
           })
           break
         // Changed Password successfully
+        // The user gets an alert saying they will need relogin into the app using their new password
         case (didChangeEmail == 'Failed' && didChangePassword == 'Success'):
           setLoading(false)
           Alert.alert(i18n.t('accountChanged'), i18n.t('passwordChanged'))
@@ -150,16 +188,19 @@ import i18n from 'i18n-js'
           })
           break
         // Error changing Email
+        // The user gets an alert saying there was an error changing the email
         case (didChangeEmail != 'Success' && didChangeEmail != 'Failed' && didChangePassword == 'Failed'):
           setLoading(false)
           Alert.alert(i18n.t('error'), didChangeEmail)
           break
         // Error changing Password
+        // The user gets an alert saying there was an error changing the password
         case (didChangeEmail == 'Failed' && didChangePassword != 'Success' && didChangePassword != 'Failed'):
           setLoading(false)
           Alert.alert(i18n.t('error'), didChangePassword)
           break
         // Error changing Email but Password was changed
+        // The user gets an alert saying there was an error changing the email but the password was changed. They will need to relogin into the app using their new password.
         case (didChangeEmail != 'Success' && didChangeEmail != 'Failed' && didChangePassword == 'Success'):
           setLoading(false)
           Alert.alert(i18n.t('accountChangedError'), i18n.t('passwordChangedEmailError') + didChangeEmail)
@@ -168,6 +209,7 @@ import i18n from 'i18n-js'
           })
           break
         // Error changing Password but Email was changed
+        // The user gets an alert saying there was an error changing the password but the email was changed. They will need to relogin into the app after verifying their new email.
         case (didChangeEmail == 'Success' && didChangePassword != 'Success' && didChangePassword != 'Failed'):
           setLoading(false)
           Alert.alert(i18n.t('accountChangedError'), i18n.t('emailChangedPasswordError') + didChangePassword)
@@ -176,16 +218,26 @@ import i18n from 'i18n-js'
           })
           break
         // Error changing Email and Error changing Password
+        // The user gets an alert saying there was an error changing both the password and email
         case (didChangeEmail != 'Success' && didChangeEmail != 'Failed' && didChangePassword != 'Success' && didChangePassword != 'Failed'):
           setLoading(false)
           Alert.alert(i18n.t('error'), i18n.t('emailAndPasswordError') + i18n.t('emailError') + didChangeEmail + i18n.t('passwordError') + didChangePassword)
           break
         // Didn't change anything
+        // Nothing was changed, so the username will be handled
+        // If the didChangeUsername variable is 'ErrorEmptyUsername', the user will get an error, saying the Username is empty in the TextInput
+        // If the didChangeUsername variable returns 'Failed', that means the username wasn't changed. The user gets an alert saying the profile was updated.
+        // If the didChangeUsername variable returns 'Success', that means the username was successfully changed.
+        // If the didChangeUsername variable returns 'ErrorSameUsername', the user will get an error, saying the Username already exists.
         case (didChangeEmail == 'Failed' && didChangePassword == 'Failed'):
           if (didChangeUsername != 'Failed') {
             if (didChangeUsername == 'ErrorEmptyUsername') {
               setLoading(false)
-              Alert.alert(i18n.t('error'), i18n.t('usernameError'))
+              Alert.alert(i18n.t('error'), i18n.t('usernameErrorEmpty'))
+              break
+            } else if (didChangeUsername == 'ErrorSameUsername') {
+              setLoading(false)
+              Alert.alert(i18n.t('error'), i18n.t('usernameErrorAlreadyExists'))
               break
             } else if (didChangeUsername != 'Error' && didChangeUsername != 'Success') {
               setLoading(false)
@@ -204,6 +256,10 @@ import i18n from 'i18n-js'
       }
     }
 
+    //The updateProfileInfo function will run everytime any update to the Database(*) is handled.
+    //It takes path and info as arguments where path will be used to check what is going to be updated and info
+    //which is the data that will be sent as the update.
+    //(*)More info about the database in ./firebase.js
     const updateProfileInfo = async (path, info) => {
       const data = info
       const updates = {}
@@ -211,11 +267,32 @@ import i18n from 'i18n-js'
       Database.update(Database.ref(database), updates)
     }
 
+    //The editUsername function will run whenever the username is about to be checked for a Database(*) change.
+    //First, the username variable(that is being fetched from the TextInput) will be checked for the null value or if it's the same as
+    //the one the user has currently. If it isn't then it will check if it's empty, as there's a chance the user might type something and then leaving it empty.
+    //If this returns false too, then the database will update the username by first checking if the username already exists, returning an Error if it does,
+    //if not, it will be updating it in the Firebase user parameters, and then in the Database I created(*)
+    //Afterwards, the function will return
+    //(*)More info about the database in ./firebase.js
     const editUsername = async () => {
       if (username != auth.currentUser.displayName && username != null) {
         if (username == '') {
           return 'ErrorEmptyUsername'
         } else {
+          let doesUserNameExist = false
+          let usernamesSnapshot = await Database.get(Database.ref(database)).catch((error) => {
+            return error.message
+          })
+          usernamesSnapshot.forEach(childsnapshot => {
+            childsnapshot.forEach(value => {
+              if (username == value.child('username').val()) {
+                doesUserNameExist = true
+              }
+            })
+          })
+          if (doesUserNameExist) {
+            return 'ErrorSameUsername'
+          }
           await updateProfile(auth.currentUser, {displayName: username}).catch((error) => {
             return error.message
           })
@@ -228,6 +305,11 @@ import i18n from 'i18n-js'
       return 'Failed'
     }
 
+    //The editProfilePicture function will run whenever the profile picture is about to be checked for a Database(*) change.
+    //First, the image variable(that is being fetched from the TextInput) will be checked for the null value inside the uploadImage function. Refer to that function for more info.
+    //It will afterwards check if the imageURL is different. as the one the user has now and if it's different than null. If this is true, it will update it inside the firebase
+    //user parameters and the Database(*)
+    //(*)More info about the database in ./firebase.js
     const editProfilePicture = async () => {
       const imageUrl = await uploadImage()
       if (imageUrl != auth.currentUser.photoURL && imageUrl != null) {
@@ -240,6 +322,9 @@ import i18n from 'i18n-js'
       }
     }
 
+    //The editAboutMe function will run whenever the user's bio is about to be checked for a Database(*) change.
+    //If it's different than null(indicating a change), then it will update the new profile bio in the Database.
+    //(*)More info about the database in ./firebase.js
     const editAboutMe = async () => {
       if (aboutme != null ) {
         await updateProfileInfo('useraboutme', aboutme).catch(error => {
@@ -248,6 +333,14 @@ import i18n from 'i18n-js'
       }
     }
 
+    //The editEmail function will run whenever the user's email is about to be checked for a Database(*) change.
+    //First, the email variable(that is being fetched from the TextInput) will be checked for the null value or if it's the same as
+    //the one the user has currently.
+    //If this returns false, then the database will update the email by reauthing the user with their current email and the password written in the password TextInput
+    //(The user must insert the password as indicated in the TextInput Placeholder).
+    //If an update happens successfully, the function returns 'Success'. It will return an error if it falls into the catch while attempting to update, and it will return
+    //'Failed' if the user ended up not changing the email.
+    //(*)More info about the database in ./firebase.js
     const editEmail = async () => {
       if (email != auth.currentUser.email && email != null) {
         const credentialsforEmail = EmailAuthProvider.credential(auth.currentUser.email, currentpassword)
@@ -262,6 +355,13 @@ import i18n from 'i18n-js'
       return 'Failed'
     }
 
+    //The editPassword function will run whenever the user's password is about to be checked for a Database(*) change.
+    //First, the password variable(that is being fetched from the TextInput) will be checked for the null value or if it's empty.
+    //If this returns false, then the database will update the password by reauthing the user with their current email and the password written in the password TextInput
+    //(The user must insert the password as indicated in the TextInput Placeholder).
+    //If an update happens successfully, the function returns 'Success'. It will return an error if it falls into the catch while attempting to update, and it will return
+    //'Failed' if the user ended up not changing the password.
+    //(*)More info about the database in ./firebase.js
     const editPassword = async () => {
       if (password != '' && password != null) {
         const credentialsforPassword = EmailAuthProvider.credential(auth.currentUser.email, currentpassword)
@@ -277,6 +377,11 @@ import i18n from 'i18n-js'
       return 'Failed'
     }
 
+
+    //This UI is being handled by the DarkTheme (Refer to ./navigation/screens/LoginScreen.js for more info)
+    //When this UI is rendered, the current photoURL of the user, username and email will be fetched from the Database(*)
+    //And will be updated in the UI.
+    //(*)More info about the database in ./firebase.js
     return (
       <View style={theme == 'light' ? [{flex:1, backgroundColor: '#fff'}] : [{flex:1, backgroundColor: '#000'}]}>
       {loading ? <AppLoader/> : null}

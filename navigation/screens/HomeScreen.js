@@ -17,7 +17,6 @@ import i18n from 'i18n-js'
 
 
 export default function HomeScreen({navigation}) {
-  //TODO: Comment code
   //TODO: Check onboarding screen translation and test it. I saw an error
   //TODO: Test APP for bugs, do Report, Prepare PowerPoint, do test presentation
     const app = initializeApp(firebaseConfig)

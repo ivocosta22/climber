@@ -1,22 +1,16 @@
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
+import { globalStyles } from './../styles/global'
 import LottieView from 'lottie-react-native'
 
+//This is an Apploader that will run every time I use the setLoading/setUploading states to true in the app code
+//It will show as a loading circle that fills the middle screen of the app and prevents the user from interacting until the code has done it's tasks.
 const AppLoader = () => {
     return (
-        <View style={[StyleSheet.absoluteFillObject, styles.container]}>
+        <View style={[StyleSheet.absoluteFillObject, globalStyles.appLoaderContainer]}>
             <LottieView source={require('../assets/loader.json')} autoPlay loop />
         </View>
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0,0,0,0.3)',
-        zIndex: 1,
-    }
-})
 
 export default AppLoader

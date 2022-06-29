@@ -2,6 +2,10 @@ import React from 'react'
 import { View, Animated } from 'react-native'
 import { globalStyles } from './../styles/global'
 
+//This file represents the placeholder image that will be loaded in the PostCard.js | HomeScreen.js files.
+//This is mainly used to handle slow internet connections or if my database is having low response speeds.
+//For more info about my database refer to ./firebase.js
+//As soon as the real post image loads, the placeholder image will dissapear and the real image is shown.
 class ProgressiveImage extends React.Component {
 
     defaultImageAnimated = new Animated.Value(0)

@@ -13,7 +13,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 const Messages = [
     {
         id: '1',
-        userName: 'Jenny Doe',
+        userName: 'John Doe',
         userImg: require('../../assets/users/user3.png'),
         messageTime: '4 mins ago',
         messageTimePT: 'há 4 minutos',
@@ -21,7 +21,7 @@ const Messages = [
     },
     {
         id: '2',
-        userName: 'John Doe',
+        userName: 'Jenny Doe',
         userImg: require('../../assets/users/user1.png'),
         messageTime: '2 hours ago',
         messageTimePT: 'há 2 horas',
@@ -29,7 +29,7 @@ const Messages = [
     },
     {
         id: '3',
-        userName: 'Ken William',
+        userName: 'Kenna Williams',
         userImg: require('../../assets/users/user4.png'),
         messageTime: '1 hour ago',
         messageTimePT: 'há 1 hora',

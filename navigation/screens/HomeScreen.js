@@ -17,11 +17,6 @@ import i18n from 'i18n-js'
 
 
 export default function HomeScreen({navigation}) {
-  //Current Tasks to do:
-  //TODO: comment firebase.js explain how the database works and every function/method used
-  //TODO: add images of how the Database works inside the Project and refer to them in firebase.js
-  //TODO: Test APP for bugs, do Report, Prepare PowerPoint, do test presentation
-  
   //TODO: Shorten code by putting Database functions inside a file, get rid of repeating functions.
     const app = initializeApp(firebaseConfig)
     const db = getFirestore(app)

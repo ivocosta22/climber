@@ -279,9 +279,10 @@ import i18n from 'i18n-js'
         if (username == '') {
           return 'ErrorEmptyUsername'
         } else {
+          let isError = ''
           let doesUserNameExist = false
           let usernamesSnapshot = await Database.get(Database.ref(database)).catch((error) => {
-            return error.message
+            isError = error.message
           })
           usernamesSnapshot.forEach(childsnapshot => {
             childsnapshot.forEach(value => {
@@ -294,12 +295,16 @@ import i18n from 'i18n-js'
             return 'ErrorSameUsername'
           }
           await updateProfile(auth.currentUser, {displayName: username}).catch((error) => {
-            return error.message
+            isError = error.message
           })
           await updateProfileInfo('username', username).catch((error) => {
-            return error.message
+            isError = error.message
           })
-          return 'Success'
+          if (isError != '') {
+            return isError
+          } else {
+            return 'Success'
+          }
         }
       }
       return 'Failed'
@@ -343,14 +348,20 @@ import i18n from 'i18n-js'
     //(*)More info about the database in ./firebase.js
     const editEmail = async () => {
       if (email != auth.currentUser.email && email != null) {
+        console.log('inside email function')
         const credentialsforEmail = EmailAuthProvider.credential(auth.currentUser.email, currentpassword)
+        let isError = ''
         await reauthenticateWithCredential(auth.currentUser, credentialsforEmail).catch((error) => {
-          return error.message
+          isError = error.message
         })
         await verifyBeforeUpdateEmail(auth.currentUser, email).catch((error) => {
-          return error.message
+          isError = error.message
         })
-        return 'Success'
+        if (isError != '') {
+          return isError
+        } else {
+          return 'Success'
+        }
       }
       return 'Failed'
     }
@@ -365,14 +376,18 @@ import i18n from 'i18n-js'
     const editPassword = async () => {
       if (password != '' && password != null) {
         const credentialsforPassword = EmailAuthProvider.credential(auth.currentUser.email, currentpassword)
-
+        let isError = ''
         await reauthenticateWithCredential(auth.currentUser, credentialsforPassword).catch((error) => {
-          return error.message
+          isError = error.message
         })
         await updatePassword(auth.currentUser, password).catch((error) => {
-          return error.message
+          isError = error.message
         })
-        return 'Success'
+        if (isError != '') {
+          return isError
+        } else {
+          return 'Success'
+        }
       }
       return 'Failed'
     }

@@ -36,7 +36,8 @@
         "backgroundColor": "#FFFFFF"
       },
       "softwareKeyboardLayoutMode": "pan",
-      "package": "com.ivocosta.climber"
+      "package": "com.ivocosta.climber",
+      "permissions": ["CAMERA", "READ_EXTERNAL_STORAGE"]
     },
     "web": {
       "favicon": "./assets/favicon.png"

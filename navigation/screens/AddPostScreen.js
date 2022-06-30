@@ -40,35 +40,40 @@ const AddPostScreen = () => {
     //Inside this useEffect I will get the current setting in AsyncStorage for the value of isDarkMode (Which defines if the user is in Dark Mode or not).
     //AsyncStorage will also get the currentLanguage value to check what language the user has saved (Refer to ./navigation/screens/LoginScreen.js for more info).
     React.useEffect(() => {
-        AsyncStorage.getItem('isDarkMode').then(value => {
-            if (value == null) {
-              AsyncStorage.setItem('isDarkMode', 'light')
-              setTheme('light')
-            } else if (value == 'light') {
-              setTheme('light')
-            } else if (value == 'dark') {
-              setTheme('dark')
-            }
-        })
-        AsyncStorage.getItem('currentLanguage').then(value => {
-            if (value == null) {
-              AsyncStorage.setItem('currentLanguage', 'en')
-              setLocale('en')
-            } else if (value == 'en') {
-              setLocale('en')
-            } else if (value == 'pt') {
-              setLocale('pt')
-            }
-          })
+        (async () => {
+            AsyncStorage.getItem('isDarkMode').then(value => {
+              if (value == null) {
+                AsyncStorage.setItem('isDarkMode', 'light')
+                setTheme('light')
+              } else if (value == 'light') {
+                setTheme('light')
+              } else if (value == 'dark') {
+                setTheme('dark')
+              }
+            })
+  
+            AsyncStorage.getItem('currentLanguage').then(value => {
+              if (value == null) {
+                AsyncStorage.setItem('currentLanguage', 'en')
+                setLocale('en')
+              } else if (value == 'en') {
+                setLocale('en')
+              } else if (value == 'pt') {
+                setLocale('pt')
+              }
+            })
+            
+              const cameraPermission = await ImagePicker.requestCameraPermissionsAsync()
+              setHasCameraPermission(cameraPermission.status === 'granted')
+              const galleryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync()
+              setHasGalleryPermission(galleryStatus.status === 'granted')
+          })()
     },[])
 
     //The pickImage function will check if the user has granted permissions for the App to access the library.
     //If so, then it will open the library using the Operating System and allow the user to pick an image.
     //After the user picks an image, I use the setImage(React useState) to set my image for later use in the App.
     const pickImage = async () => {
-        const galleryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync()
-        setHasGalleryPermission(galleryStatus.status === 'granted')
-
         if (hasGalleryPermission === false) {
             Alert.alert(i18n.t('error'), i18n.t('permissionsErrorStorage'))
         } else {
@@ -88,9 +93,6 @@ const AddPostScreen = () => {
     //If so, then it will open the camera using the Operating System and allow the user to take a picture.
     //After the user takes a picture, I use the setImage(React useState) to set my image for later use in the App.
     const useCamera = async () => {
-        const cameraPermission = await ImagePicker.requestCameraPermissionsAsync()
-        setHasCameraPermission(cameraPermission.status === 'granted')
-
         if (hasCameraPermission === false) {
             Alert.alert(i18n.t('error'), i18n.t('permissionsErrorCamera'))
         } else {

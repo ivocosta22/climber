@@ -76,7 +76,7 @@ const pt = {
     email: 'Email',
     password: 'Palavra-Passe',
     repeatpassword: 'Repetir Palavra-Passe',
-    register: 'Registrar',
+    register: 'Registar',
     passwordsMatchError: 'As Palavras-Passe não coincidem.',
     usernameErrorAlreadyExists: 'O Nome de Utilizador já existe.',
     login: 'Entrar',

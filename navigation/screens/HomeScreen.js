@@ -18,6 +18,7 @@ import i18n from 'i18n-js'
 
 export default function HomeScreen({navigation}) {
   //TODO: Shorten code by putting Database functions inside a file, get rid of repeating functions.
+  //TODO: Add ability to click on user's followers and show list of followers
     const app = initializeApp(firebaseConfig)
     const db = getFirestore(app)
     const storage = getStorage(app)

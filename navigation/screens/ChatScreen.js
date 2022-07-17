@@ -9,7 +9,7 @@ import 'dayjs/locale/pt'
 
 //This Screen has not been finished, however I will show the logic of what I have here so far.
 //Inside this Screen, I'm mainly using the 3rd party library 'GiftedChat' from react-native.
-const ChatScreen = () => {
+const ChatScreen = ({route}) => {
 
     const [messages, setMessages] = React.useState([])
     let [locale, setLocale] = React.useState('en')
@@ -37,12 +37,12 @@ const ChatScreen = () => {
             setMessages([
                 {
                     _id: 1,
-                    text: 'Hello! How are you?',
+                    text: route.params.messageText,
                     createdAt: new Date(),
                     user: {
                         _id: 2,
-                        name: 'React Native',
-                        avatar: 'https://placeimg.com/140/140/any'
+                        name: route.params.userName,
+                        avatar: route.params.profilePic
                     }
                 },
             ])

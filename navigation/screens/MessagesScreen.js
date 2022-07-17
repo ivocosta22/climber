@@ -17,39 +17,39 @@ const Messages = [
         userImg: require('../../assets/users/user3.png'),
         messageTime: '4 mins ago',
         messageTimePT: 'há 4 minutos',
-        messageText: 'Hey there, this is my test for a post of my social app in React Native.',
+        messageText: 'Hello!',
     },
     {
         id: '2',
-        userName: 'Jenny Doe',
+        userName: 'Mary Doe',
         userImg: require('../../assets/users/user1.png'),
         messageTime: '2 hours ago',
         messageTimePT: 'há 2 horas',
-        messageText: 'Hey there, this is my test for a post of my social app in React Native.',
+        messageText: 'Last time we did it, it did not turn out well...',
     },
     {
         id: '3',
-        userName: 'Kenna Williams',
+        userName: 'Joana Silva',
         userImg: require('../../assets/users/user4.png'),
         messageTime: '1 hour ago',
         messageTimePT: 'há 1 hora',
-        messageText: 'Hey there, this is my test for a post of my social app in React Native.',
+        messageText: 'yo 😉',
     },
     {
         id: '4',
-        userName: 'Selina Paul',
+        userName: 'Mariana Neves',
         userImg: require('../../assets/users/user6.png'),
         messageTime: '1 day ago',
         messageTimePT: 'há 1 dia',
-        messageText: 'Hey there, this is my test for a post of my social app in React Native.',
+        messageText: 'Boas amigo. Chumbei em calculo financeiro. Ajuda-me.',
     },
     {
         id: '5',
-        userName: 'Christy Alex',
+        userName: 'Felicia Lengyel',
         userImg: require('../../assets/users/user7.png'),
         messageTime: '2 days ago',
         messageTimePT: 'há 2 dias',
-        messageText: 'Hey there, this is my test for a post of my social app in React Native.',
+        messageText: 'Hey there.',
     },
 ]
 
@@ -94,7 +94,7 @@ const MessagesScreen = ({navigation}) => {
         <>{theme == 'light' ?
             <Container>
                 <FlatList data={Messages} keyExtractor={item=>item.id} renderItem={({item}) => (
-                    <Card onPress={() => navigation.navigate('Chat', {userName: item.userName})}>
+                    <Card onPress={() => navigation.navigate('Chat', {userName: item.userName, profilePic: item.userImg})}>
                         <UserInfo>
                             <UserImgWrapper>
                                 <UserImg source={item.userImg}/>
@@ -113,7 +113,7 @@ const MessagesScreen = ({navigation}) => {
             : 
             <ContainerDark>
                 <FlatList data={Messages} keyExtractor={item=>item.id} renderItem={({item}) => (
-                    <Card onPress={() => navigation.navigate('Chat', {userName: item.userName})}>
+                    <Card onPress={() => navigation.navigate('Chat', {userName: item.userName, profilePic: item.userImg, messageText: item.messageText})}>
                         <UserInfo>
                             <UserImgWrapper>
                                 <UserImg source={item.userImg}/>

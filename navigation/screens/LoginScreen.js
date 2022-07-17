@@ -222,11 +222,11 @@ const LoginScreen = () => {
             <View style={globalStyles.inputContainer}>
             {theme == "light" ?
             <>
-              <TextInput placeholder={i18n.t('email')} value={email} selectionColor='#0782F9' activeUnderlineColor='#0782F9' onChangeText={text => setEmail(text)} style={[globalStyles.input, {backgroundColor: 'white'}]} ref={emailTextInput} />
+              <TextInput placeholder={i18n.t('email')} value={email} keyboardType='email-address' selectionColor='#0782F9' activeUnderlineColor='#0782F9' onChangeText={text => setEmail(text)} style={[globalStyles.input, {backgroundColor: 'white'}]} ref={emailTextInput} />
               <TextInput placeholder={i18n.t('password')} value={password} selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setPassword(text)} style={[globalStyles.input, {backgroundColor: 'white'}]} ref={passwordTextInput} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}/>
             </>: 
             <>
-              <TextInput placeholder={i18n.t('email')} theme={{colors: {text: 'white'}}} value={email} placeholderTextColor='#fff' selectionColor='#0782F9' activeUnderlineColor='#0782F9' onChangeText={text => setEmail(text)} style={[globalStyles.input, {backgroundColor: 'black'}]} ref={emailTextInput} />
+              <TextInput placeholder={i18n.t('email')} theme={{colors: {text: 'white'}}} value={email} keyboardType='email-address' placeholderTextColor='#fff' selectionColor='#0782F9' activeUnderlineColor='#0782F9' onChangeText={text => setEmail(text)} style={[globalStyles.input, {backgroundColor: 'black'}]} ref={emailTextInput} />
               <TextInput placeholder={i18n.t('password')} theme={{colors: {text: 'white'}}} value={password} placeholderTextColor='#fff' selectionColor='#0782F9' activeUnderlineColor='#0782F9' autoCorrect={false} onChangeText={text => setPassword(text)} style={[globalStyles.input, {backgroundColor: 'black'}]} ref={passwordTextInput} secureTextEntry={passwordVisible} right={<TextInput.Icon name={passwordVisible ? "eye" : "eye-off"} color={'white'} onPress={() => setPasswordVisible(!passwordVisible)} />}/>
             </>}
             </View>

@@ -21,7 +21,7 @@ const Tab = createBottomTabNavigator()
 //This file might look confusing at first, but this whole file is mostly the navigation flow of my App, mainly from my Bottom Navigation Drawer
 
 //FeedStack, MessagesStack and ProfileStack have the screens/nested screens that are on each bottom drawer navigation item.
-//They are not simple functions, they are component functions that are used below (Lines ???, ??? and ???) to make the Navigation Drawer work.
+//They are not simple functions, they are component functions that are used below (Lines 199, 206 and 213) to make the Navigation Drawer work.
 //They all have a title, properties, onPress events.
 //This allows for example to make the AddPostScreen work (When the user clicks on the + button on the top right of the screen in the HomeScreen.js)
 //Another examples are when the user clicks on another user's profile in the HomeScreen.js, or when they click on the Comment Button.

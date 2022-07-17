@@ -94,7 +94,7 @@ const MessagesScreen = ({navigation}) => {
         <>{theme == 'light' ?
             <Container>
                 <FlatList data={Messages} keyExtractor={item=>item.id} renderItem={({item}) => (
-                    <Card onPress={() => navigation.navigate('Chat', {userName: item.userName, profilePic: item.userImg})}>
+                    <Card onPress={() => navigation.navigate('Chat', {userName: item.userName, profilePic: item.userImg, messageText: item.messageText})}>
                         <UserInfo>
                             <UserImgWrapper>
                                 <UserImg source={item.userImg}/>

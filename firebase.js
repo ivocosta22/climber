@@ -70,15 +70,13 @@
 //Give it a name and press register
 //Firebase will then give you the config for you to insert here.
 //Check firebaseConfig.png in ./images directory for better understanding
-//For now, I will leave my own config here, this will be removed in the future to preserve the secutiry of my
-//API key. Thank you.
 export const firebaseConfig = {
-  apiKey: "AIzaSyDSFjmtdZ0KFpUZSuu_97vGcX9ajfHD6aQ",
-  authDomain: "climber-3b27e.firebaseapp.com",
-  projectId: "climber-3b27e",
-  storageBucket: "climber-3b27e.appspot.com",
-  messagingSenderId: "806149464222",
-  appId: "1:806149464222:web:94711ec5f362239b035b8f",
-  measurementId: "G-WT2V921ZQV",
-  databaseURL: "https://climber-3b27e-default-rtdb.europe-west1.firebasedatabase.app"
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: "",
+  measurementId: "",
+  databaseURL: ""
 }
